@@ -429,6 +429,7 @@ def train(args: argparse.Namespace) -> None:
             causal_window=args.causal_window,
             csp_internal_residual=args.csp_internal_residual,
             aux_loss_weight=args.aux_loss_weight,
+            sparse_moe=args.sparse_moe,
         )
         validate_srn_config(config, args.seq_len)
         model = SRNModel(config).to(device)
@@ -833,6 +834,8 @@ def parse_args() -> argparse.Namespace:
         default=default_config.csp_internal_residual,
     )
     parser.add_argument("--aux_loss_weight", type=float, default=default_config.aux_loss_weight)
+    parser.add_argument("--sparse_moe", action="store_true", default=False,
+                        help="Use sparse MoE path (group-by-expert) instead of dense")
 
     args = parser.parse_args()
     return _apply_config_overrides(parser, args)

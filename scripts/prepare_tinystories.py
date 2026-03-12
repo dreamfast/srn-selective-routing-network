@@ -1,10 +1,25 @@
 """Prepare TinyStories token shards and manifest for training.
 
+Supports three tokenizer modes:
+  --pretrained gpt2       Load a pretrained tokenizer from HuggingFace Hub
+  --tokenizer_path X.json Load a previously saved tokenizer JSON file
+  (default)               Train a new BPE tokenizer from the dataset
+
 Outputs:
 - train_tokens.bin (int32)
 - val_tokens.bin (int32)
-- tokenizer.json
-- manifest.json
+- tokenizer.json (saved copy of the tokenizer)
+- manifest.json (dataset metadata + checksums)
+
+Usage:
+    # GPT-2 tokenizer (recommended for 150M experiments)
+    python scripts/prepare_tinystories.py --pretrained gpt2
+
+    # Train custom BPE from scratch
+    python scripts/prepare_tinystories.py --vocab_size 32000
+
+    # Quick test with fewer stories
+    python scripts/prepare_tinystories.py --pretrained gpt2 --max_stories 10000
 """
 
 from __future__ import annotations
@@ -12,10 +27,16 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 from datasets import load_dataset
+
+# Allow imports from project root
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from data import BPETokenizer, SPECIAL_TOKENS
 
@@ -31,10 +52,18 @@ def _sha256(path: Path) -> str:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Prepare TinyStories memmap shards")
     parser.add_argument("--output_dir", type=str, default="data/tinystories")
-    parser.add_argument("--tokenizer_path", type=str, default="data/tinystories/tokenizer.json")
+    parser.add_argument(
+        "--pretrained", type=str, default=None,
+        help="HuggingFace model ID for pretrained tokenizer (e.g. 'gpt2')",
+    )
+    parser.add_argument("--tokenizer_path", type=str, default=None)
     parser.add_argument("--vocab_size", type=int, default=32000)
     parser.add_argument("--train_ratio", type=float, default=0.9)
     parser.add_argument("--max_stories", type=int, default=None)
+    parser.add_argument(
+        "--eos_token", type=str, default=None,
+        help="EOS token string (auto-detected for pretrained tokenizers)",
+    )
     return parser.parse_args()
 
 
@@ -52,30 +81,63 @@ def main() -> None:
     if len(texts) == 0:
         raise ValueError("TinyStories dataset is empty")
 
-    tokenizer_path = Path(args.tokenizer_path)
-    if tokenizer_path.exists():
+    # --- Load or train tokenizer ---
+    tokenizer_save_path = output_dir / "tokenizer.json"
+
+    if args.pretrained is not None:
+        print(f"Loading pretrained tokenizer: {args.pretrained}")
+        tokenizer = BPETokenizer.from_pretrained(args.pretrained)
+        tokenizer.save(str(tokenizer_save_path))
+        print(f"  Saved local copy -> {tokenizer_save_path}")
+    elif args.tokenizer_path is not None:
+        tokenizer_path = Path(args.tokenizer_path)
+        if not tokenizer_path.exists():
+            raise FileNotFoundError(f"Tokenizer not found: {tokenizer_path}")
         print(f"Loading existing tokenizer: {tokenizer_path}")
         tokenizer = BPETokenizer.from_file(str(tokenizer_path))
     else:
-        print("Training BPE tokenizer...")
+        print(f"Training BPE tokenizer (vocab_size={args.vocab_size})...")
         tokenizer = BPETokenizer.train_from_iterator(
             texts,
             vocab_size=args.vocab_size,
             special_tokens=SPECIAL_TOKENS,
         )
-        tokenizer_path.parent.mkdir(parents=True, exist_ok=True)
-        tokenizer.save(str(tokenizer_path))
+        tokenizer.save(str(tokenizer_save_path))
 
-    eos_id = tokenizer.token_to_id("<eos>")
-    if eos_id is None:
-        raise ValueError("Tokenizer is missing <eos> token")
+    print(f"  Vocab size: {tokenizer.vocab_size:,}")
 
+    # --- Resolve EOS token ---
+    eos_id = None
+    if args.eos_token is not None:
+        eos_id = tokenizer.token_to_id(args.eos_token)
+        if eos_id is None:
+            raise ValueError(f"EOS token {args.eos_token!r} not found in tokenizer")
+        eos_token = args.eos_token
+    else:
+        # Auto-detect: try common EOS tokens
+        for candidate in ["<|endoftext|>", "<eos>", "</s>"]:
+            eos_id = tokenizer.token_to_id(candidate)
+            if eos_id is not None:
+                eos_token = candidate
+                break
+        if eos_id is None:
+            raise ValueError(
+                "Could not auto-detect EOS token. "
+                "Use --eos_token to specify one. "
+                f"Tried: <|endoftext|>, <eos>, </s>"
+            )
+
+    print(f"  EOS token: {eos_token!r} (id={eos_id})")
+
+    # --- Tokenize stories ---
     print("Tokenizing stories...")
     all_ids: list[int] = []
-    for text in texts:
+    for i, text in enumerate(texts):
         ids = tokenizer.encode(text)
         all_ids.extend(ids)
         all_ids.append(eos_id)
+        if (i + 1) % 100_000 == 0:
+            print(f"  {i + 1:,}/{len(texts):,} stories tokenized...")
 
     token_array = np.array(all_ids, dtype=np.int32)
     split_idx = int(len(token_array) * args.train_ratio)
@@ -92,9 +154,11 @@ def main() -> None:
         "dataset": "TinyStories",
         "stories": len(texts),
         "vocab_size": tokenizer.vocab_size,
-        "special_tokens": SPECIAL_TOKENS,
+        "eos_token": eos_token,
+        "eos_id": eos_id,
+        "pretrained": args.pretrained,
         "train_ratio": args.train_ratio,
-        "tokenizer_path": str(tokenizer_path),
+        "tokenizer_path": str(tokenizer_save_path),
         "tokenizer_hash": hashlib.sha256(tokenizer_serialized.encode("utf-8")).hexdigest(),
         "train_tokens": int(train_tokens.size),
         "val_tokens": int(val_tokens.size),
@@ -105,9 +169,10 @@ def main() -> None:
     manifest_path = output_dir / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
-    print(f"Wrote {train_tokens.size:,} train tokens -> {train_path}")
-    print(f"Wrote {val_tokens.size:,} val tokens -> {val_path}")
-    print(f"Manifest -> {manifest_path}")
+    print(f"\nDone!")
+    print(f"  {train_tokens.size:,} train tokens -> {train_path}")
+    print(f"  {val_tokens.size:,} val tokens -> {val_path}")
+    print(f"  Manifest -> {manifest_path}")
 
 
 if __name__ == "__main__":

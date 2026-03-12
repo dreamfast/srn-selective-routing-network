@@ -1,8 +1,8 @@
 # SRN: Selective Routing Network
 
-A novel neural network architecture that replaces Transformer self-attention with dynamic sparse routing to learned memory slots. Designed to enable large model capacity on consumer GPUs (6GB VRAM).
+A neural network architecture that replaces Transformer self-attention with dynamic sparse routing to learned memory slots. Designed to enable large model capacity on consumer GPUs (6GB VRAM).
 
-**Key innovation: Windowed Causal Score Gating (WCSG)** — a new mechanism that provides causal, position-dependent routing with O(1) extra memory overhead, instead of the O(n²) attention matrix.
+**Key approach: Windowed Causal Score Gating (WCSG)** — a score-side gating mechanism for causal, position-dependent routing with O(1) extra memory overhead, instead of the O(n²) attention matrix.
 
 ## Table of Contents
 
@@ -79,7 +79,7 @@ Replaces the dense FFN. Multiple small expert networks (8 total) with a lightwei
 
 ## Windowed Causal Score Gating (WCSG)
 
-WCSG is the key architectural innovation in SRN. It solves a fundamental problem: **how do you make slot-based routing causal (so position t can't see future tokens) without blowing up memory?**
+WCSG is a core mechanism in SRN. It addresses a practical problem: **how do you make slot-based routing causal (so position t can't see future tokens) without blowing up memory?**
 
 ### The Problem
 
@@ -141,13 +141,16 @@ This is an **intentional capacity-for-efficiency trade-off.** Full per-position 
 
 ### Related Work
 
-No published architecture uses windowed causal score gating for slot-based routing. The closest related work:
+This project sits in an active research area: routing tokens to memory-like structures with gating. The claim here is not that the overall idea is unprecedented, but that WCSG takes a different mechanism within that design space.
 
+- **GSA** (gated slot attention variants) — closest in spirit, but primarily gates memory writes/forgetting; WCSG gates read-side routing scores using local causal context
+- **DeepSeek Engram** — hash-based memory lookup with context-aware control; related direction, but not learned slot routing via score modulation
+- **Memory layer / external memory papers** — broadly related to token-memory interaction, but with different routing and gating specifics
 - **Slot Attention** (Locatello et al., 2020) — iterative slot refinement, but not causal and not for autoregressive LMs
 - **Switch Transformer** (Fedus et al., 2022) — sparse MoE routing, but routes to experts not memory slots, and uses no causal gating
 - **Routing Transformers** (Roy et al., 2021) — learned routing for attention, but still O(n²) within clusters
 
-WCSG is distinct: it provides causal, position-dependent routing to global memory slots with O(1) extra memory overhead.
+WCSG's contribution is a practical read-side alternative: causal, position-dependent score modulation for global memory-slot routing with O(1) extra memory overhead.
 
 ## Results
 

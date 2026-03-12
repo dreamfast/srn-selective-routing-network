@@ -112,6 +112,19 @@ class BPETokenizer:
         return cls(tokenizer, tokenizer_path=path)
 
     @classmethod
+    def from_pretrained(cls, identifier: str) -> "BPETokenizer":
+        """Load a pretrained tokenizer from HuggingFace Hub.
+
+        Args:
+            identifier: HuggingFace model identifier (e.g. "gpt2")
+
+        Returns:
+            BPETokenizer wrapping the pretrained tokenizer
+        """
+        tokenizer = Tokenizer.from_pretrained(identifier)
+        return cls(tokenizer, tokenizer_path=identifier)
+
+    @classmethod
     def from_serialized(cls, serialized: str) -> "BPETokenizer":
         tokenizer = Tokenizer.from_str(serialized)
         return cls(tokenizer)
