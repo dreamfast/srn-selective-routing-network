@@ -4,12 +4,14 @@ Training loop for the SRN (Selective Routing Network) language model.
 Features:
 - AdamW optimizer with parameter groups (no weight decay on biases/LN/embeddings)
 - Cosine annealing with linear warmup
-- Mixed precision training (autocast + GradScaler)
+- Mixed precision training (autocast + GradScaler) with fp16/bf16 precision modes
+- torch.compile() support via --compile flag
 - Gradient accumulation for effective batch size > micro batch
 - Gradient clipping (max_norm=1.0)
 - MoE load balancing auxiliary loss
-- Expert utilization monitoring
-- Checkpoint save/resume with optimizer and scheduler state
+- Expert utilization monitoring with per-step telemetry
+- Rich logging: perplexity, grad norm, tokens/sec, peak VRAM, expert utilization
+- Checkpoint save/resume with optimizer, scheduler, and full RNG state
 - Sample text generation during evaluation
 - Peak VRAM profiling
 
@@ -18,11 +20,14 @@ Usage:
     python train.py --max_steps 1000         # Quick test
     python train.py --resume                 # Resume from latest checkpoint
     python train.py --micro_batch 8          # Reduce batch for less VRAM
+    python train.py --compile                # Enable torch.compile()
+    python train.py --precision bf16         # Use bfloat16 (with auto-fallback)
 """
 
 import argparse
 import math
 import time
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +38,51 @@ from omegaconf import OmegaConf
 
 from data import BPETokenizer, CharTokenizer, get_dataloaders, get_memmap_dataloaders
 from srn_model import SRNConfig, SRNModel
+
+
+# ============================================================================
+# Precision Resolution
+# ============================================================================
+
+
+def resolve_precision(requested: str) -> torch.dtype:
+    """Resolve the requested precision string to a torch dtype.
+
+    If bf16 is requested but not supported by the current GPU, falls back
+    to fp16 with a warning. This prevents silent failures on older hardware
+    (e.g. RTX 2060 does not support bf16).
+
+    Args:
+        requested: one of "fp16", "bf16"
+
+    Returns:
+        torch.float16 or torch.bfloat16
+    """
+    if requested == "fp16":
+        return torch.float16
+
+    if requested == "bf16":
+        if torch.cuda.is_available() and torch.cuda.is_bf16_supported():
+            return torch.bfloat16
+        else:
+            warnings.warn(
+                "bf16 requested but not supported on this GPU. "
+                "Falling back to fp16.",
+                stacklevel=2,
+            )
+            return torch.float16
+
+    raise ValueError(f"Unknown precision mode: {requested!r}. Use 'fp16' or 'bf16'.")
+
+
+def _get_raw_model(model: torch.nn.Module) -> torch.nn.Module:
+    """Unwrap a torch.compile() wrapper to get the raw model.
+
+    torch.compile() wraps the model in an OptimizedModule with the original
+    stored as `_orig_mod`. This helper safely unwraps it for operations that
+    need the raw module (checkpointing, expert utilization, generation).
+    """
+    return model._orig_mod if hasattr(model, "_orig_mod") else model
 
 
 # ============================================================================
@@ -164,7 +214,13 @@ def get_expert_utilization(model: SRNModel, x: torch.Tensor) -> dict:
 
 
 @torch.no_grad()
-def evaluate(model: SRNModel, val_loader, device: torch.device, max_batches: int = 20) -> float:
+def evaluate(
+    model: SRNModel,
+    val_loader,
+    device: torch.device,
+    max_batches: int = 20,
+    precision_dtype: torch.dtype = torch.float16,
+) -> float:
     """Compute average validation loss.
 
     Args:
@@ -172,6 +228,7 @@ def evaluate(model: SRNModel, val_loader, device: torch.device, max_batches: int
         val_loader: validation DataLoader
         device: torch device
         max_batches: maximum number of batches to evaluate
+        precision_dtype: autocast dtype (torch.float16 or torch.bfloat16)
 
     Returns:
         average cross-entropy loss on validation set
@@ -186,7 +243,7 @@ def evaluate(model: SRNModel, val_loader, device: torch.device, max_batches: int
 
         x, y = x.to(device), y.to(device)
 
-        with torch.amp.autocast("cuda", dtype=torch.float16):
+        with torch.amp.autocast("cuda", dtype=precision_dtype):
             logits, _ = model(x)
 
         # Loss in fp32
@@ -289,6 +346,15 @@ def train(args: argparse.Namespace) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}")
 
+    # Resolve precision mode
+    precision_dtype = resolve_precision(args.precision)
+    precision_label = "bf16" if precision_dtype == torch.bfloat16 else "fp16"
+    print(f"Precision: {precision_label}")
+
+    # GradScaler is only needed for fp16; bf16 does not require loss scaling
+    use_scaler = precision_dtype == torch.float16
+    scaler = torch.amp.GradScaler("cuda", enabled=use_scaler)
+
     # Reproducibility
     torch.manual_seed(args.seed)
     if torch.cuda.is_available():
@@ -349,6 +415,12 @@ def train(args: argparse.Namespace) -> None:
     active_params = model.count_active_params()
     print(f"\nModel: {total_params:,} params ({active_params:,} active/token, {active_params/total_params:.1%})")
 
+    # ---- torch.compile() ----
+    if args.compile:
+        print("Compiling model with torch.compile()...")
+        model = torch.compile(model)
+        print("Model compiled successfully.")
+
     # ---- Optimizer ----
     param_groups = get_param_groups(model, args.weight_decay)
     optimizer = torch.optim.AdamW(
@@ -357,9 +429,6 @@ def train(args: argparse.Namespace) -> None:
         betas=(0.9, 0.95),
         eps=1e-8,
     )
-
-    # ---- Mixed precision ----
-    scaler = torch.amp.GradScaler("cuda")
 
     # ---- Resume ----
     start_step = 0
@@ -374,27 +443,58 @@ def train(args: argparse.Namespace) -> None:
             # weights_only=False needed to deserialize SRNConfig dataclass
             # Only load checkpoints you created — not untrusted files
             ckpt = torch.load(latest_path, map_location=device, weights_only=False)
-            model.load_state_dict(ckpt["model"])
+            # For compiled models, load into the underlying module
+            _get_raw_model(model).load_state_dict(ckpt["model"])
             optimizer.load_state_dict(ckpt["optimizer"])
             scaler.load_state_dict(ckpt["scaler"])
             start_step = ckpt["step"] + 1
             best_val_loss = ckpt["best_val_loss"]
+
+            # Validate checkpoint metadata matches current settings
+            ckpt_precision = ckpt.get("precision")
+            if ckpt_precision is not None and ckpt_precision != precision_label:
+                warnings.warn(
+                    f"Checkpoint was saved with precision={ckpt_precision!r} but "
+                    f"current run uses precision={precision_label!r}. "
+                    "Training dynamics may differ.",
+                    stacklevel=1,
+                )
+            ckpt_compiled = ckpt.get("compiled")
+            if ckpt_compiled is not None and ckpt_compiled != args.compile:
+                warnings.warn(
+                    f"Checkpoint was saved with compiled={ckpt_compiled} but "
+                    f"current run uses --compile={args.compile}. "
+                    "Model state is compatible but performance may differ.",
+                    stacklevel=1,
+                )
+
             # Restore RNG state for reproducibility
             if "rng_state" in ckpt:
                 torch.set_rng_state(ckpt["rng_state"])
-                if torch.cuda.is_available() and "cuda_rng_state" in ckpt:
-                    torch.cuda.set_rng_state(ckpt["cuda_rng_state"])
                 np.random.set_state(ckpt["np_rng_state"])
+                if "cuda_rng_state" in ckpt:
+                    if torch.cuda.is_available():
+                        torch.cuda.set_rng_state(ckpt["cuda_rng_state"])
+                    else:
+                        warnings.warn(
+                            "Checkpoint contains CUDA RNG state but CUDA is not "
+                            "available. Full reproducibility may be affected.",
+                            stacklevel=1,
+                        )
             print(f"Resumed at step {start_step}, best val loss: {best_val_loss:.4f}")
         else:
             print("No checkpoint found, starting fresh.")
 
     # ---- Training loop ----
+    effective_batch = args.micro_batch * args.accum_steps
+    tokens_per_step = effective_batch * args.seq_len
+
     print(f"\n{'='*60}")
     print(f"Training SRN — {args.max_steps} steps")
     print(f"Micro batch: {args.micro_batch}, Accum steps: {args.accum_steps}, "
-          f"Effective batch: {args.micro_batch * args.accum_steps}")
+          f"Effective batch: {effective_batch}")
     print(f"Seq len: {args.seq_len}, LR: {args.max_lr}, Weight decay: {args.weight_decay}")
+    print(f"Precision: {precision_label}, Compile: {args.compile}")
     print(f"{'='*60}\n")
 
     model.train()
@@ -402,6 +502,8 @@ def train(args: argparse.Namespace) -> None:
     t_start = time.time()
 
     for step in range(start_step, args.max_steps):
+        step_t_start = time.time()
+
         # Update learning rate
         lr = get_lr(step, args.warmup_steps, args.max_steps, args.max_lr, args.min_lr)
         for pg in optimizer.param_groups:
@@ -423,7 +525,7 @@ def train(args: argparse.Namespace) -> None:
             x, y = x.to(device), y.to(device)
 
             # Forward pass with mixed precision
-            with torch.amp.autocast("cuda", dtype=torch.float16):
+            with torch.amp.autocast("cuda", dtype=precision_dtype):
                 logits, aux_loss = model(x)
                 # Loss in fp32 for stability
                 ce_loss = F.cross_entropy(
@@ -450,43 +552,68 @@ def train(args: argparse.Namespace) -> None:
 
         # ---- Logging ----
         if step % args.log_interval == 0:
-            elapsed = time.time() - t_start
-            tokens_per_sec = (step - start_step + 1) * args.micro_batch * args.accum_steps * args.seq_len / max(elapsed, 1e-6)
+            step_elapsed = time.time() - step_t_start
+            total_elapsed = time.time() - t_start
+            steps_done = step - start_step + 1
+            tokens_per_sec = tokens_per_step / max(step_elapsed, 1e-6)
+            avg_tokens_per_sec = steps_done * tokens_per_step / max(total_elapsed, 1e-6)
+            train_ppl = math.exp(min(accum_loss, 20))  # Clamp to prevent overflow
+
+            # Peak VRAM (cumulative)
+            vram_str = ""
+            if torch.cuda.is_available():
+                peak_mb = torch.cuda.max_memory_allocated() / 1024**2
+                vram_str = f" | vram {peak_mb:.0f}M"
 
             print(
                 f"step {step:>5d} | "
                 f"loss {accum_loss:.4f} | "
+                f"ppl {train_ppl:>8.2f} | "
                 f"aux {accum_aux:.2f} | "
                 f"lr {lr:.2e} | "
                 f"grad {grad_norm:.2f} | "
-                f"tok/s {tokens_per_sec:.0f}"
+                f"tok/s {tokens_per_sec:.0f} (avg {avg_tokens_per_sec:.0f})"
+                f"{vram_str}"
             )
 
         # ---- Memory profiling (first step only) ----
         if step == start_step and torch.cuda.is_available():
             peak_mem = torch.cuda.max_memory_allocated() / 1024**2
-            print(f"\n>>> Peak GPU memory: {peak_mem:.1f} MB <<<\n")
+            print(f"\n>>> Peak GPU memory after first step: {peak_mem:.1f} MB <<<\n")
 
         # ---- Evaluation ----
         if step > 0 and step % args.eval_interval == 0:
-            val_loss = evaluate(model, val_loader, device, max_batches=args.eval_batches)
+            val_loss = evaluate(
+                model, val_loader, device,
+                max_batches=args.eval_batches,
+                precision_dtype=precision_dtype,
+            )
             perplexity = math.exp(min(val_loss, 20))  # Clamp to avoid overflow
 
             print(f"\n{'─'*60}")
             print(f"Eval @ step {step}: val_loss={val_loss:.4f}, ppl={perplexity:.2f}")
 
             # Expert utilization
+            raw_model = _get_raw_model(model)
             sample_x, _ = next(iter(val_loader))
-            expert_util = get_expert_utilization(model, sample_x.to(device))
+            expert_util = get_expert_utilization(raw_model, sample_x.to(device))
             print(f"Expert util: min={expert_util['min']:.3f}, max={expert_util['max']:.3f}, "
                   f"std={expert_util['std']:.4f}")
+            per_layer_str = ", ".join(f"L{i}={v:.3f}" for i, v in enumerate(expert_util["per_layer"]))
+            print(f"  per-layer: {per_layer_str}")
+
+            # Peak VRAM at eval time
+            if torch.cuda.is_available():
+                eval_peak = torch.cuda.max_memory_allocated() / 1024**2
+                print(f"Peak VRAM (cumulative): {eval_peak:.1f} MB")
 
             # Generate sample text
             prompt_text = "ROMEO:"
             prompt_ids = torch.tensor(
                 [tokenizer.encode(prompt_text)], dtype=torch.long, device=device
             )
-            generated = model.generate(prompt_ids, max_tokens=200, temperature=0.8)
+            gen_model = raw_model
+            generated = gen_model.generate(prompt_ids, max_tokens=200, temperature=0.8)
             gen_text = tokenizer.decode(generated[0].tolist())
             print(f"\nGenerated:\n{gen_text[:300]}")
             print(f"{'─'*60}\n")
@@ -495,15 +622,19 @@ def train(args: argparse.Namespace) -> None:
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
                 save_checkpoint(
-                    model, optimizer, scaler, step, best_val_loss, config, tokenizer,
-                    checkpoint_dir / "best.pt",
+                    raw_model, optimizer, scaler, step, best_val_loss, config,
+                    tokenizer, checkpoint_dir / "best.pt",
+                    precision=precision_label,
+                    compiled=args.compile,
                 )
                 print(f">>> New best model saved (val_loss={val_loss:.4f}) <<<\n")
 
             # Save latest
             save_checkpoint(
-                model, optimizer, scaler, step, best_val_loss, config, tokenizer,
-                checkpoint_dir / "latest.pt",
+                raw_model, optimizer, scaler, step, best_val_loss, config,
+                tokenizer, checkpoint_dir / "latest.pt",
+                precision=precision_label,
+                compiled=args.compile,
             )
             model.train()
 
@@ -512,15 +643,20 @@ def train(args: argparse.Namespace) -> None:
     print("Training complete!")
     print(f"{'='*60}")
 
-    val_loss = evaluate(model, val_loader, device, max_batches=50)
+    val_loss = evaluate(
+        model, val_loader, device, max_batches=50, precision_dtype=precision_dtype,
+    )
     perplexity = math.exp(min(val_loss, 20))
     print(f"Final val_loss: {val_loss:.4f}, perplexity: {perplexity:.2f}")
     print(f"Best val_loss:  {best_val_loss:.4f}")
 
     # Save final
+    raw_model = _get_raw_model(model)
     save_checkpoint(
-        model, optimizer, scaler, args.max_steps, best_val_loss, config, tokenizer,
-        checkpoint_dir / "final.pt",
+        raw_model, optimizer, scaler, args.max_steps, best_val_loss, config,
+        tokenizer, checkpoint_dir / "final.pt",
+        precision=precision_label,
+        compiled=args.compile,
     )
 
     # Final generation
@@ -528,7 +664,8 @@ def train(args: argparse.Namespace) -> None:
     prompt_ids = torch.tensor(
         [tokenizer.encode(prompt_text)], dtype=torch.long, device=device
     )
-    generated = model.generate(prompt_ids, max_tokens=500, temperature=0.8)
+    gen_model = raw_model
+    generated = gen_model.generate(prompt_ids, max_tokens=500, temperature=0.8)
     gen_text = tokenizer.decode(generated[0].tolist())
     print(f"\nFinal generation:\n{'─'*60}\n{gen_text}\n{'─'*60}")
 
@@ -538,9 +675,31 @@ def train(args: argparse.Namespace) -> None:
 
 
 def save_checkpoint(
-    model, optimizer, scaler, step, best_val_loss, config, tokenizer, path
+    model,
+    optimizer,
+    scaler,
+    step,
+    best_val_loss,
+    config,
+    tokenizer,
+    path,
+    precision: str = "fp16",
+    compiled: bool = False,
 ):
-    """Save training checkpoint with all state needed for reproducible resume."""
+    """Save training checkpoint with all state needed for reproducible resume.
+
+    Args:
+        model: the SRN model (must be the raw model, not a compiled wrapper)
+        optimizer: AdamW optimizer
+        scaler: GradScaler instance
+        step: current training step
+        best_val_loss: best validation loss so far
+        config: SRNConfig dataclass
+        tokenizer: CharTokenizer or BPETokenizer
+        path: file path to save to
+        precision: precision mode string ("fp16" or "bf16")
+        compiled: whether torch.compile() was used
+    """
     if not isinstance(tokenizer, (CharTokenizer, BPETokenizer)):
         raise TypeError(f"Unsupported tokenizer type: {type(tokenizer)}")
     tokenizer_payload = tokenizer.checkpoint_payload()
@@ -553,6 +712,9 @@ def save_checkpoint(
         "step": step,
         "best_val_loss": best_val_loss,
         "config": config,
+        # Training metadata for reproducible resume
+        "precision": precision,
+        "compiled": compiled,
         # RNG state for reproducible resume
         "rng_state": torch.get_rng_state(),
         "np_rng_state": np.random.get_state(),
@@ -594,6 +756,13 @@ def parse_args() -> argparse.Namespace:
     # Checkpointing
     parser.add_argument("--checkpoint_dir", type=str, default="checkpoints")
     parser.add_argument("--resume", action="store_true")
+
+    # Performance
+    parser.add_argument("--compile", action="store_true", help="Enable torch.compile()")
+    parser.add_argument(
+        "--precision", type=str, choices=["fp16", "bf16"], default="fp16",
+        help="Mixed precision mode. bf16 auto-falls back to fp16 if unsupported.",
+    )
 
     # Reproducibility
     parser.add_argument("--seed", type=int, default=42)
