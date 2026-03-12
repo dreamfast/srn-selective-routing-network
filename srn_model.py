@@ -69,6 +69,7 @@ class SRNConfig:
     causal_window: int = 32  # Window size for causal slot adaptation (NOVEL)
     csp_internal_residual: bool = False  # If True, CSP adds its own residual
     aux_loss_weight: float = 0.01  # Weight for MoE load balancing loss
+    sparse_moe: bool = False  # If True, use grouped sparse MoE (VRAM-efficient)
 
 
 # ============================================================================
@@ -357,7 +358,10 @@ class GatedExpertMixture(nn.Module):
             nn.init.xavier_normal_(self.W_down[e])
 
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Forward pass with vectorized expert computation.
+        """Forward pass with expert computation.
+
+        Dispatches to dense (einsum-all-experts) or sparse (grouped token-by-
+        expert) path based on config.sparse_moe.
 
         Args:
             x: (B, N, D) input tensor
@@ -385,20 +389,15 @@ class GatedExpertMixture(nn.Module):
         masked_logits = router_logits.masked_fill(~mask, float("-inf"))
         router_weights = F.softmax(masked_logits, dim=-1)  # (B, N, E)
 
-        # 5. Vectorized expert forward pass (NO LOOP!)
-        # x: (B, N, D), W_up: (E, D, H) -> einsum -> (B, N, E, H)
-        h = torch.einsum("bnd,edh->bneh", x, self.W_up) + self.b_up  # (B, N, E, H)
-        h = F.gelu(h)
+        # 4. Expert forward pass — dense or sparse
+        if self.config.sparse_moe:
+            output = self._sparse_expert_forward(x, router_weights, topk_idx)
+        else:
+            output = self._dense_expert_forward(x, router_weights)
 
-        # h: (B, N, E, H), W_down: (E, H, D) -> einsum -> (B, N, E, D)
-        h = torch.einsum("bneh,ehd->bned", h, self.W_down) + self.b_down  # (B, N, E, D)
-
-        # 6. Weight by router and sum over experts
-        # router_weights: (B, N, E) -> (B, N, E, 1) for broadcast
-        output = (router_weights.unsqueeze(-1) * h).sum(dim=2)  # (B, N, D)
         output = self.drop(output)
 
-        # 7. Load balancing auxiliary loss (adapted for top-k > 1)
+        # 5. Load balancing auxiliary loss (adapted for top-k > 1)
         # f_i: fraction of tokens where expert i is in top-k selection
         f_i = mask.float().mean(dim=(0, 1))  # (E,)
         # P_i: mean routing weight for expert i from the MASKED softmax
@@ -410,6 +409,104 @@ class GatedExpertMixture(nn.Module):
         aux_loss = n_exp * (f_i * P_i).sum()
 
         return output, aux_loss
+
+    def _dense_expert_forward(
+        self, x: torch.Tensor, router_weights: torch.Tensor
+    ) -> torch.Tensor:
+        """Dense expert path: compute ALL experts for ALL tokens via einsum.
+
+        Simple and fast for small models, but VRAM-hungry at scale because
+        it materializes the full (B, N, E, H) intermediate tensor.
+
+        Args:
+            x: (B, N, D) input tokens
+            router_weights: (B, N, E) softmax routing weights
+
+        Returns:
+            (B, N, D) weighted expert output
+        """
+        # x: (B, N, D), W_up: (E, D, H) -> einsum -> (B, N, E, H)
+        h = torch.einsum("bnd,edh->bneh", x, self.W_up) + self.b_up  # (B, N, E, H)
+        h = F.gelu(h)
+
+        # h: (B, N, E, H), W_down: (E, H, D) -> einsum -> (B, N, E, D)
+        h = torch.einsum("bneh,ehd->bned", h, self.W_down) + self.b_down  # (B, N, E, D)
+
+        # Weight by router and sum over experts
+        # router_weights: (B, N, E) -> (B, N, E, 1) for broadcast
+        output = (router_weights.unsqueeze(-1) * h).sum(dim=2)  # (B, N, D)
+        return output
+
+    def _sparse_expert_forward(
+        self,
+        x: torch.Tensor,
+        router_weights: torch.Tensor,
+        topk_idx: torch.Tensor,
+    ) -> torch.Tensor:
+        """Sparse expert path: grouped token-by-expert dispatch.
+
+        Only computes the top-k selected experts per token. Groups tokens by
+        expert assignment, runs each expert only on its assigned tokens, then
+        scatters results back. VRAM scales with O(B*N*top_k*H) instead of
+        O(B*N*E*H).
+
+        Args:
+            x: (B, N, D) input tokens
+            router_weights: (B, N, E) softmax routing weights
+            topk_idx: (B, N, top_k) indices of selected experts
+
+        Returns:
+            (B, N, D) weighted expert output
+        """
+        B, N, D = x.shape
+        n_exp = self.config.n_experts
+        top_k = self.config.top_k_experts
+
+        # Flatten batch and sequence: (B*N, D), (B*N, top_k)
+        x_flat = x.reshape(B * N, D)  # (T, D) where T = B*N
+        topk_idx_flat = topk_idx.reshape(B * N, top_k)  # (T, top_k)
+
+        # Gather router weights for selected experts: (T, top_k)
+        # router_weights is (B, N, E) -> flatten to (T, E)
+        rw_flat = router_weights.reshape(B * N, n_exp)  # (T, E)
+        # Gather weights for selected experts
+        topk_weights = rw_flat.gather(-1, topk_idx_flat)  # (T, top_k)
+
+        # Output accumulator
+        output = torch.zeros_like(x_flat)  # (T, D)
+
+        # Process each expert: gather assigned tokens, compute, scatter back
+        for e in range(n_exp):
+            # Find which (token, slot) pairs are assigned to expert e
+            # topk_idx_flat: (T, top_k) — check each slot
+            expert_mask = topk_idx_flat == e  # (T, top_k)
+
+            if not expert_mask.any():
+                continue
+
+            # Get token indices that route to this expert (across any slot)
+            token_mask = expert_mask.any(dim=-1)  # (T,)
+            token_indices = token_mask.nonzero(as_tuple=True)[0]  # (n_tokens,)
+
+            # Gather tokens for this expert
+            x_e = x_flat[token_indices]  # (n_tokens, D)
+
+            # Expert forward: up projection + GELU + down projection
+            h_e = F.linear(x_e, self.W_up[e].T, self.b_up[e])  # (n_tokens, H)
+            h_e = F.gelu(h_e)
+            h_e = F.linear(h_e, self.W_down[e].T, self.b_down[e])  # (n_tokens, D)
+
+            # Compute combined weight for this expert across all slots
+            # A token may select the same expert in multiple top-k slots
+            # (rare but possible) — sum the weights across those slots
+            slot_weights = (expert_mask[token_indices].float()
+                           * topk_weights[token_indices])  # (n_tokens, top_k)
+            combined_weight = slot_weights.sum(dim=-1, keepdim=True)  # (n_tokens, 1)
+
+            # Scatter weighted output back
+            output.index_add_(0, token_indices, combined_weight * h_e)
+
+        return output.reshape(B, N, D)  # (B, N, D)
 
 
 # ============================================================================

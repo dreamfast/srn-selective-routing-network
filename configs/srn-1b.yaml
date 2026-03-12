@@ -28,3 +28,4 @@ model:
   causal_window: 128
   csp_internal_residual: false
   aux_loss_weight: 0.01
+  sparse_moe: true
