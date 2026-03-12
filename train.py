@@ -37,6 +37,7 @@ import torch.nn.functional as F
 from omegaconf import OmegaConf
 
 from data import BPETokenizer, CharTokenizer, get_dataloaders, get_memmap_dataloaders
+from dense_model import DenseConfig, DenseGPT
 from srn_model import SRNConfig, SRNModel
 
 
@@ -120,7 +121,7 @@ def get_lr(step: int, warmup_steps: int, max_steps: int, max_lr: float, min_lr: 
 # ============================================================================
 
 
-def get_param_groups(model: SRNModel, weight_decay: float) -> list[dict]:
+def get_param_groups(model: torch.nn.Module, weight_decay: float) -> list[dict]:
     """Create optimizer parameter groups with selective weight decay.
 
     Weight decay is NOT applied to:
@@ -129,8 +130,10 @@ def get_param_groups(model: SRNModel, weight_decay: float) -> list[dict]:
     - Embedding parameters
     - 1D parameters (biases, LN gamma/beta)
 
+    Works with both SRNModel and DenseGPT.
+
     Args:
-        model: the SRN model
+        model: the model (SRNModel or DenseGPT)
         weight_decay: weight decay value for decayed parameters
 
     Returns:
@@ -215,7 +218,7 @@ def get_expert_utilization(model: SRNModel, x: torch.Tensor) -> dict:
 
 @torch.no_grad()
 def evaluate(
-    model: SRNModel,
+    model: torch.nn.Module,
     val_loader,
     device: torch.device,
     max_batches: int = 20,
@@ -223,8 +226,10 @@ def evaluate(
 ) -> float:
     """Compute average validation loss.
 
+    Works with both SRNModel and DenseGPT.
+
     Args:
-        model: the SRN model
+        model: the model (SRNModel or DenseGPT)
         val_loader: validation DataLoader
         device: torch device
         max_batches: maximum number of batches to evaluate
@@ -392,28 +397,46 @@ def train(args: argparse.Namespace) -> None:
         raise ValueError(f"Unknown dataset_backend: {args.dataset_backend}")
 
     # ---- Model ----
-    config = SRNConfig(
-        vocab_size=tokenizer.vocab_size,
-        max_seq_len=args.max_seq_len,
-        d_model=args.d_model,
-        d_compressed=args.d_compressed,
-        n_layers=args.n_layers,
-        n_memory_slots=args.n_memory_slots,
-        n_experts=args.n_experts,
-        top_k_experts=args.top_k_experts,
-        d_expert=args.d_expert,
-        n_heads_route=args.n_heads_route,
-        dropout=args.dropout,
-        causal_window=args.causal_window,
-        csp_internal_residual=args.csp_internal_residual,
-        aux_loss_weight=args.aux_loss_weight,
-    )
-    validate_srn_config(config, args.seq_len)
-    model = SRNModel(config).to(device)
+    model_type = getattr(args, "model_type", "srn")
+
+    if model_type == "dense":
+        d_ff = args.d_ff if args.d_ff is not None else args.d_model * 4
+        config = DenseConfig(
+            vocab_size=tokenizer.vocab_size,
+            max_seq_len=args.max_seq_len,
+            d_model=args.d_model,
+            n_layers=args.n_layers,
+            n_heads=args.n_heads,
+            d_ff=d_ff,
+            dropout=args.dropout,
+            bias=args.bias,
+        )
+        model = DenseGPT(config).to(device)
+        print(f"\nModel type: Dense GPT")
+    else:
+        config = SRNConfig(
+            vocab_size=tokenizer.vocab_size,
+            max_seq_len=args.max_seq_len,
+            d_model=args.d_model,
+            d_compressed=args.d_compressed,
+            n_layers=args.n_layers,
+            n_memory_slots=args.n_memory_slots,
+            n_experts=args.n_experts,
+            top_k_experts=args.top_k_experts,
+            d_expert=args.d_expert,
+            n_heads_route=args.n_heads_route,
+            dropout=args.dropout,
+            causal_window=args.causal_window,
+            csp_internal_residual=args.csp_internal_residual,
+            aux_loss_weight=args.aux_loss_weight,
+        )
+        validate_srn_config(config, args.seq_len)
+        model = SRNModel(config).to(device)
+        print(f"\nModel type: SRN")
 
     total_params = model.count_params()
     active_params = model.count_active_params()
-    print(f"\nModel: {total_params:,} params ({active_params:,} active/token, {active_params/total_params:.1%})")
+    print(f"Model: {total_params:,} params ({active_params:,} active/token, {active_params/total_params:.1%})")
 
     # ---- torch.compile() ----
     if args.compile:
@@ -490,7 +513,8 @@ def train(args: argparse.Namespace) -> None:
     tokens_per_step = effective_batch * args.seq_len
 
     print(f"\n{'='*60}")
-    print(f"Training SRN — {args.max_steps} steps")
+    model_label = "Dense GPT" if model_type == "dense" else "SRN"
+    print(f"Training {model_label} — {args.max_steps} steps")
     print(f"Micro batch: {args.micro_batch}, Accum steps: {args.accum_steps}, "
           f"Effective batch: {effective_batch}")
     print(f"Seq len: {args.seq_len}, LR: {args.max_lr}, Weight decay: {args.weight_decay}")
@@ -532,7 +556,8 @@ def train(args: argparse.Namespace) -> None:
                     logits.float().view(-1, logits.size(-1)),
                     y.view(-1),
                 )
-                loss = ce_loss + config.aux_loss_weight * aux_loss
+                aux_weight = getattr(config, "aux_loss_weight", 0.0)
+                loss = ce_loss + aux_weight * aux_loss
                 # Scale for gradient accumulation
                 loss = loss / args.accum_steps
 
@@ -593,14 +618,15 @@ def train(args: argparse.Namespace) -> None:
             print(f"\n{'─'*60}")
             print(f"Eval @ step {step}: val_loss={val_loss:.4f}, ppl={perplexity:.2f}")
 
-            # Expert utilization
+            # Expert utilization (SRN only — dense models have no MoE)
             raw_model = _get_raw_model(model)
-            sample_x, _ = next(iter(val_loader))
-            expert_util = get_expert_utilization(raw_model, sample_x.to(device))
-            print(f"Expert util: min={expert_util['min']:.3f}, max={expert_util['max']:.3f}, "
-                  f"std={expert_util['std']:.4f}")
-            per_layer_str = ", ".join(f"L{i}={v:.3f}" for i, v in enumerate(expert_util["per_layer"]))
-            print(f"  per-layer: {per_layer_str}")
+            if isinstance(raw_model, SRNModel):
+                sample_x, _ = next(iter(val_loader))
+                expert_util = get_expert_utilization(raw_model, sample_x.to(device))
+                print(f"Expert util: min={expert_util['min']:.3f}, max={expert_util['max']:.3f}, "
+                      f"std={expert_util['std']:.4f}")
+                per_layer_str = ", ".join(f"L{i}={v:.3f}" for i, v in enumerate(expert_util["per_layer"]))
+                print(f"  per-layer: {per_layer_str}")
 
             # Peak VRAM at eval time
             if torch.cuda.is_available():
@@ -777,7 +803,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--train_tokens_path", type=str, default=None)
     parser.add_argument("--val_tokens_path", type=str, default=None)
 
-    # Model (SRNConfig architecture knobs)
+    # Model type
+    parser.add_argument(
+        "--model_type", type=str, choices=["srn", "dense"], default="srn",
+        help="Model architecture: 'srn' for SRN or 'dense' for GPT baseline",
+    )
+
+    # Dense model architecture knobs
+    parser.add_argument("--n_heads", type=int, default=16, help="Attention heads (dense model)")
+    parser.add_argument("--d_ff", type=int, default=None, help="FFN hidden dim (dense model, default: 4*d_model)")
+    parser.add_argument("--bias", action="store_true", help="Use bias in linear layers (dense model)")
+
+    # SRN model architecture knobs
     default_config = SRNConfig()
     parser.add_argument("--max_seq_len", type=int, default=default_config.max_seq_len)
     parser.add_argument("--d_model", type=int, default=default_config.d_model)

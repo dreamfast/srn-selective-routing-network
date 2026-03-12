@@ -13,18 +13,13 @@ train:
   log_interval: 100
   checkpoint_dir: checkpoints/dense-067b
   seed: 42
+  model_type: dense
 
 model:
   max_seq_len: 2048
   d_model: 1536
-  d_compressed: 384
   n_layers: 20
-  n_memory_slots: 128
-  n_experts: 8
-  top_k_experts: 2
-  d_expert: 768
-  n_heads_route: 16
+  n_heads: 16
+  d_ff: 6144
   dropout: 0.1
-  causal_window: 128
-  csp_internal_residual: false
-  aux_loss_weight: 0.01
+  bias: false
