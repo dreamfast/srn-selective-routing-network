@@ -16,6 +16,7 @@ import hashlib
 from pathlib import Path
 from typing import Any, Iterable, Tuple, Union
 
+import numpy as np
 import requests
 import torch
 from tokenizers import Tokenizer
@@ -133,6 +134,9 @@ class BPETokenizer:
     def decode(self, ids: list[int]) -> str:
         return self._tokenizer.decode(ids)
 
+    def token_to_id(self, token: str) -> int | None:
+        return self._tokenizer.token_to_id(token)
+
     def save(self, path: str) -> None:
         self._tokenizer.save(path)
         self.tokenizer_path = path
@@ -214,6 +218,33 @@ class ShakespeareDataset(Dataset):
         end = start + self.seq_len
         x = self.data[start:end]  # (seq_len,)
         y = self.data[start + 1 : end + 1]  # (seq_len,) — shifted by 1
+        return x, y
+
+
+class MemmapTokenDataset(Dataset):
+    """Language-model dataset backed by memory-mapped token arrays.
+
+    Expects a flat binary int32 token file. Samples are non-overlapping chunks
+    of length `seq_len` with next-token targets.
+    """
+
+    def __init__(self, token_file: str | Path, seq_len: int) -> None:
+        self.token_file = Path(token_file)
+        self.seq_len = seq_len
+        if not self.token_file.exists():
+            raise FileNotFoundError(f"Token file not found: {self.token_file}")
+        self.data = np.memmap(self.token_file, dtype=np.int32, mode="r")
+
+    def __len__(self) -> int:
+        if len(self.data) == 0:
+            return 0
+        return (len(self.data) - 1) // self.seq_len
+
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+        start = idx * self.seq_len
+        end = start + self.seq_len
+        x = torch.from_numpy(np.asarray(self.data[start:end], dtype=np.int64))
+        y = torch.from_numpy(np.asarray(self.data[start + 1 : end + 1], dtype=np.int64))
         return x, y
 
 
@@ -326,6 +357,37 @@ def get_dataloaders(
         drop_last=True,
     )
 
+    return train_loader, val_loader, tokenizer
+
+
+def get_memmap_dataloaders(
+    train_tokens_path: str | Path,
+    val_tokens_path: str | Path,
+    tokenizer: TokenizerType,
+    batch_size: int = 16,
+    seq_len: int = 256,
+    num_workers: int = 0,
+) -> Tuple[DataLoader, DataLoader, TokenizerType]:
+    """Create train/val DataLoaders from memory-mapped token shards."""
+    train_dataset = MemmapTokenDataset(train_tokens_path, seq_len)
+    val_dataset = MemmapTokenDataset(val_tokens_path, seq_len)
+
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        pin_memory=True,
+        num_workers=num_workers,
+        drop_last=True,
+    )
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        pin_memory=True,
+        num_workers=num_workers,
+        drop_last=True,
+    )
     return train_loader, val_loader, tokenizer
 
 

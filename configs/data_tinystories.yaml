@@ -1,0 +1,8 @@
+dataset: tinystories
+output_dir: data/tinystories
+tokenizer_path: data/tinystories/tokenizer.json
+vocab_size: 32000
+train_ratio: 0.9
+max_stories: null
+train_tokens_path: data/tinystories/train_tokens.bin
+val_tokens_path: data/tinystories/val_tokens.bin

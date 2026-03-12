@@ -31,7 +31,7 @@ import torch
 import torch.nn.functional as F
 from omegaconf import OmegaConf
 
-from data import BPETokenizer, CharTokenizer, get_dataloaders
+from data import BPETokenizer, CharTokenizer, get_dataloaders, get_memmap_dataloaders
 from srn_model import SRNConfig, SRNModel
 
 
@@ -296,14 +296,34 @@ def train(args: argparse.Namespace) -> None:
     np.random.seed(args.seed)
 
     # ---- Data ----
-    train_loader, val_loader, tokenizer = get_dataloaders(
-        batch_size=args.micro_batch,
-        seq_len=args.seq_len,
-        num_workers=0,
-        tokenizer_backend=args.tokenizer_backend,
-        tokenizer_path=args.tokenizer_path,
-        tokenizer_vocab_size=args.tokenizer_vocab_size,
-    )
+    if args.dataset_backend == "shakespeare":
+        train_loader, val_loader, tokenizer = get_dataloaders(
+            batch_size=args.micro_batch,
+            seq_len=args.seq_len,
+            num_workers=0,
+            tokenizer_backend=args.tokenizer_backend,
+            tokenizer_path=args.tokenizer_path,
+            tokenizer_vocab_size=args.tokenizer_vocab_size,
+        )
+    elif args.dataset_backend == "memmap":
+        if args.train_tokens_path is None or args.val_tokens_path is None:
+            raise ValueError("memmap backend requires --train_tokens_path and --val_tokens_path")
+        if args.tokenizer_backend == "char":
+            raise ValueError("memmap backend requires --tokenizer_backend bpe")
+        if args.tokenizer_path is None:
+            raise ValueError("memmap backend requires --tokenizer_path")
+
+        tokenizer = BPETokenizer.from_file(args.tokenizer_path)
+        train_loader, val_loader, tokenizer = get_memmap_dataloaders(
+            train_tokens_path=args.train_tokens_path,
+            val_tokens_path=args.val_tokens_path,
+            tokenizer=tokenizer,
+            batch_size=args.micro_batch,
+            seq_len=args.seq_len,
+            num_workers=0,
+        )
+    else:
+        raise ValueError(f"Unknown dataset_backend: {args.dataset_backend}")
 
     # ---- Model ----
     config = SRNConfig(
@@ -582,6 +602,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tokenizer_backend", type=str, choices=["char", "bpe"], default="char")
     parser.add_argument("--tokenizer_path", type=str, default=None)
     parser.add_argument("--tokenizer_vocab_size", type=int, default=32000)
+
+    # Dataset source
+    parser.add_argument("--dataset_backend", type=str, choices=["shakespeare", "memmap"], default="shakespeare")
+    parser.add_argument("--train_tokens_path", type=str, default=None)
+    parser.add_argument("--val_tokens_path", type=str, default=None)
 
     # Model (SRNConfig architecture knobs)
     default_config = SRNConfig()
