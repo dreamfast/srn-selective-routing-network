@@ -1,0 +1,10 @@
+data/
+checkpoints/
+__pycache__/
+*.pyc
+.git/
+.llm/
+.opencode/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
