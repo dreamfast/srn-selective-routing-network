@@ -3,6 +3,7 @@ Data pipeline for SRN training on TinyShakespeare.
 
 Provides:
 - CharTokenizer: character-level tokenizer with encode/decode
+- BPETokenizer: HuggingFace tokenizers BPE wrapper
 - ShakespeareDataset: PyTorch Dataset returning (input, target) pairs
 - get_dataloaders(): convenience function for train/val DataLoaders
 
@@ -11,12 +12,16 @@ Character-level tokenization is simplest for a proof-of-concept — the model
 must learn spelling, word boundaries, and grammar from scratch.
 """
 
-import os
+import hashlib
 from pathlib import Path
-from typing import Tuple
+from typing import Any, Iterable, Tuple, Union
 
 import requests
 import torch
+from tokenizers import Tokenizer
+from tokenizers.models import BPE
+from tokenizers.pre_tokenizers import ByteLevel
+from tokenizers.trainers import BpeTrainer
 from torch.utils.data import DataLoader, Dataset
 
 # TinyShakespeare URL and expected properties
@@ -26,6 +31,8 @@ SHAKESPEARE_URL = (
 )
 DATA_DIR = Path(__file__).parent / "data"
 DATA_FILE = DATA_DIR / "tinyshakespeare.txt"
+
+SPECIAL_TOKENS = ["<pad>", "<unk>", "<bos>", "<eos>"]
 
 
 # ============================================================================
@@ -60,6 +67,122 @@ class CharTokenizer:
     def decode(self, ids: list[int]) -> str:
         """Decode list of integer token IDs to text."""
         return "".join(self._id_to_char[i] for i in ids)
+
+    @property
+    def tokenizer_type(self) -> str:
+        return "char"
+
+    def checkpoint_payload(self) -> dict[str, Any]:
+        return {
+            "tokenizer_type": "char",
+            "tokenizer_chars": self.chars,
+        }
+
+
+class BPETokenizer:
+    """BPE tokenizer wrapper using HuggingFace tokenizers.
+
+    Uses byte-level pre-tokenization and can be trained from iterable text.
+    """
+
+    def __init__(self, tokenizer: Tokenizer, tokenizer_path: str | None = None) -> None:
+        self._tokenizer = tokenizer
+        self.tokenizer_path = tokenizer_path
+
+    @classmethod
+    def train_from_iterator(
+        cls,
+        texts: Iterable[str],
+        vocab_size: int = 32_000,
+        special_tokens: list[str] | None = None,
+    ) -> "BPETokenizer":
+        if special_tokens is None:
+            special_tokens = SPECIAL_TOKENS
+
+        tokenizer = Tokenizer(BPE(unk_token="<unk>"))
+        tokenizer.pre_tokenizer = ByteLevel(add_prefix_space=False)
+        trainer = BpeTrainer(vocab_size=vocab_size, special_tokens=special_tokens)
+        tokenizer.train_from_iterator(texts, trainer=trainer)
+        return cls(tokenizer)
+
+    @classmethod
+    def from_file(cls, path: str) -> "BPETokenizer":
+        tokenizer = Tokenizer.from_file(path)
+        return cls(tokenizer, tokenizer_path=path)
+
+    @classmethod
+    def from_serialized(cls, serialized: str) -> "BPETokenizer":
+        tokenizer = Tokenizer.from_str(serialized)
+        return cls(tokenizer)
+
+    @property
+    def vocab_size(self) -> int:
+        return self._tokenizer.get_vocab_size()
+
+    @property
+    def tokenizer_type(self) -> str:
+        return "bpe"
+
+    @property
+    def special_tokens(self) -> list[str]:
+        return [tok.content for tok in self._tokenizer.get_added_tokens_decoder().values()]
+
+    def encode(self, text: str) -> list[int]:
+        return self._tokenizer.encode(text).ids
+
+    def decode(self, ids: list[int]) -> str:
+        return self._tokenizer.decode(ids)
+
+    def save(self, path: str) -> None:
+        self._tokenizer.save(path)
+        self.tokenizer_path = path
+
+    def to_serialized(self) -> str:
+        return self._tokenizer.to_str()
+
+    def checkpoint_payload(self) -> dict[str, Any]:
+        serialized = self.to_serialized()
+        return {
+            "tokenizer_type": "bpe",
+            "tokenizer_serialized": serialized,
+            "tokenizer_hash": hashlib.sha256(serialized.encode("utf-8")).hexdigest(),
+            "tokenizer_path": self.tokenizer_path,
+        }
+
+
+TokenizerType = Union[CharTokenizer, BPETokenizer]
+
+
+def tokenizer_from_checkpoint(ckpt: dict[str, Any]) -> TokenizerType:
+    """Reconstruct tokenizer from checkpoint metadata.
+
+    Supports:
+    - v1 char checkpoints: tokenized chars only
+    - v2 checkpoints with `tokenizer_type`
+    """
+    version = ckpt.get("format_version", 1)
+    if version <= 1:
+        if "tokenizer_chars" not in ckpt:
+            raise ValueError("Legacy checkpoint missing tokenizer_chars")
+        return CharTokenizer("".join(ckpt["tokenizer_chars"]))
+
+    tokenizer_type = ckpt.get("tokenizer_type")
+    if tokenizer_type == "char":
+        chars = ckpt.get("tokenizer_chars")
+        if chars is None:
+            raise ValueError("Char checkpoint missing tokenizer_chars")
+        return CharTokenizer("".join(chars))
+
+    if tokenizer_type == "bpe":
+        serialized = ckpt.get("tokenizer_serialized")
+        if serialized is not None:
+            return BPETokenizer.from_serialized(serialized)
+        path = ckpt.get("tokenizer_path")
+        if path is not None:
+            return BPETokenizer.from_file(path)
+        raise ValueError("BPE checkpoint missing tokenizer_serialized/tokenizer_path")
+
+    raise ValueError(f"Unsupported tokenizer_type in checkpoint: {tokenizer_type}")
 
 
 # ============================================================================
@@ -126,7 +249,11 @@ def get_dataloaders(
     batch_size: int = 16,
     seq_len: int = 256,
     num_workers: int = 0,
-) -> Tuple[DataLoader, DataLoader, CharTokenizer]:
+    tokenizer_backend: str = "char",
+    tokenizer_path: str | None = None,
+    tokenizer_vocab_size: int = 32_000,
+    tokenizer_override: TokenizerType | None = None,
+) -> Tuple[DataLoader, DataLoader, TokenizerType]:
     """Create train and validation DataLoaders for TinyShakespeare.
 
     Split: first 90% for training, last 10% for validation (deterministic).
@@ -139,13 +266,34 @@ def get_dataloaders(
     Returns:
         train_loader: DataLoader for training set
         val_loader: DataLoader for validation set
-        tokenizer: CharTokenizer fitted on the full text
+        tokenizer: tokenizer instance fitted on the full text
     """
     text = download_shakespeare()
-    tokenizer = CharTokenizer(text)
+    if tokenizer_override is not None:
+        tokenizer = tokenizer_override
+    elif tokenizer_backend == "char":
+        tokenizer: TokenizerType = CharTokenizer(text)
+    elif tokenizer_backend == "bpe":
+        if tokenizer_path is not None and Path(tokenizer_path).exists():
+            tokenizer = BPETokenizer.from_file(tokenizer_path)
+        else:
+            tokenizer = BPETokenizer.train_from_iterator(
+                [text],
+                vocab_size=tokenizer_vocab_size,
+                special_tokens=SPECIAL_TOKENS,
+            )
+            if tokenizer_path is not None:
+                Path(tokenizer_path).parent.mkdir(parents=True, exist_ok=True)
+                tokenizer.save(tokenizer_path)
+    else:
+        raise ValueError(f"Unknown tokenizer_backend: {tokenizer_backend}")
 
-    print(f"Vocabulary: {tokenizer.vocab_size} unique characters")
-    print(f"Sample chars: {tokenizer.chars[:20]}...")
+    vocab_unit = "characters" if isinstance(tokenizer, CharTokenizer) else "tokens"
+    print(f"Vocabulary: {tokenizer.vocab_size} unique {vocab_unit}")
+    if isinstance(tokenizer, CharTokenizer):
+        print(f"Sample chars: {tokenizer.chars[:20]}...")
+    else:
+        print(f"Tokenizer backend: bpe, special tokens: {tokenizer.special_tokens[:4]}")
 
     # Encode full text
     encoded = torch.tensor(tokenizer.encode(text), dtype=torch.long)

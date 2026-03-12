@@ -13,13 +13,13 @@ import math
 import torch
 import torch.nn.functional as F
 
-from data import CharTokenizer, get_dataloaders
+from data import TokenizerType, get_dataloaders, tokenizer_from_checkpoint
 from srn_model import SRNConfig, SRNModel
 
 
 def load_model(
     checkpoint_path: str, device: torch.device
-) -> tuple[SRNModel, CharTokenizer, dict]:
+) -> tuple[SRNModel, TokenizerType, dict]:
     """Load a trained SRN model from checkpoint.
 
     Args:
@@ -28,7 +28,7 @@ def load_model(
 
     Returns:
         model: loaded SRN model in eval mode
-        tokenizer: CharTokenizer reconstructed from checkpoint
+        tokenizer: tokenizer reconstructed from checkpoint metadata
         metadata: dict with step, best_val_loss, config
     """
     # weights_only=False needed to deserialize SRNConfig dataclass
@@ -39,15 +39,14 @@ def load_model(
     model.load_state_dict(ckpt["model"])
     model.eval()
 
-    # Reconstruct tokenizer from saved chars
-    # Create a dummy text from the chars to initialize the tokenizer
-    dummy_text = "".join(ckpt["tokenizer_chars"])
-    tokenizer = CharTokenizer(dummy_text)
+    tokenizer = tokenizer_from_checkpoint(ckpt)
 
     metadata = {
         "step": ckpt.get("step", -1),
         "best_val_loss": ckpt.get("best_val_loss", float("inf")),
         "config": config,
+        "tokenizer_type": ckpt.get("tokenizer_type", "char"),
+        "tokenizer_path": ckpt.get("tokenizer_path"),
     }
 
     return model, tokenizer, metadata
@@ -169,7 +168,11 @@ def main() -> None:
     if args.do_eval:
         print("\nComputing validation perplexity...")
         _, val_loader, _ = get_dataloaders(
-            batch_size=16, seq_len=metadata["config"].max_seq_len
+            batch_size=16,
+            seq_len=metadata["config"].max_seq_len,
+            tokenizer_backend=metadata["tokenizer_type"],
+            tokenizer_path=metadata.get("tokenizer_path"),
+            tokenizer_override=tokenizer,
         )
         ppl = compute_perplexity(model, val_loader, device)
         print(f"Validation perplexity: {ppl:.2f}")

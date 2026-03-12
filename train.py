@@ -31,7 +31,7 @@ import torch
 import torch.nn.functional as F
 from omegaconf import OmegaConf
 
-from data import get_dataloaders
+from data import BPETokenizer, CharTokenizer, get_dataloaders
 from srn_model import SRNConfig, SRNModel
 
 
@@ -300,6 +300,9 @@ def train(args: argparse.Namespace) -> None:
         batch_size=args.micro_batch,
         seq_len=args.seq_len,
         num_workers=0,
+        tokenizer_backend=args.tokenizer_backend,
+        tokenizer_path=args.tokenizer_path,
+        tokenizer_vocab_size=args.tokenizer_vocab_size,
     )
 
     # ---- Model ----
@@ -518,18 +521,23 @@ def save_checkpoint(
     model, optimizer, scaler, step, best_val_loss, config, tokenizer, path
 ):
     """Save training checkpoint with all state needed for reproducible resume."""
+    if not isinstance(tokenizer, (CharTokenizer, BPETokenizer)):
+        raise TypeError(f"Unsupported tokenizer type: {type(tokenizer)}")
+    tokenizer_payload = tokenizer.checkpoint_payload()
+
     ckpt = {
+        "format_version": 2,
         "model": model.state_dict(),
         "optimizer": optimizer.state_dict(),
         "scaler": scaler.state_dict(),
         "step": step,
         "best_val_loss": best_val_loss,
         "config": config,
-        "tokenizer_chars": tokenizer.chars,
         # RNG state for reproducible resume
         "rng_state": torch.get_rng_state(),
         "np_rng_state": np.random.get_state(),
     }
+    ckpt.update(tokenizer_payload)
     if torch.cuda.is_available():
         ckpt["cuda_rng_state"] = torch.cuda.get_rng_state()
     torch.save(ckpt, path)
@@ -569,6 +577,11 @@ def parse_args() -> argparse.Namespace:
 
     # Reproducibility
     parser.add_argument("--seed", type=int, default=42)
+
+    # Tokenizer
+    parser.add_argument("--tokenizer_backend", type=str, choices=["char", "bpe"], default="char")
+    parser.add_argument("--tokenizer_path", type=str, default=None)
+    parser.add_argument("--tokenizer_vocab_size", type=int, default=32000)
 
     # Model (SRNConfig architecture knobs)
     default_config = SRNConfig()
