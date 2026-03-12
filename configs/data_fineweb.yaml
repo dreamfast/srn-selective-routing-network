@@ -1,0 +1,10 @@
+dataset: fineweb-edu
+subset: sample-10BT
+output_dir: data/fineweb-edu
+tokenizer_path: data/fineweb-edu/tokenizer.json
+vocab_size: 32000
+train_ratio: 0.95
+seed: 42
+max_docs: null
+train_tokens_path: data/fineweb-edu/train_tokens.bin
+val_tokens_path: data/fineweb-edu/val_tokens.bin
