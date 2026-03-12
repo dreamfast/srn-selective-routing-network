@@ -22,13 +22,14 @@ Usage:
 
 import argparse
 import math
-import os
 import time
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
 import torch.nn.functional as F
+from omegaconf import OmegaConf
 
 from data import get_dataloaders
 from srn_model import SRNConfig, SRNModel
@@ -197,6 +198,85 @@ def evaluate(model: SRNModel, val_loader, device: torch.device, max_batches: int
     return total_loss / max(n_batches, 1)
 
 
+def validate_srn_config(config: SRNConfig, seq_len: int) -> None:
+    """Validate SRN architecture constraints before model construction."""
+    positive_int_fields = {
+        "max_seq_len": config.max_seq_len,
+        "d_model": config.d_model,
+        "d_compressed": config.d_compressed,
+        "n_layers": config.n_layers,
+        "n_memory_slots": config.n_memory_slots,
+        "n_experts": config.n_experts,
+        "top_k_experts": config.top_k_experts,
+        "d_expert": config.d_expert,
+        "n_heads_route": config.n_heads_route,
+        "causal_window": config.causal_window,
+        "seq_len": seq_len,
+    }
+    for name, value in positive_int_fields.items():
+        if value <= 0:
+            raise ValueError(f"{name} must be > 0, got {value}")
+
+    if config.top_k_experts > config.n_experts:
+        raise ValueError(
+            f"top_k_experts ({config.top_k_experts}) must be <= n_experts ({config.n_experts})"
+        )
+
+    if config.d_model % config.n_heads_route != 0:
+        raise ValueError(
+            f"d_model ({config.d_model}) must be divisible by n_heads_route ({config.n_heads_route})"
+        )
+
+    if seq_len > config.max_seq_len:
+        raise ValueError(
+            f"seq_len ({seq_len}) must be <= max_seq_len ({config.max_seq_len})"
+        )
+
+
+def _flatten_loaded_config(cfg: dict[str, Any]) -> dict[str, Any]:
+    """Flatten config sections into argparse-compatible key-value mapping."""
+    flat: dict[str, Any] = {}
+    for section in ("train", "model"):
+        section_values = cfg.get(section, {})
+        if section_values is None:
+            continue
+        if not isinstance(section_values, dict):
+            raise ValueError(f"Config section '{section}' must be a mapping")
+        flat.update(section_values)
+    for key, value in cfg.items():
+        if key in {"train", "model"}:
+            continue
+        flat[key] = value
+    return flat
+
+
+def _apply_config_overrides(parser: argparse.ArgumentParser, args: argparse.Namespace) -> argparse.Namespace:
+    """Apply config-file values unless corresponding CLI args were explicitly changed."""
+    if not args.config:
+        return args
+
+    cfg_path = Path(args.config)
+    if not cfg_path.exists():
+        raise FileNotFoundError(f"Config file not found: {cfg_path}")
+
+    cfg = OmegaConf.to_container(OmegaConf.load(cfg_path), resolve=True)
+    if not isinstance(cfg, dict):
+        raise ValueError("Top-level config must be a mapping")
+
+    flat = _flatten_loaded_config(cfg)
+    for key, value in flat.items():
+        if not hasattr(args, key):
+            raise ValueError(f"Unknown config key: {key}")
+
+        current_value = getattr(args, key)
+        default_value = parser.get_default(key)
+        if current_value == default_value:
+            setattr(args, key, value)
+
+    print(f"Loaded config: {cfg_path}")
+    return args
+
+
 # ============================================================================
 # Training
 # ============================================================================
@@ -225,8 +305,21 @@ def train(args: argparse.Namespace) -> None:
     # ---- Model ----
     config = SRNConfig(
         vocab_size=tokenizer.vocab_size,
-        max_seq_len=args.seq_len,
+        max_seq_len=args.max_seq_len,
+        d_model=args.d_model,
+        d_compressed=args.d_compressed,
+        n_layers=args.n_layers,
+        n_memory_slots=args.n_memory_slots,
+        n_experts=args.n_experts,
+        top_k_experts=args.top_k_experts,
+        d_expert=args.d_expert,
+        n_heads_route=args.n_heads_route,
+        dropout=args.dropout,
+        causal_window=args.causal_window,
+        csp_internal_residual=args.csp_internal_residual,
+        aux_loss_weight=args.aux_loss_weight,
     )
+    validate_srn_config(config, args.seq_len)
     model = SRNModel(config).to(device)
 
     total_params = model.count_params()
@@ -450,6 +543,8 @@ def save_checkpoint(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train SRN language model")
 
+    parser.add_argument("--config", type=str, default=None)
+
     # Training
     parser.add_argument("--max_steps", type=int, default=5000)
     parser.add_argument("--micro_batch", type=int, default=16)
@@ -475,7 +570,28 @@ def parse_args() -> argparse.Namespace:
     # Reproducibility
     parser.add_argument("--seed", type=int, default=42)
 
-    return parser.parse_args()
+    # Model (SRNConfig architecture knobs)
+    default_config = SRNConfig()
+    parser.add_argument("--max_seq_len", type=int, default=default_config.max_seq_len)
+    parser.add_argument("--d_model", type=int, default=default_config.d_model)
+    parser.add_argument("--d_compressed", type=int, default=default_config.d_compressed)
+    parser.add_argument("--n_layers", type=int, default=default_config.n_layers)
+    parser.add_argument("--n_memory_slots", type=int, default=default_config.n_memory_slots)
+    parser.add_argument("--n_experts", type=int, default=default_config.n_experts)
+    parser.add_argument("--top_k_experts", type=int, default=default_config.top_k_experts)
+    parser.add_argument("--d_expert", type=int, default=default_config.d_expert)
+    parser.add_argument("--n_heads_route", type=int, default=default_config.n_heads_route)
+    parser.add_argument("--dropout", type=float, default=default_config.dropout)
+    parser.add_argument("--causal_window", type=int, default=default_config.causal_window)
+    parser.add_argument(
+        "--csp_internal_residual",
+        action="store_true",
+        default=default_config.csp_internal_residual,
+    )
+    parser.add_argument("--aux_loss_weight", type=float, default=default_config.aux_loss_weight)
+
+    args = parser.parse_args()
+    return _apply_config_overrides(parser, args)
 
 
 if __name__ == "__main__":

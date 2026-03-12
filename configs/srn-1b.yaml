@@ -1,0 +1,30 @@
+train:
+  max_steps: 50000
+  micro_batch: 2
+  accum_steps: 16
+  seq_len: 2048
+  max_lr: 0.00012
+  min_lr: 0.000012
+  weight_decay: 0.1
+  warmup_steps: 2000
+  max_grad_norm: 1.0
+  eval_interval: 1000
+  eval_batches: 20
+  log_interval: 100
+  checkpoint_dir: checkpoints/srn-1b
+  seed: 42
+
+model:
+  max_seq_len: 2048
+  d_model: 1792
+  d_compressed: 448
+  n_layers: 16
+  n_memory_slots: 192
+  n_experts: 16
+  top_k_experts: 2
+  d_expert: 896
+  n_heads_route: 16
+  dropout: 0.1
+  causal_window: 128
+  csp_internal_residual: false
+  aux_loss_weight: 0.01
