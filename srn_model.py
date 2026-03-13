@@ -42,6 +42,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from dense_model import CausalSelfAttention
+
 
 # ============================================================================
 # Configuration
@@ -70,6 +72,13 @@ class SRNConfig:
     csp_internal_residual: bool = False  # If True, CSP adds its own residual
     aux_loss_weight: float = 0.01  # Weight for MoE load balancing loss
     sparse_moe: bool = False  # If True, use grouped sparse MoE (VRAM-efficient)
+
+    # --- Ablation experiment flags ---
+    attention_every_n_layers: int = 0  # 0=pure SRN, N=every Nth layer uses attention
+    attention_n_heads: int = 8  # Attention heads (only used when attention_every_n_layers>0)
+    disable_csp: bool = False  # If True, skip CSP bottleneck entirely
+    wcsg_key_offset: bool = False  # If True, add score-space offset to WCSG
+    wcsg_key_offset_rank: int = 32  # Low-rank dimension for WCSG offset
 
 
 # ============================================================================
@@ -517,9 +526,13 @@ class SRNLayer(nn.Module):
     """One layer of the Selective Routing Network.
 
     Pre-norm residual pattern:
-        x = x + DSR(LayerNorm(x))
-        x = x + CSP(LayerNorm(x))
-        x = x + GEM(LayerNorm(x))
+        x = x + Routing(LayerNorm(x))   — DSR or CausalSelfAttention
+        x = x + CSP(LayerNorm(x))       — optional (skip when disable_csp=True)
+        x = x + GEM(LayerNorm(x))       — always present
+
+    Hybrid attention: when attention_every_n_layers > 0, every Nth layer
+    replaces DSR with standard causal self-attention. This tests whether
+    direct token-to-token interaction closes the quality gap.
     """
 
     def __init__(self, config: SRNConfig, layer_idx: int) -> None:
@@ -529,12 +542,34 @@ class SRNLayer(nn.Module):
 
         # Layer norms (pre-norm pattern)
         self.ln1 = nn.LayerNorm(d)
-        self.ln2 = nn.LayerNorm(d)
         self.ln3 = nn.LayerNorm(d)
 
-        # Core modules
-        self.router = DynamicSparseRouter(config, layer_idx)
-        self.csp = CompressedStatePropagation(config, layer_idx)
+        # Routing: either attention or DSR (mutually exclusive)
+        # Note: layer_idx is 0-based, so attention_every_n_layers=2 means
+        # layers 0, 2, 4, ... use attention (every 2nd layer starting from first)
+        self.uses_attention: bool = (
+            config.attention_every_n_layers > 0
+            and layer_idx % config.attention_every_n_layers == 0
+        )
+        self.attn: Optional[CausalSelfAttention] = None
+        self.router: Optional[DynamicSparseRouter] = None
+
+        if self.uses_attention:
+            self.attn = CausalSelfAttention(
+                d, config.attention_n_heads, config.dropout
+            )
+        else:
+            self.router = DynamicSparseRouter(config, layer_idx)
+
+        # CSP: optional (for ablation experiment)
+        if config.disable_csp:
+            self.csp: Optional[CompressedStatePropagation] = None
+            self.ln2: Optional[nn.LayerNorm] = None
+        else:
+            self.ln2 = nn.LayerNorm(d)
+            self.csp = CompressedStatePropagation(config, layer_idx)
+
+        # GEM: always present
         self.gem = GatedExpertMixture(config, layer_idx)
 
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -547,11 +582,15 @@ class SRNLayer(nn.Module):
             x: (B, N, D) output tensor
             aux_loss: scalar — MoE load balancing loss from GEM
         """
-        # Dynamic Sparse Routing (replaces attention)
-        x = x + self.router(self.ln1(x))
+        # Routing: attention or DSR (pre-norm residual)
+        if self.uses_attention:
+            x = x + self.attn(self.ln1(x))
+        else:
+            x = x + self.router(self.ln1(x))
 
-        # Compressed State Propagation
-        x = x + self.csp(self.ln2(x))
+        # Compressed State Propagation (skip when disabled)
+        if self.csp is not None:
+            x = x + self.csp(self.ln2(x))
 
         # Gated Expert Mixture (replaces FFN)
         gem_out, aux_loss = self.gem(self.ln3(x))
@@ -694,23 +733,64 @@ class SRNModel(nn.Module):
         """Approximate active parameters per token.
 
         Only top_k experts are active, so GEM params are partially dormant.
-        DSR, CSP, LayerNorm, and embeddings are fully active.
+        DSR/attention, CSP, LayerNorm, and embeddings are fully active.
+        Accounts for hybrid attention, CSP ablation, and WCSG offset.
         """
         config = self.config
         d, dc = config.d_model, config.d_compressed
         k, n_exp = config.n_memory_slots, config.n_experts
         top_k, d_exp = config.top_k_experts, config.d_expert
 
-        # Per layer: DSR (all active) + CSP (all active) + GEM (partial)
-        dsr_params = (d * d) + k * d + (d * d) + (d * k) + (config.max_seq_len * k) + (d * d)
-        csp_params = (d * dc) + (dc * dc) + (dc * d) + ((d + dc) * d)
-        gem_active = (d * n_exp) + top_k * (d * d_exp + d_exp * d)  # router + active experts
-        ln_params = 6 * d  # 3 layer norms × (gamma + beta)
+        # Count attention vs DSR layers
+        n_attn_layers = 0
+        if config.attention_every_n_layers > 0:
+            n_attn_layers = sum(
+                1 for i in range(config.n_layers)
+                if i % config.attention_every_n_layers == 0
+            )
+        n_dsr_layers = config.n_layers - n_attn_layers
 
-        per_layer = dsr_params + csp_params + gem_active + ln_params
-        embeddings = config.vocab_size * d + config.max_seq_len * d + d  # token + pos + final LN
+        # Attention layer active params: QKV + out_proj (all active, no bias)
+        # qkv: d*3d, out_proj: d*d → total 4*d*d (bias=False by default)
+        attn_active = 4 * d * d
 
-        return per_layer * config.n_layers + embeddings
+        # DSR active params (all active — routing is dense, just O(n*k) not O(n²))
+        # W_q: d*d, slot_keys: k*d, W_sv: d*d, W_gate: d*k, pos_bias: L*k, W_o: d*d
+        dsr_active = (d * d) + k * d + (d * d) + (d * k) + (config.max_seq_len * k) + (d * d)
+
+        # WCSG offset params (if enabled, only on DSR layers)
+        wcsg_offset = 0
+        if config.wcsg_key_offset:
+            rank = config.wcsg_key_offset_rank
+            wcsg_offset = d * rank + rank + rank * k + k  # down + up with biases
+
+        # CSP active params (0 if disabled)
+        csp_active = 0
+        if not config.disable_csp:
+            csp_active = (d * dc) + (dc * dc) + (dc * d) + ((d + dc) * d)
+
+        # GEM active params: router (all active) + top_k experts
+        gem_active = (d * n_exp) + top_k * (d * d_exp + d_exp * d)
+
+        # LayerNorm: 2 params per dim (gamma + beta)
+        # ln1 + ln3 always present; ln2 only when CSP enabled
+        n_ln = 2 if config.disable_csp else 3
+        ln_active = n_ln * 2 * d
+
+        # Per-layer common (CSP + GEM + LN)
+        common_active = csp_active + gem_active + ln_active
+
+        # Total across layers
+        routing_total = (
+            n_attn_layers * attn_active
+            + n_dsr_layers * (dsr_active + wcsg_offset)
+        )
+        layer_total = routing_total + common_active * config.n_layers
+
+        # Embeddings: token + pos + final LN (gamma + beta)
+        embeddings = config.vocab_size * d + config.max_seq_len * d + 2 * d
+
+        return layer_total + embeddings
 
 
 # ============================================================================

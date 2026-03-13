@@ -167,6 +167,17 @@ Trained on TinyShakespeare (character-level, ~1.1MB) for 5,000 steps on an RTX 2
 
 The model learns Shakespeare's formatting (speaker labels, verse structure, punctuation) and common English character patterns. With only 5K steps of character-level training, word-level coherence is limited — this is a proof-of-concept, not a production model.
 
+### TinyStories SRN vs Transformer (Fit Snapshot)
+
+Early apples-to-apples fit comparison on RTX 2060 6GB with TinyStories setup:
+
+| Model | Params | Micro batch | Peak VRAM |
+|-------|--------|-------------|-----------|
+| SRN (WCSG) | ~150M | 16 | 4624M |
+| Transformer baseline | 152M | 2 | 4519M |
+
+This is a useful capacity/efficiency data point: at similar parameter count, SRN fits a much larger micro batch than the dense Transformer on the same GPU.
+
 ## Quick Start
 
 ### Prerequisites

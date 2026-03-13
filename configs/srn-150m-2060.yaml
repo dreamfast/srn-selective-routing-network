@@ -1,0 +1,39 @@
+# SRN-150M config tuned for RTX 2060 (6GB VRAM)
+# Same architecture as srn-150m.yaml but with smaller micro_batch
+# and shorter seq_len to fit in 6GB. Uses gradient accumulation
+# to maintain effective batch size.
+#
+# Effective batch size: micro_batch * accum_steps * seq_len
+#   = 2 * 16 * 512 = 16,384 tokens/step
+
+train:
+  max_steps: 5000
+  micro_batch: 2
+  accum_steps: 16
+  seq_len: 512
+  max_lr: 0.0003
+  min_lr: 0.00003
+  weight_decay: 0.1
+  warmup_steps: 500
+  max_grad_norm: 1.0
+  eval_interval: 250
+  eval_batches: 10
+  log_interval: 25
+  checkpoint_dir: checkpoints/srn-150m-2060
+  seed: 42
+
+model:
+  max_seq_len: 512
+  d_model: 896
+  d_compressed: 224
+  n_layers: 12
+  n_memory_slots: 96
+  n_experts: 8
+  top_k_experts: 2
+  d_expert: 384
+  n_heads_route: 8
+  dropout: 0.1
+  causal_window: 64
+  csp_internal_residual: false
+  aux_loss_weight: 0.01
+  sparse_moe: false

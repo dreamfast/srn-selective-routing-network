@@ -21,7 +21,7 @@ License: Apache 2.0
 
 import math
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -59,24 +59,46 @@ class CausalSelfAttention(nn.Module):
 
     Uses PyTorch's scaled_dot_product_attention with causal mask for
     efficient O(n²) attention computation.
+
+    Supports two construction signatures:
+        CausalSelfAttention(config)           — from DenseConfig (used by DenseGPT)
+        CausalSelfAttention(d_model, n_heads) — explicit params (used by SRN hybrid)
     """
 
-    def __init__(self, config: DenseConfig) -> None:
+    def __init__(
+        self,
+        config_or_d_model: Union[DenseConfig, int],
+        n_heads: Optional[int] = None,
+        dropout: float = 0.1,
+        bias: bool = False,
+    ) -> None:
         super().__init__()
-        d = config.d_model
-        h = config.n_heads
+
+        # Dual signature: DenseConfig or explicit params
+        if isinstance(config_or_d_model, DenseConfig):
+            d = config_or_d_model.d_model
+            h = config_or_d_model.n_heads
+            drop = config_or_d_model.dropout
+            use_bias = config_or_d_model.bias
+        else:
+            d = config_or_d_model
+            h = n_heads
+            drop = dropout
+            use_bias = bias
+
+        assert h is not None, "n_heads must be provided"
         assert d % h == 0, f"d_model ({d}) must be divisible by n_heads ({h})"
 
         self.n_heads = h
         self.d_head = d // h
 
         # QKV projection (combined for efficiency)
-        self.qkv = nn.Linear(d, 3 * d, bias=config.bias)
+        self.qkv = nn.Linear(d, 3 * d, bias=use_bias)
         # Output projection
-        self.out_proj = nn.Linear(d, d, bias=config.bias)
+        self.out_proj = nn.Linear(d, d, bias=use_bias)
 
-        self.attn_drop = nn.Dropout(config.dropout)
-        self.resid_drop = nn.Dropout(config.dropout)
+        self.attn_drop = nn.Dropout(drop)
+        self.resid_drop = nn.Dropout(drop)
 
         self._init_weights()
 
