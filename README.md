@@ -19,6 +19,12 @@ A neural network architecture that replaces Transformer self-attention with dyna
     - [The Design Trade-off](#the-design-trade-off)
     - [Related Work](#related-work)
   - [Results](#results)
+  - [Ablation Experiments](#ablation-experiments)
+    - [Gap Decomposition Framework](#gap-decomposition-framework)
+    - [Experiment Overview](#experiment-overview)
+    - [Running Experiments](#running-experiments)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Results Tracking](#results-tracking)
   - [Quick Start](#quick-start)
     - [Prerequisites](#prerequisites)
     - [Train](#train)
@@ -178,6 +184,105 @@ Early apples-to-apples fit comparison on RTX 2060 6GB with TinyStories setup:
 
 This is a useful capacity/efficiency data point: at similar parameter count, SRN fits a much larger micro batch than the dense Transformer on the same GPU.
 
+## Ablation Experiments
+
+A systematic framework to investigate the 0.79 val_loss gap between SRN-150M and a parameter-matched Transformer on TinyStories. Six ablation experiments isolate individual architectural contributions, with baselines for controlled comparison.
+
+### Gap Decomposition Framework
+
+The total gap (0.79 val_loss) can be decomposed into two components:
+
+```
+Total Gap = Compute Gap + Architecture Gap
+
+Compute Gap    = Transformer-152M loss − Transformer-112M loss
+                 (SRN uses only 112M active params/token despite 162M total)
+
+Architecture Gap = SRN loss − Transformer-112M loss
+                   (at equal active compute, how much does routing vs attention cost?)
+```
+
+Each experiment targets a specific hypothesis about where the architecture gap comes from:
+
+| Question | Experiment | What it tells us |
+|----------|------------|------------------|
+| Is it the lack of attention? | Exp1 (Hybrid) | If hybrid closes the gap, routing alone can't match attention |
+| Is it slot count? | Exp2a/2b (128/256 slots) | Whether 96 slots is an information bottleneck |
+| Is it data volume? | Exp3 (Full dataset) | Whether SRN needs more data to converge |
+| Is CSP hurting? | Exp4 (No CSP) | Whether the bottleneck layer destroys useful information |
+| Is it expert utilization? | Exp5 (Top-k 4) | Whether 2-of-8 experts is too sparse |
+| Is WCSG limiting routing? | Exp6 (WCSG offset) | Whether score-space modulation needs more expressiveness |
+
+### Experiment Overview
+
+| ID | Name | Key Change | Total Params | Active/Token |
+|----|------|------------|-------------|-------------|
+| Exp0 | SRN Baseline | (none — controlled re-run) | 161,950,304 | 112,220,928 (69.3%) |
+| Exp0-T | Transformer 152M | Dense Transformer baseline | 152,398,080 | 152,398,080 (100%) |
+| Exp0-Ts | Transformer 112M | Compute-fair baseline (d=640) | 112,581,504 | 112,581,504 (100%) |
+| Exp1 | Hybrid Attention | `attention_every_n_layers=4` | ~163,700,000 | ~113,900,000 |
+| Exp2a | 128 Slots | `n_memory_slots=128, d_expert=379` | 160,926,208 | — |
+| Exp2b | 256 Slots | `n_memory_slots=256, d_expert=358` | 160,852,000 | — |
+| Exp3 | Full TinyStories | `max_steps=12817` (2060) | 161,950,304 | 112,220,928 |
+| Exp4 | No CSP | `disable_csp=true` | 144,462,176 | — |
+| Exp5 | Top-k 4 | `top_k_experts=4` | 161,950,304 | — |
+| Exp6 | WCSG Offset | `wcsg_key_offset=true, rank=16` | +191,808 | — |
+
+### Running Experiments
+
+All experiments are config-driven via YAML files in `configs/experiments/` and executed through the experiment runner:
+
+```bash
+# Dry run — show commands without executing
+docker compose run --rm srn python scripts/run_experiments.py \
+  --dry-run --all --gpu 2060
+
+# Run specific experiments
+docker compose run --rm srn python scripts/run_experiments.py \
+  --experiments 0,0t,1 --gpu 2060
+
+# Run all experiments for a GPU tier
+docker compose run --rm srn python scripts/run_experiments.py \
+  --all --gpu 4090
+
+# Compare results
+docker compose run --rm srn python scripts/run_experiments.py \
+  --compare --gpu 2060
+```
+
+**Experiment IDs:** `0` (SRN baseline), `0t` (Transformer 152M), `0ts` (Transformer 112M), `1` (Hybrid), `2a` (128 slots), `2b` (256 slots), `3` (Full data), `4` (No CSP), `5` (Top-k 4), `6` (WCSG offset)
+
+**Config naming:** `configs/experiments/exp{ID}-{name}-{gpu}.yaml` (e.g. `exp1-hybrid-2060.yaml`)
+
+### Hardware Requirements
+
+Each experiment has configs for three GPU tiers. The model architecture is identical across tiers — only batch size and sequence length differ:
+
+| GPU | VRAM | Micro Batch | Seq Len | Accum Steps | Effective Batch |
+|-----|------|-------------|---------|-------------|-----------------|
+| RTX 2060 | 6 GB | 2 | 512 | 16 | 32 |
+| RTX 4090 | 24 GB | 16 | 1024 | 4 | 64 |
+| RTX 5090 | 32 GB | 24 | 1024 | 4 | 96 |
+
+**Estimated training time per experiment:** ~2-3 hours (2060), ~30-45 min (4090/5090). Exp3 (full dataset) is longer: ~12.5 hours (2060).
+
+### Results Tracking
+
+Results are saved as structured JSON in `results/` with training logs alongside:
+
+```
+results/
+  exp0-srn-2060.json       # Structured metrics (val_loss, step, params)
+  exp0-srn-2060.log        # Full training stdout/stderr
+  exp1-hybrid-4090.json
+  exp1-hybrid-4090.log
+  ...
+```
+
+Use `--compare` to generate a summary table across all experiments for a given GPU tier. Results are collected from checkpoints (not stdout parsing) for reliability.
+
+**Status:** Experiment framework is implemented. Results will be populated as experiments are run.
+
 ## Quick Start
 
 ### Prerequisites
@@ -294,15 +399,22 @@ The PyTorch port discovered and fixed several issues in the original `srn_archit
 ## Project Structure
 
 ```
-srn_model.py           # PyTorch SRN model with WCSG (core implementation)
-train.py               # Training loop (AdamW, cosine schedule, mixed precision, grad accum)
-generate.py            # Text generation CLI + perplexity evaluation
-validate.py            # Validation suite + comparison with original NumPy PoC
-data.py                # TinyShakespeare dataset + character-level tokenizer
-srn_architecture.py    # Original NumPy proof-of-concept (reference, untouched)
-Dockerfile             # PyTorch 2.5.1 + CUDA 12.4
-docker-compose.yml     # GPU passthrough + volume mounts
-requirements.txt       # numpy, tqdm, requests
+srn_model.py              # PyTorch SRN model with WCSG (core implementation)
+dense_model.py            # Dense Transformer baseline (CausalSelfAttention, DenseBlock)
+train.py                  # Training loop (AdamW, cosine schedule, mixed precision, grad accum)
+generate.py               # Text generation CLI + perplexity evaluation
+validate.py               # Validation suite + comparison with original NumPy PoC
+data.py                   # TinyShakespeare dataset + character-level tokenizer
+srn_architecture.py       # Original NumPy proof-of-concept (reference, untouched)
+scripts/
+  run_experiments.py      # Experiment runner CLI (dry-run, compare, structured results)
+configs/
+  experiments/            # 30 YAML configs (10 experiments × 3 GPU tiers)
+tests/                    # pytest suite (113 tests)
+results/                  # Experiment outputs (JSON metrics + training logs)
+Dockerfile                # PyTorch 2.5.1 + CUDA 12.4
+docker-compose.yml        # GPU passthrough + volume mounts
+requirements.txt          # numpy, tqdm, requests
 ```
 
 ## License
