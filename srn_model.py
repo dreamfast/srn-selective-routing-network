@@ -172,6 +172,15 @@ class DynamicSparseRouter(nn.Module):
         # Output projection
         self.W_o = nn.Linear(d, d)  # (D) -> (D)
 
+        # WCSG score-space offset: low-rank additive offset to routing scores
+        # Uses the same causal gate for consistent causal gating
+        self.W_offset_down: Optional[nn.Linear] = None
+        self.W_offset_up: Optional[nn.Linear] = None
+        if config.wcsg_key_offset:
+            rank = config.wcsg_key_offset_rank
+            self.W_offset_down = nn.Linear(d, rank)   # (D) -> (rank)
+            self.W_offset_up = nn.Linear(rank, k)     # (rank) -> (k)
+
         # Dropout on routing weights
         self.attn_drop = nn.Dropout(config.dropout)
 
@@ -191,6 +200,12 @@ class DynamicSparseRouter(nn.Module):
         nn.init.zeros_(self.W_o.bias)
         # Positional bias starts at zero — learned from scratch
         nn.init.zeros_(self.pos_bias)
+        # WCSG offset: near-zero init so offset starts negligible
+        if self.W_offset_down is not None:
+            nn.init.normal_(self.W_offset_down.weight, std=0.001)
+            nn.init.zeros_(self.W_offset_down.bias)
+            nn.init.normal_(self.W_offset_up.weight, std=0.001)
+            nn.init.zeros_(self.W_offset_up.bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass with Windowed Causal Score Gating.
@@ -226,6 +241,15 @@ class DynamicSparseRouter(nn.Module):
         # 4. MODULATE routing scores with causal gate (NOVEL)
         # gate: (B, N, k) -> (B, 1, N, k) for broadcast over heads
         routing_scores = routing_scores * gate.unsqueeze(1)
+
+        # 4b. WCSG score-space offset: gated additive offset (NOVEL)
+        # Uses same causal gate for consistent causal gating
+        if self.W_offset_down is not None:
+            score_offset = self.W_offset_up(
+                F.gelu(self.W_offset_down(x_windowed))
+            )  # (B, N, k)
+            # Gated application: gate * offset ensures causality
+            routing_scores = routing_scores + (gate * score_offset).unsqueeze(1)  # (B, 1, N, k)
 
         # 5. Add learned positional routing bias
         # pos_bias: (L, k) -> (1, 1, N, k)
