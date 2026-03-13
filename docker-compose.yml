@@ -12,10 +12,10 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
+              device_ids: ['${NVIDIA_GPU:-0}']
               capabilities: [gpu]
     environment:
-      - NVIDIA_VISIBLE_DEVICES=all
       - PYTHONUNBUFFERED=1
+      - HF_TOKEN=${HF_TOKEN:-}
     stdin_open: true
     tty: true

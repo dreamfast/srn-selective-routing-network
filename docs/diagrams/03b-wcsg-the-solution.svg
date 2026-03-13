@@ -1,0 +1,103 @@
+<svg width="100%" viewBox="0 0 680 440" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .th { font-size: 14px; font-weight: 500; }
+  .ts { font-size: 12px; font-weight: 400; }
+
+  @media (prefers-color-scheme: dark) {
+    .auto .th, .auto .ts { fill: #e0e0e0; }
+    .auto .bg { fill: #1a1a2e; }
+    .auto .slot-hi-fill { fill: #085041; stroke: #5DCAA5; }
+    .auto .slot-hi-text { fill: #9FE1CB; }
+    .auto .slot-lo-fill { fill: #712B13; stroke: #F0997B; }
+    .auto .slot-lo-text { fill: #F5C4B3; }
+    .auto .token-fill { fill: #2C2C2A; stroke: #5F5E5A; }
+    .auto .token-text { fill: #B4B2A9; }
+    .auto .token-hi-fill { fill: #633806; stroke: #EF9F27; }
+    .auto .token-hi-text { fill: #FAC775; }
+    .auto .window-stroke { stroke: #EF9F27; }
+    .auto .window-text { fill: #BA7517; }
+    .auto .sub-text { fill: #999; }
+  }
+  @media (prefers-color-scheme: light) {
+    .auto .th, .auto .ts { fill: #1a1a2e; }
+    .auto .bg { fill: #ffffff; }
+    .auto .slot-hi-fill { fill: #E1F5EE; stroke: #0F6E56; }
+    .auto .slot-hi-text { fill: #085041; }
+    .auto .slot-lo-fill { fill: #FAECE7; stroke: #993C1D; }
+    .auto .slot-lo-text { fill: #712B13; }
+    .auto .token-fill { fill: #F1EFE8; stroke: #888780; }
+    .auto .token-text { fill: #444441; }
+    .auto .token-hi-fill { fill: #FAEEDA; stroke: #BA7517; }
+    .auto .token-hi-text { fill: #633806; }
+    .auto .window-stroke { stroke: #EF9F27; }
+    .auto .window-text { fill: #854F0B; }
+    .auto .sub-text { fill: #666; }
+  }
+</style>
+<g class="auto">
+<rect class="bg" x="0" y="0" width="680" height="440" rx="0"/>
+
+<text class="th" x="340" y="30" text-anchor="middle">The solution: modulate scores with a causal gate</text>
+
+<!-- Tokens -->
+<rect class="token-fill" x="60" y="300" width="56" height="32" rx="6" stroke-width="0.5"/>
+<text class="token-text ts" x="88" y="320" text-anchor="middle" dominant-baseline="central">The</text>
+
+<rect class="token-fill" x="132" y="300" width="56" height="32" rx="6" stroke-width="0.5"/>
+<text class="token-text ts" x="160" y="320" text-anchor="middle" dominant-baseline="central">cat</text>
+
+<rect class="token-hi-fill" x="204" y="300" width="56" height="32" rx="6" stroke-width="1"/>
+<text class="token-hi-text th" x="232" y="320" text-anchor="middle" dominant-baseline="central">sat</text>
+
+<rect class="token-fill" x="276" y="300" width="56" height="32" rx="6" stroke-width="0.5"/>
+<text class="token-text ts" x="304" y="320" text-anchor="middle" dominant-baseline="central">on</text>
+
+<rect class="token-fill" x="348" y="300" width="56" height="32" rx="6" stroke-width="0.5"/>
+<text class="token-text ts" x="376" y="320" text-anchor="middle" dominant-baseline="central">the</text>
+
+<rect class="token-fill" x="420" y="300" width="56" height="32" rx="6" stroke-width="0.5"/>
+<text class="token-text ts" x="448" y="320" text-anchor="middle" dominant-baseline="central">mat</text>
+
+<!-- Causal window highlight -->
+<rect class="window-stroke" x="55" y="295" width="210" height="42" rx="8" fill="none" stroke-width="1.5" stroke-dasharray="5 3" opacity="0.7"/>
+<text class="window-text ts" x="160" y="356" text-anchor="middle">Causal window for "sat"</text>
+
+<!-- Gate values heading -->
+<text class="th" x="340" y="68" text-anchor="middle">Gate values per slot</text>
+
+<!-- High-gate slots -->
+<rect class="slot-hi-fill" x="90" y="86" width="90" height="48" rx="6" stroke-width="0.5"/>
+<text class="slot-hi-text th" x="135" y="104" text-anchor="middle" dominant-baseline="central">Slot 1</text>
+<text class="slot-hi-text ts" x="135" y="122" text-anchor="middle" dominant-baseline="central">gate: 0.92</text>
+
+<rect class="slot-hi-fill" x="210" y="86" width="90" height="48" rx="6" stroke-width="0.5"/>
+<text class="slot-hi-text th" x="255" y="104" text-anchor="middle" dominant-baseline="central">Slot 2</text>
+<text class="slot-hi-text ts" x="255" y="122" text-anchor="middle" dominant-baseline="central">gate: 0.85</text>
+
+<!-- Low-gate slots -->
+<rect class="slot-lo-fill" x="340" y="86" width="90" height="48" rx="6" stroke-width="0.5"/>
+<text class="slot-lo-text th" x="385" y="104" text-anchor="middle" dominant-baseline="central">Slot 3</text>
+<text class="slot-lo-text ts" x="385" y="122" text-anchor="middle" dominant-baseline="central">gate: 0.08</text>
+
+<rect class="slot-lo-fill" x="470" y="86" width="90" height="48" rx="6" stroke-width="0.5"/>
+<text class="slot-lo-text th" x="515" y="104" text-anchor="middle" dominant-baseline="central">Slot 4</text>
+<text class="slot-lo-text ts" x="515" y="122" text-anchor="middle" dominant-baseline="central">gate: 0.03</text>
+
+<!-- Strong connections (high gate) -->
+<line x1="232" y1="300" x2="135" y2="134" stroke="#1D9E75" stroke-width="2.5" opacity="0.7"/>
+<line x1="232" y1="300" x2="255" y2="134" stroke="#1D9E75" stroke-width="2" opacity="0.6"/>
+
+<!-- Suppressed connections (low gate) -->
+<line x1="232" y1="300" x2="385" y2="134" stroke="#E24B4A" stroke-width="0.5" opacity="0.2"/>
+<line x1="232" y1="300" x2="515" y2="134" stroke="#E24B4A" stroke-width="0.5" opacity="0.15"/>
+
+<!-- Explanation -->
+<text class="sub-text ts" x="340" y="220" text-anchor="middle">scores = raw_scores × gate</text>
+<text class="sub-text ts" x="340" y="240" text-anchor="middle">High gate = route normally. Low gate = suppress.</text>
+
+<!-- Bottom annotation -->
+<text class="sub-text ts" x="340" y="400" text-anchor="middle">The gate is computed from a causal windowed mean of past tokens only.</text>
+<text class="sub-text ts" x="340" y="418" text-anchor="middle">No future information can leak through.</text>
+</g>
+</svg>

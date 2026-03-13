@@ -3,6 +3,9 @@ data/
 checkpoints/
 results/
 
+# Secrets
+.env
+
 # Python
 __pycache__/
 *.pyc

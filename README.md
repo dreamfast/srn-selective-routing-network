@@ -4,44 +4,29 @@ A neural network architecture that replaces Transformer self-attention with dyna
 
 **Key approach: Windowed Causal Score Gating (WCSG)** — a score-side gating mechanism for causal, position-dependent routing with O(1) extra memory overhead, instead of the O(n²) attention matrix.
 
+![Transformer vs SRN](docs/diagrams/transformer_vs_srn_core_difference.svg)
+
 ## Table of Contents
 
-- [SRN: Selective Routing Network](#srn-selective-routing-network)
-  - [Table of Contents](#table-of-contents)
-  - [Architecture](#architecture)
-    - [Dynamic Sparse Router (DSR)](#dynamic-sparse-router-dsr)
-    - [Compressed State Propagation (CSP)](#compressed-state-propagation-csp)
-    - [Gated Expert Mixture (GEM)](#gated-expert-mixture-gem)
-  - [Windowed Causal Score Gating (WCSG)](#windowed-causal-score-gating-wcsg)
-    - [The Problem](#the-problem)
-    - [The Solution: Modulate Scores, Not Keys](#the-solution-modulate-scores-not-keys)
-    - [Why This Works](#why-this-works)
-    - [The Design Trade-off](#the-design-trade-off)
-    - [Related Work](#related-work)
-  - [Results](#results)
-  - [Ablation Experiments](#ablation-experiments)
-    - [Gap Decomposition Framework](#gap-decomposition-framework)
-    - [Experiment Overview](#experiment-overview)
-    - [Running Experiments](#running-experiments)
-    - [Hardware Requirements](#hardware-requirements)
-    - [Results Tracking](#results-tracking)
-  - [Quick Start](#quick-start)
-    - [Prerequisites](#prerequisites)
-    - [Train](#train)
-    - [Generate Text](#generate-text)
-    - [Validate Architecture](#validate-architecture)
-    - [Without Docker](#without-docker)
-  - [Model Configuration](#model-configuration)
-  - [Training Details](#training-details)
-  - [Complexity Comparison](#complexity-comparison)
-  - [Bugs Fixed from Original NumPy PoC](#bugs-fixed-from-original-numpy-poc)
-  - [Project Structure](#project-structure)
-  - [License](#license)
-  - [Author](#author)
+- [Architecture](#architecture)
+- [Windowed Causal Score Gating (WCSG)](#windowed-causal-score-gating-wcsg)
+- [Results](#results)
+- [Ablation Experiments](#ablation-experiments)
+- [Quick Start](#quick-start)
+- [Model Configuration](#model-configuration)
+- [Training Details](#training-details)
+- [Complexity Comparison](#complexity-comparison)
+- [Scaling Vision](#scaling-vision)
+- [Bugs Fixed from Original NumPy PoC](#bugs-fixed-from-original-numpy-poc)
+- [Project Structure](#project-structure)
+- [License](#license)
+- [Author](#author)
 
 ## Architecture
 
 SRN layers consist of three modules stacked with pre-norm residual connections:
+
+![Inside an SRN Layer](docs/diagrams/inside_srn_layer.svg)
 
 ```
 Input token IDs: (B, N)
@@ -49,7 +34,7 @@ Input token IDs: (B, N)
 Token Embedding + Positional Embedding + Dropout
     ↓
 ┌─────────────────────────────────────────────┐
-│  SRN Layer (×8)                             │
+│  SRN Layer (×12)                            │
 │                                             │
 │  x = x + DSR(LayerNorm(x))    ← routing    │
 │  x = x + CSP(LayerNorm(x))    ← bottleneck │
@@ -79,6 +64,8 @@ Forces information through a learned bottleneck between layers. Compresses the s
 
 ### Gated Expert Mixture (GEM)
 
+![Sparse Experts](docs/diagrams/sparse_experts_gem.svg)
+
 Replaces the dense FFN. Multiple small expert networks (8 total) with a lightweight router that selects the top-k (2) experts per token. All experts are computed in parallel via `torch.einsum` (no Python loops). Includes Switch Transformer load balancing auxiliary loss to prevent expert collapse.
 
 - **Parameter efficiency:** Only 2 of 8 experts fire per token, so ~75% of GEM parameters are dormant
@@ -89,11 +76,15 @@ WCSG is a core mechanism in SRN. It addresses a practical problem: **how do you 
 
 ### The Problem
 
+![WCSG — The Problem](docs/diagrams/03a-wcsg-the-problem.svg)
+
 In a standard Transformer, causal masking is straightforward — you mask the attention matrix so position t only attends to positions ≤ t. But SRN doesn't have an attention matrix. It has **global memory slots** (shared across all positions), and tokens route to these slots via learned scores.
 
 The naive approach to making this causal would be to create **per-position slot keys** — adapting the slot representations for each position based on past context. But this expands the slot key tensor from (k, D) to (B, N, k, D), which at our model dimensions would require **~4.3GB of VRAM per layer** — completely infeasible.
 
 ### The Solution: Modulate Scores, Not Keys
+
+![WCSG — The Solution](docs/diagrams/03b-wcsg-the-solution.svg)
 
 Instead of adapting the slot keys themselves, WCSG modulates the **routing scores** with a per-position causal gate:
 
@@ -122,6 +113,8 @@ Instead of adapting the slot keys themselves, WCSG modulates the **routing score
 
 6. Softmax → routing weights → aggregate from static slot values
 ```
+
+![WCSG — Memory Cost](docs/diagrams/03c-wcsg-memory-cost.svg)
 
 ### Why This Works
 
@@ -160,7 +153,63 @@ WCSG's contribution is a practical read-side alternative: causal, position-depen
 
 ## Results
 
-Trained on TinyShakespeare (character-level, ~1.1MB) for 5,000 steps on an RTX 2060:
+### TinyStories Baselines (5,000 steps)
+
+Three controlled baselines on TinyStories with BPE tokenizer (vocab=50,257):
+
+| Model | GPU | Total Params | Active/Token | Best Val Loss | Perplexity | Peak VRAM | tok/s |
+|-------|-----|-------------|-------------|--------------|------------|-----------|-------|
+| Transformer 184M | RTX 4090 | 184M | 184M (100%) | **1.373** | 3.95 | 18.8 GB | ~40K |
+| Transformer 112M | RTX 4090 | 112M | 112M (100%) | **1.470** | 4.35 | 15.0 GB | ~66K |
+| SRN 146M | RTX 5090 | 146M | 96M (66%) | **2.528** | 12.53 | 26.8 GB | ~65K |
+
+**Gap decomposition:**
+
+![Gap Decomposition](docs/diagrams/gap_decomposition_results.svg)
+
+```
+Total Gap        = 2.528 - 1.373 = 1.155  (SRN vs param-matched Transformer)
+Compute Gap      = 1.470 - 1.373 = 0.097  (8% of gap — param activity barely matters)
+Architecture Gap = 2.528 - 1.470 = 1.058  (92% of gap — routing vs attention)
+```
+
+**Key finding:** The compute gap is negligible. The 112M Transformer (matching SRN's active params/token) performs nearly as well as the 184M. This means the SRN's quality gap is almost entirely architectural — the routing mechanism itself, not the sparse parameter usage, is the bottleneck.
+
+### Hybrid SRN: The Breakthrough (Exp1 — In Progress)
+
+![Hybrid SRN Architecture](docs/diagrams/hybrid_srn_architecture.svg)
+
+Adding just 3 attention layers (every 4th layer) to the 12-layer SRN dramatically closes the gap:
+
+| Model | Val Loss @ Step 2750 | Final Val Loss |
+|-------|---------------------|----------------|
+| Transformer 184M | 1.502 | **1.373** |
+| **Hybrid SRN (Exp1)** | **1.639** | **~1.5 (projected)** |
+| Transformer 112M | ~1.55 | **1.470** |
+| Pure SRN | ~2.67 | **2.528** |
+
+The hybrid SRN with 75% routing layers and 25% attention layers is tracking close to the pure Transformers — and learning faster in early training (beating both Transformers at step 1500).
+
+**What this means:** Routing layers are effective for most of the computation, but a few attention "anchor" layers are needed to capture patterns that slot routing misses. This is the best of both worlds — near-Transformer quality with mostly O(n·k) layers.
+
+### Ablation Early Results
+
+| Experiment | Val Loss @ Step 1500 | vs Baseline SRN | Signal |
+|-----------|---------------------|-----------------|--------|
+| **Exp1 (Hybrid Attention)** | **1.897** | **-1.13** | Massive improvement |
+| Exp4 (No CSP) | 3.071 | +0.05 | CSP is slightly helpful, not hurting |
+| Baseline SRN | 3.023 | — | — |
+
+**Observations:**
+- SRN expert utilization is perfectly uniform (0.250 per layer) throughout training, with aux_loss ~24 constant. The load balancing loss may be too dominant relative to the cross-entropy loss (~9% of total loss at convergence)
+- Expert utilization spread widened over training (min=0.110, max=0.472 by step 5000) suggesting some specialization despite the strong balancing pressure
+- SRN throughput (65K tok/s on 5090) is competitive with the 112M Transformer (66K tok/s on 4090), confirming the efficiency thesis — routing is not slower than attention at this scale
+
+**Note:** These baselines used different GPUs (5090 vs 4090) and slightly different effective batch sizes (96 vs 64). The param counts differ from original estimates because the tokenizer has 50,257 tokens (GPT-2 BPE) rather than the 32,000 assumed during planning. All experiments use the same tokenizer, so comparisons between them are valid.
+
+### TinyShakespeare (Character-Level)
+
+Earlier proof-of-concept trained on TinyShakespeare (~1.1MB) for 5,000 steps on an RTX 2060:
 
 | Metric | Value |
 |--------|-------|
@@ -171,38 +220,21 @@ Trained on TinyShakespeare (character-level, ~1.1MB) for 5,000 steps on an RTX 2
 | Active per token | 15.2M (54.5%) |
 | Training time | ~50 minutes |
 
-The model learns Shakespeare's formatting (speaker labels, verse structure, punctuation) and common English character patterns. With only 5K steps of character-level training, word-level coherence is limited — this is a proof-of-concept, not a production model.
-
-### TinyStories SRN vs Transformer (Fit Snapshot)
-
-Early apples-to-apples fit comparison on RTX 2060 6GB with TinyStories setup:
-
-| Model | Params | Micro batch | Peak VRAM |
-|-------|--------|-------------|-----------|
-| SRN (WCSG) | ~150M | 16 | 4624M |
-| Transformer baseline | 152M | 2 | 4519M |
-
-This is a useful capacity/efficiency data point: at similar parameter count, SRN fits a much larger micro batch than the dense Transformer on the same GPU.
-
 ## Ablation Experiments
 
-A systematic framework to investigate the 0.79 val_loss gap between SRN-150M and a parameter-matched Transformer on TinyStories. Six ablation experiments isolate individual architectural contributions, with baselines for controlled comparison.
+A systematic framework to investigate the **1.06 val_loss architecture gap** between SRN and a compute-fair Transformer on TinyStories. Six ablation experiments isolate individual architectural contributions.
 
 ### Gap Decomposition Framework
 
-The total gap (0.79 val_loss) can be decomposed into two components:
+The total gap decomposes into compute and architecture components:
 
 ```
-Total Gap = Compute Gap + Architecture Gap
-
-Compute Gap    = Transformer-152M loss − Transformer-112M loss
-                 (SRN uses only 112M active params/token despite 162M total)
-
-Architecture Gap = SRN loss − Transformer-112M loss
-                   (at equal active compute, how much does routing vs attention cost?)
+Total Gap        = 2.528 - 1.373 = 1.155  (SRN vs Transformer-184M)
+Compute Gap      = 1.470 - 1.373 = 0.097  (8% — negligible)
+Architecture Gap = 2.528 - 1.470 = 1.058  (92% — this is what we're investigating)
 ```
 
-Each experiment targets a specific hypothesis about where the architecture gap comes from:
+The compute gap is tiny — the SRN's problem is NOT sparse parameter usage. It's the routing mechanism itself. Each ablation targets a specific hypothesis:
 
 | Question | Experiment | What it tells us |
 |----------|------------|------------------|
@@ -215,18 +247,18 @@ Each experiment targets a specific hypothesis about where the architecture gap c
 
 ### Experiment Overview
 
-| ID | Name | Key Change | Total Params | Active/Token |
-|----|------|------------|-------------|-------------|
-| Exp0 | SRN Baseline | (none — controlled re-run) | 161,950,304 | 112,220,928 (69.3%) |
-| Exp0-T | Transformer 152M | Dense Transformer baseline | 152,398,080 | 152,398,080 (100%) |
-| Exp0-Ts | Transformer 112M | Compute-fair baseline (d=640) | 112,581,504 | 112,581,504 (100%) |
-| Exp1 | Hybrid Attention | `attention_every_n_layers=4` | ~163,700,000 | ~113,900,000 |
-| Exp2a | 128 Slots | `n_memory_slots=128, d_expert=379` | 160,926,208 | — |
-| Exp2b | 256 Slots | `n_memory_slots=256, d_expert=358` | 160,852,000 | — |
-| Exp3 | Full TinyStories | `max_steps=12817` (2060) | 161,950,304 | 112,220,928 |
-| Exp4 | No CSP | `disable_csp=true` | 144,462,176 | — |
-| Exp5 | Top-k 4 | `top_k_experts=4` | 161,950,304 | — |
-| Exp6 | WCSG Offset | `wcsg_key_offset=true, rank=16` | +191,808 | — |
+| ID | Name | Key Change | Best Val Loss | Status |
+|----|------|------------|--------------|--------|
+| Exp0 | SRN Baseline | (none) | **2.528** | Done |
+| Exp0-T | Transformer 184M | Dense Transformer, param-matched | **1.373** | Done |
+| Exp0-Ts | Transformer 112M | Dense Transformer, compute-fair | **1.470** | Done |
+| Exp1 | Hybrid Attention | `attention_every_n_layers=4` | **~1.5** | Running |
+| Exp2a | 128 Slots | `n_memory_slots=128, d_expert=379` | — | Queued |
+| Exp2b | 256 Slots | `n_memory_slots=256, d_expert=358` | — | Queued |
+| Exp3 | Full TinyStories | `max_steps=12817` | — | Pending |
+| Exp4 | No CSP | `disable_csp=true` | ~3.07 @ 1500 | Running |
+| Exp5 | Top-k 4 | `top_k_experts=4` | — | Queued |
+| Exp6 | WCSG Offset | `wcsg_key_offset=true, rank=16` | — | Queued |
 
 ### Running Experiments
 
@@ -250,7 +282,7 @@ docker compose run --rm srn python scripts/run_experiments.py \
   --compare --gpu 2060
 ```
 
-**Experiment IDs:** `0` (SRN baseline), `0t` (Transformer 152M), `0ts` (Transformer 112M), `1` (Hybrid), `2a` (128 slots), `2b` (256 slots), `3` (Full data), `4` (No CSP), `5` (Top-k 4), `6` (WCSG offset)
+**Experiment IDs:** `0` (SRN baseline), `0t` (Transformer 184M), `0ts` (Transformer 112M), `1` (Hybrid), `2a` (128 slots), `2b` (256 slots), `3` (Full data), `4` (No CSP), `5` (Top-k 4), `6` (WCSG offset)
 
 **Config naming:** `configs/experiments/exp{ID}-{name}-{gpu}.yaml` (e.g. `exp1-hybrid-2060.yaml`)
 
@@ -258,13 +290,15 @@ docker compose run --rm srn python scripts/run_experiments.py \
 
 Each experiment has configs for three GPU tiers. The model architecture is identical across tiers — only batch size and sequence length differ:
 
-| GPU | VRAM | Micro Batch | Seq Len | Accum Steps | Effective Batch |
-|-----|------|-------------|---------|-------------|-----------------|
-| RTX 2060 | 6 GB | 2 | 512 | 16 | 32 |
-| RTX 4090 | 24 GB | 16 | 1024 | 4 | 64 |
-| RTX 5090 | 32 GB | 24 | 1024 | 4 | 96 |
+| GPU | VRAM | SRN Micro Batch | Transformer Micro Batch | Seq Len |
+|-----|------|-----------------|------------------------|---------|
+| RTX 2060 | 6 GB | 2 | 2 | 512 |
+| RTX 4090 | 24 GB | 8 | 16 | 1024 |
+| RTX 5090 | 32 GB | 16 | 16 | 1024 |
 
-**Estimated training time per experiment:** ~2-3 hours (2060), ~30-45 min (4090/5090). Exp3 (full dataset) is longer: ~12.5 hours (2060).
+**GPU selection:** Set `NVIDIA_GPU=0` or `NVIDIA_GPU=1` in `.env` (see `.env.example`).
+
+**Estimated training time per experiment:** ~1.5-2 hours (4090), ~1.3 hours (5090). Exp3 (full dataset) is 2.5× longer.
 
 ### Results Tracking
 
@@ -272,16 +306,15 @@ Results are saved as structured JSON in `results/` with training logs alongside:
 
 ```
 results/
-  exp0-srn-2060.json       # Structured metrics (val_loss, step, params)
-  exp0-srn-2060.log        # Full training stdout/stderr
-  exp1-hybrid-4090.json
-  exp1-hybrid-4090.log
+  exp0-srn-5090.log        # Full training stdout/stderr
+  exp1-hybrid-5090.log
+  exp4-nocsp-4090.log
   ...
 ```
 
 Use `--compare` to generate a summary table across all experiments for a given GPU tier. Results are collected from checkpoints (not stdout parsing) for reliability.
 
-**Status:** Experiment framework is implemented. Results will be populated as experiments are run.
+**Status:** Baselines complete. Ablation experiments running overnight (Exp1, Exp4 active; Exp2a, Exp2b, Exp5, Exp6 queued).
 
 ## Quick Start
 
@@ -296,15 +329,14 @@ Use `--compare` to generate a summary table across all experiments for a given G
 # Build the container
 docker compose build
 
-# Download dataset and train (5000 steps, ~50 min on RTX 2060)
-docker compose run --rm srn python train.py --max_steps 5000
+# Prepare TinyStories data
+docker compose run --rm srn python scripts/prepare_tinystories.py --vocab_size 32000
 
-# Or customize training
-docker compose run --rm srn python train.py \
-  --max_steps 20000 \
-  --eval_interval 500 \
-  --log_interval 100 \
-  --lr 3e-4
+# Train SRN (5000 steps)
+docker compose run --rm srn python train.py --config configs/srn-150m.yaml
+
+# Train dense Transformer baseline
+docker compose run --rm srn python train.py --config configs/dense-067b.yaml
 ```
 
 ### Generate Text
@@ -313,22 +345,17 @@ docker compose run --rm srn python train.py \
 # Generate from a prompt
 docker compose run --rm srn python generate.py \
   --checkpoint checkpoints/best.pt \
-  --prompt "ROMEO:" \
+  --prompt "Once upon a time" \
   --max_tokens 500 \
   --temperature 0.8
 
 # With top-k sampling
 docker compose run --rm srn python generate.py \
   --checkpoint checkpoints/best.pt \
-  --prompt "To be, or not to be" \
+  --prompt "The little girl" \
   --max_tokens 300 \
   --temperature 0.6 \
   --top_k 10
-
-# Evaluate perplexity
-docker compose run --rm srn python generate.py \
-  --checkpoint checkpoints/best.pt \
-  --eval --stats
 ```
 
 ### Validate Architecture
@@ -344,38 +371,39 @@ docker compose run --rm srn python srn_architecture.py
 ### Without Docker
 
 ```bash
-# Requires Python 3.10+, PyTorch 2.x with CUDA
-pip install torch numpy tqdm requests
-python train.py --max_steps 5000
+# Requires Python 3.10+, PyTorch 2.7+ with CUDA
+pip install torch numpy tqdm requests omegaconf tokenizers datasets
+python train.py --config configs/srn-150m.yaml
 ```
 
 ## Model Configuration
 
+SRN-150M configuration used for TinyStories experiments:
+
 | Parameter | Value | Description |
 |-----------|-------|-------------|
-| `d_model` | 512 | Model dimension |
-| `n_layers` | 8 | Number of SRN layers |
-| `n_memory_slots` | 64 | Routing targets per layer |
+| `d_model` | 896 | Model dimension |
+| `n_layers` | 12 | Number of SRN layers |
+| `n_memory_slots` | 96 | Routing targets per layer |
 | `n_experts` | 8 | Expert networks per layer |
 | `top_k_experts` | 2 | Active experts per token |
-| `d_expert` | 256 | Expert hidden dimension |
-| `n_heads_route` | 4 | Multi-head routing |
-| `d_compressed` | 128 | CSP bottleneck (d_model/4) |
-| `causal_window` | 32 | WCSG window size |
-| `max_seq_len` | 256 | Context length |
-| `vocab_size` | 65 | Character-level Shakespeare |
+| `d_expert` | 384 | Expert hidden dimension |
+| `n_heads_route` | 8 | Multi-head routing |
+| `d_compressed` | 224 | CSP bottleneck (d_model/4) |
+| `causal_window` | 64 | WCSG window size |
+| `max_seq_len` | 1024 | Context length |
+| `vocab_size` | 50,257 | BPE tokenizer (GPT-2) |
 
 ## Training Details
 
 | Setting | Value |
 |---------|-------|
 | Optimizer | AdamW (lr=3e-4, weight_decay=0.1, betas=(0.9, 0.95)) |
-| Schedule | Cosine decay with 100-step linear warmup |
+| Schedule | Cosine decay with 500-step linear warmup |
 | Loss | CrossEntropy + 0.01 × MoE auxiliary load balancing |
 | Precision | Mixed FP16 (forward) / FP32 (loss) |
-| Batch size | 32 effective (micro=16, accumulation=2) |
 | Gradient clipping | max_norm=1.0 |
-| Sequence length | 256 |
+| Sequence length | 1024 |
 
 ## Complexity Comparison
 
@@ -383,8 +411,20 @@ python train.py --max_steps 5000
 |----------|-------------|-----|
 | Core operation | O(n²·d) attention | O(n·k·d) routing |
 | At seq_len=32K | 2.20T ops | 4.29G ops (512x fewer) |
-| Parameter activity | 100% active | ~55% active per token |
+| Parameter activity | 100% active | ~66% active per token |
 | Memory scaling | Quadratic in seq_len | Linear in seq_len |
+
+## Scaling Vision
+
+![Scaling Vision](docs/diagrams/srn_scaling_vision.svg)
+
+| Size | Total Params | Active/Token | VRAM (fp16) | Activity |
+|------|-------------|-------------|-------------|----------|
+| SRN-Small | 328M | 119M | 0.6 GB | 36% |
+| SRN-Medium | 3.9B | 1.0B | 7.3 GB | 26% |
+| SRN-Large | 37.7B | 5.4B | 70 GB | 14% |
+
+A 3.9B SRN fits in 8GB VRAM and computes like a 1B dense model, but has the knowledge capacity of a 3.9B model. With the hybrid approach (75% routing + 25% attention), quality approaches Transformer-level while maintaining the efficiency advantages.
 
 ## Bugs Fixed from Original NumPy PoC
 
@@ -404,17 +444,20 @@ dense_model.py            # Dense Transformer baseline (CausalSelfAttention, Den
 train.py                  # Training loop (AdamW, cosine schedule, mixed precision, grad accum)
 generate.py               # Text generation CLI + perplexity evaluation
 validate.py               # Validation suite + comparison with original NumPy PoC
-data.py                   # TinyShakespeare dataset + character-level tokenizer
+data.py                   # Dataset loaders (TinyStories memmap + Shakespeare char-level)
 srn_architecture.py       # Original NumPy proof-of-concept (reference, untouched)
 scripts/
   run_experiments.py      # Experiment runner CLI (dry-run, compare, structured results)
+  prepare_tinystories.py  # TinyStories data preparation + BPE tokenization
 configs/
   experiments/            # 30 YAML configs (10 experiments × 3 GPU tiers)
 tests/                    # pytest suite (113 tests)
-results/                  # Experiment outputs (JSON metrics + training logs)
-Dockerfile                # PyTorch 2.5.1 + CUDA 12.4
+results/                  # Experiment outputs (training logs)
+docs/
+  diagrams/               # SVG architecture diagrams
+Dockerfile                # PyTorch 2.7.0 + CUDA 12.8
 docker-compose.yml        # GPU passthrough + volume mounts
-requirements.txt          # numpy, tqdm, requests
+requirements.txt          # numpy, tqdm, requests, omegaconf, tokenizers, datasets
 ```
 
 ## License

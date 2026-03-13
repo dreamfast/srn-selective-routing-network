@@ -10,8 +10,8 @@ val_tokens_path: data/tinystories/val_tokens.bin
 
 train:
   seed: 42
-  micro_batch: 16
-  accum_steps: 4
+  micro_batch: 8
+  accum_steps: 8
   seq_len: 1024
   max_steps: 5000
   warmup_steps: 500

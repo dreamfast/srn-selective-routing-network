@@ -1,0 +1,90 @@
+<svg width="100%" viewBox="0 0 680 380" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .th { font-size: 14px; font-weight: 500; }
+  .ts { font-size: 12px; font-weight: 400; }
+  .light .th, .light .ts { fill: #1a1a2e; }
+  .dark .th, .dark .ts { fill: #e0e0e0; }
+  .dark .bg { fill: #1a1a2e; }
+  .light .bg { fill: #ffffff; }
+
+  @media (prefers-color-scheme: dark) {
+    .auto .th, .auto .ts { fill: #e0e0e0; }
+    .auto .bg { fill: #1a1a2e; }
+    .auto .border-line { stroke: #444; }
+    .auto .slot-fill { fill: #3C3489; stroke: #AFA9EC; }
+    .auto .slot-text { fill: #CECBF6; }
+    .auto .token-fill { fill: #085041; stroke: #5DCAA5; }
+    .auto .token-text { fill: #9FE1CB; }
+    .auto .token-hi-fill { fill: #633806; stroke: #EF9F27; }
+    .auto .token-hi-text { fill: #FAC775; }
+    .auto .sub-text { fill: #999; }
+  }
+  @media (prefers-color-scheme: light) {
+    .auto .th, .auto .ts { fill: #1a1a2e; }
+    .auto .bg { fill: #ffffff; }
+    .auto .border-line { stroke: #ccc; }
+    .auto .slot-fill { fill: #EEEDFE; stroke: #534AB7; }
+    .auto .slot-text { fill: #3C3489; }
+    .auto .token-fill { fill: #E1F5EE; stroke: #0F6E56; }
+    .auto .token-text { fill: #085041; }
+    .auto .token-hi-fill { fill: #FAEEDA; stroke: #BA7517; }
+    .auto .token-hi-text { fill: #633806; }
+    .auto .sub-text { fill: #666; }
+  }
+</style>
+<g class="auto">
+<rect class="bg" x="0" y="0" width="680" height="380" rx="0"/>
+
+<text class="th" x="340" y="30" text-anchor="middle">The problem: slots are global, not causal</text>
+
+<!-- Tokens -->
+<rect class="token-fill" x="60" y="260" width="60" height="32" rx="6" stroke-width="0.5"/>
+<text class="token-text ts" x="90" y="280" text-anchor="middle" dominant-baseline="central">The</text>
+
+<rect class="token-fill" x="140" y="260" width="60" height="32" rx="6" stroke-width="0.5"/>
+<text class="token-text ts" x="170" y="280" text-anchor="middle" dominant-baseline="central">cat</text>
+
+<rect class="token-hi-fill" x="220" y="260" width="60" height="32" rx="6" stroke-width="1"/>
+<text class="token-hi-text th" x="250" y="280" text-anchor="middle" dominant-baseline="central">sat</text>
+
+<rect class="token-fill" x="300" y="260" width="60" height="32" rx="6" stroke-width="0.5"/>
+<text class="token-text ts" x="330" y="280" text-anchor="middle" dominant-baseline="central">on</text>
+
+<rect class="token-fill" x="380" y="260" width="60" height="32" rx="6" stroke-width="0.5"/>
+<text class="token-text ts" x="410" y="280" text-anchor="middle" dominant-baseline="central">the</text>
+
+<rect class="token-fill" x="460" y="260" width="60" height="32" rx="6" stroke-width="0.5"/>
+<text class="token-text ts" x="490" y="280" text-anchor="middle" dominant-baseline="central">mat</text>
+
+<!-- Slots -->
+<rect class="slot-fill" x="100" y="80" width="80" height="36" rx="6" stroke-width="0.5"/>
+<text class="slot-text th" x="140" y="102" text-anchor="middle" dominant-baseline="central">Slot 1</text>
+
+<rect class="slot-fill" x="220" y="80" width="80" height="36" rx="6" stroke-width="0.5"/>
+<text class="slot-text th" x="260" y="102" text-anchor="middle" dominant-baseline="central">Slot 2</text>
+
+<rect class="slot-fill" x="340" y="80" width="80" height="36" rx="6" stroke-width="0.5"/>
+<text class="slot-text th" x="380" y="102" text-anchor="middle" dominant-baseline="central">Slot 3</text>
+
+<rect class="slot-fill" x="460" y="80" width="80" height="36" rx="6" stroke-width="0.5"/>
+<text class="slot-text th" x="500" y="102" text-anchor="middle" dominant-baseline="central">Slot 4</text>
+
+<!-- Good connections from "sat" to past-influenced slots -->
+<line x1="250" y1="260" x2="140" y2="116" stroke="#1D9E75" stroke-width="1.5" opacity="0.7"/>
+<line x1="250" y1="260" x2="260" y2="116" stroke="#1D9E75" stroke-width="1.5" opacity="0.7"/>
+
+<!-- Bad connections — future tokens leak info into slots -->
+<line x1="410" y1="260" x2="380" y2="116" stroke="#E24B4A" stroke-width="1.2" opacity="0.5" stroke-dasharray="4 3"/>
+<line x1="490" y1="260" x2="380" y2="116" stroke="#E24B4A" stroke-width="1.2" opacity="0.5" stroke-dasharray="4 3"/>
+<line x1="490" y1="260" x2="500" y2="116" stroke="#E24B4A" stroke-width="1.2" opacity="0.5" stroke-dasharray="4 3"/>
+
+<!-- Dangerous connection from sat to future-contaminated slot -->
+<line x1="250" y1="260" x2="380" y2="116" stroke="#E24B4A" stroke-width="1" opacity="0.4" stroke-dasharray="4 3"/>
+<text x="320" y="190" fill="#E24B4A" font-size="18" text-anchor="middle" font-weight="500">✗</text>
+
+<!-- Annotation -->
+<text class="sub-text ts" x="340" y="330" text-anchor="middle">Slots are shared across all positions.</text>
+<text class="sub-text ts" x="340" y="348" text-anchor="middle">If future tokens write to a slot, past tokens can read future info.</text>
+</g>
+</svg>

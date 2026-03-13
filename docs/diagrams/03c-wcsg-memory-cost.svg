@@ -1,0 +1,56 @@
+<svg width="100%" viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .th { font-size: 14px; font-weight: 500; }
+  .ts { font-size: 12px; font-weight: 400; }
+
+  @media (prefers-color-scheme: dark) {
+    .auto .th, .auto .ts { fill: #e0e0e0; }
+    .auto .bg { fill: #1a1a2e; }
+    .auto .red-fill { fill: #791F1F; stroke: #F09595; }
+    .auto .red-text-h { fill: #F7C1C1; }
+    .auto .red-text-s { fill: #F09595; }
+    .auto .teal-fill { fill: #085041; stroke: #5DCAA5; }
+    .auto .teal-text-h { fill: #9FE1CB; }
+    .auto .teal-text-s { fill: #5DCAA5; }
+    .auto .sub-text { fill: #999; }
+    .auto .vs-text { fill: #888; }
+  }
+  @media (prefers-color-scheme: light) {
+    .auto .th, .auto .ts { fill: #1a1a2e; }
+    .auto .bg { fill: #ffffff; }
+    .auto .red-fill { fill: #FCEBEB; stroke: #A32D2D; }
+    .auto .red-text-h { fill: #791F1F; }
+    .auto .red-text-s { fill: #A32D2D; }
+    .auto .teal-fill { fill: #E1F5EE; stroke: #0F6E56; }
+    .auto .teal-text-h { fill: #085041; }
+    .auto .teal-text-s { fill: #0F6E56; }
+    .auto .sub-text { fill: #666; }
+    .auto .vs-text { fill: #999; }
+  }
+</style>
+<g class="auto">
+<rect class="bg" x="0" y="0" width="680" height="300" rx="0"/>
+
+<text class="th" x="340" y="30" text-anchor="middle">Memory cost: 4,300× less than the naive approach</text>
+
+<!-- Naive approach - big red box -->
+<rect class="red-fill" x="60" y="60" width="260" height="160" rx="8" stroke-width="0.5"/>
+<text class="red-text-h th" x="190" y="110" text-anchor="middle" dominant-baseline="central">Naive approach</text>
+<text class="red-text-s ts" x="190" y="134" text-anchor="middle" dominant-baseline="central">Per-position slot keys</text>
+<text class="red-text-s ts" x="190" y="154" text-anchor="middle" dominant-baseline="central">(B, N, k, D) tensor</text>
+<text class="red-text-h th" x="190" y="190" text-anchor="middle" dominant-baseline="central">~4.3 GB / layer</text>
+
+<!-- vs -->
+<text class="vs-text ts" x="370" y="162" text-anchor="middle">vs</text>
+
+<!-- WCSG approach - tiny green box -->
+<rect class="teal-fill" x="420" y="130" width="160" height="56" rx="8" stroke-width="0.5"/>
+<text class="teal-text-h th" x="500" y="150" text-anchor="middle" dominant-baseline="central">WCSG gate</text>
+<text class="teal-text-s ts" x="500" y="170" text-anchor="middle" dominant-baseline="central">~1 MB / layer</text>
+
+<!-- Bottom annotation -->
+<text class="sub-text ts" x="340" y="260" text-anchor="middle">The gate can suppress routes but cannot rotate the key space.</text>
+<text class="sub-text ts" x="340" y="278" text-anchor="middle">This is an intentional capacity-for-efficiency trade-off.</text>
+</g>
+</svg>

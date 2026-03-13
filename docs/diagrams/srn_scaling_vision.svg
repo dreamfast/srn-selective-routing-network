@@ -1,0 +1,47 @@
+<svg width="100%" viewBox="0 0 680 420">
+
+<text class="th" x="340" y="30" text-anchor="middle">Scaling vision: sparsity grows with size</text>
+<text class="ts" x="340" y="50" text-anchor="middle">Total params (outer) vs active params per token (inner)</text>
+
+<!-- SRN-Small: 328M total, 119M active = 36% -->
+<g class="c-gray">
+<circle cx="120" cy="180" r="65" stroke-width="0.5"/>
+</g>
+<g class="c-teal">
+<circle cx="120" cy="180" r="39" stroke-width="0.5"/>
+</g>
+<text class="th" x="120" y="268" text-anchor="middle">SRN-Small</text>
+<text class="ts" x="120" y="286" text-anchor="middle">328M total</text>
+<text class="ts" x="120" y="302" text-anchor="middle">119M active (36%)</text>
+<text class="ts" x="120" y="322" text-anchor="middle" opacity="0.5">~0.6 GB VRAM</text>
+
+<!-- SRN-Medium: 3.9B total, 1.0B active = 26% -->
+<g class="c-gray">
+<circle cx="340" cy="180" r="85" stroke-width="0.5"/>
+</g>
+<g class="c-teal">
+<circle cx="340" cy="180" r="43" stroke-width="0.5"/>
+</g>
+<text class="th" x="340" y="288" text-anchor="middle">SRN-Medium</text>
+<text class="ts" x="340" y="306" text-anchor="middle">3.9B total</text>
+<text class="ts" x="340" y="322" text-anchor="middle">1.0B active (26%)</text>
+<text class="ts" x="340" y="342" text-anchor="middle" opacity="0.5">~7.3 GB VRAM</text>
+
+<!-- SRN-Large: 37.7B total, 5.4B active = 14% -->
+<g class="c-gray">
+<circle cx="560" cy="180" r="105" stroke-width="0.5"/>
+</g>
+<g class="c-teal">
+<circle cx="560" cy="180" r="40" stroke-width="0.5"/>
+</g>
+<text class="th" x="560" y="308" text-anchor="middle">SRN-Large</text>
+<text class="ts" x="560" y="326" text-anchor="middle">37.7B total</text>
+<text class="ts" x="560" y="342" text-anchor="middle">5.4B active (14%)</text>
+<text class="ts" x="560" y="362" text-anchor="middle" opacity="0.5">~70 GB VRAM</text>
+
+<!-- Bottom -->
+<line x1="40" y1="380" x2="640" y2="380" stroke="var(--t)" stroke-width="0.5" opacity="0.15"/>
+<text class="ts" x="340" y="405" text-anchor="middle">A 3.9B SRN fits in 8GB VRAM and computes like a 1B dense model,</text>
+<text class="ts" x="340" y="420" text-anchor="middle">but stores the knowledge capacity of a 3.9B model.</text>
+
+</svg>
