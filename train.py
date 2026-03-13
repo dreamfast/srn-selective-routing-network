@@ -294,6 +294,31 @@ def validate_srn_config(config: SRNConfig, seq_len: int) -> None:
             f"seq_len ({seq_len}) must be <= max_seq_len ({config.max_seq_len})"
         )
 
+    # Hybrid attention validation
+    if config.attention_every_n_layers > 0:
+        if config.d_model % config.attention_n_heads != 0:
+            raise ValueError(
+                f"d_model ({config.d_model}) must be divisible by "
+                f"attention_n_heads ({config.attention_n_heads})"
+            )
+        if config.attention_every_n_layers > config.n_layers:
+            warnings.warn(
+                f"attention_every_n_layers ({config.attention_every_n_layers}) > "
+                f"n_layers ({config.n_layers}): no attention layers will be created",
+                stacklevel=2,
+            )
+
+    # WCSG offset validation
+    if config.wcsg_key_offset_rank <= 0:
+        raise ValueError(
+            f"wcsg_key_offset_rank must be > 0, got {config.wcsg_key_offset_rank}"
+        )
+    if config.wcsg_key_offset_rank >= config.d_model:
+        raise ValueError(
+            f"wcsg_key_offset_rank ({config.wcsg_key_offset_rank}) must be < "
+            f"d_model ({config.d_model})"
+        )
+
 
 def _flatten_loaded_config(cfg: dict[str, Any]) -> dict[str, Any]:
     """Flatten config sections into argparse-compatible key-value mapping."""
@@ -430,6 +455,12 @@ def train(args: argparse.Namespace) -> None:
             csp_internal_residual=args.csp_internal_residual,
             aux_loss_weight=args.aux_loss_weight,
             sparse_moe=args.sparse_moe,
+            # Ablation experiment flags
+            attention_every_n_layers=args.attention_every_n_layers,
+            attention_n_heads=args.attention_n_heads,
+            disable_csp=args.disable_csp,
+            wcsg_key_offset=args.wcsg_key_offset,
+            wcsg_key_offset_rank=args.wcsg_key_offset_rank,
         )
         validate_srn_config(config, args.seq_len)
         model = SRNModel(config).to(device)
@@ -467,6 +498,32 @@ def train(args: argparse.Namespace) -> None:
             # weights_only=False needed to deserialize SRNConfig dataclass
             # Only load checkpoints you created — not untrusted files
             ckpt = torch.load(latest_path, map_location=device, weights_only=False)
+
+            # Validate architecture flags BEFORE load_state_dict to prevent
+            # silent shape mismatches that would crash or corrupt training
+            _ARCH_FLAGS = [
+                "attention_every_n_layers", "attention_n_heads",
+                "disable_csp", "wcsg_key_offset", "wcsg_key_offset_rank",
+                "n_memory_slots", "d_expert", "n_experts", "d_model",
+                "d_compressed", "n_layers", "n_heads_route",
+            ]
+            ckpt_config = ckpt.get("config")
+            if ckpt_config is not None and hasattr(ckpt_config, "d_model"):
+                mismatches = []
+                for flag in _ARCH_FLAGS:
+                    ckpt_val = getattr(ckpt_config, flag, None)
+                    curr_val = getattr(config, flag, None)
+                    if ckpt_val is not None and curr_val is not None and ckpt_val != curr_val:
+                        mismatches.append(f"  {flag}: checkpoint={ckpt_val}, current={curr_val}")
+                if mismatches:
+                    mismatch_str = "\n".join(mismatches)
+                    raise ValueError(
+                        f"Architecture mismatch between checkpoint and current config:\n"
+                        f"{mismatch_str}\n"
+                        f"Cannot resume training with different architecture. "
+                        f"Start a new run or use the same config."
+                    )
+
             # For compiled models, load into the underlying module
             _get_raw_model(model).load_state_dict(ckpt["model"])
             optimizer.load_state_dict(ckpt["optimizer"])
@@ -836,6 +893,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--aux_loss_weight", type=float, default=default_config.aux_loss_weight)
     parser.add_argument("--sparse_moe", action="store_true", default=False,
                         help="Use sparse MoE path (group-by-expert) instead of dense")
+
+    # Ablation experiment flags
+    parser.add_argument("--attention_every_n_layers", type=int,
+                        default=default_config.attention_every_n_layers,
+                        help="Replace every Nth layer's DSR with attention (0=pure SRN)")
+    parser.add_argument("--attention_n_heads", type=int,
+                        default=default_config.attention_n_heads,
+                        help="Attention heads for hybrid layers")
+    parser.add_argument("--disable_csp", action="store_true", default=False,
+                        help="Disable Compressed State Propagation")
+    parser.add_argument("--wcsg_key_offset", action="store_true", default=False,
+                        help="Enable WCSG score-space offset enhancement")
+    parser.add_argument("--wcsg_key_offset_rank", type=int,
+                        default=default_config.wcsg_key_offset_rank,
+                        help="Low-rank dimension for WCSG offset")
 
     args = parser.parse_args()
     return _apply_config_overrides(parser, args)
