@@ -1,47 +1,60 @@
-<svg width="100%" viewBox="0 0 680 420">
+<svg width="100%" viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .th { font-size: 14px; font-weight: 500; }
+  .ts { font-size: 12px; font-weight: 400; }
+
+  @media (prefers-color-scheme: dark) {
+    .auto .th, .auto .ts { fill: #e0e0e0; }
+    .auto .bg { fill: #1a1a2e; }
+    .auto .sub-text { fill: #999; }
+    .auto .divider { stroke: #e0e0e0; }
+    .auto .gray-fill { fill: #2C2C2A; stroke: #5F5E5A; }
+    .auto .teal-fill { fill: #085041; stroke: #5DCAA5; }
+  }
+  @media (prefers-color-scheme: light) {
+    .auto .th, .auto .ts { fill: #1a1a2e; }
+    .auto .bg { fill: #ffffff; }
+    .auto .sub-text { fill: #666; }
+    .auto .divider { stroke: #1a1a2e; }
+    .auto .gray-fill { fill: #E8E8E6; stroke: #888780; }
+    .auto .teal-fill { fill: #E1F5EE; stroke: #0F6E56; }
+  }
+</style>
+<g class="auto">
+<rect class="bg" x="0" y="0" width="680" height="420" rx="0"/>
 
 <text class="th" x="340" y="30" text-anchor="middle">Scaling vision: sparsity grows with size</text>
 <text class="ts" x="340" y="50" text-anchor="middle">Total params (outer) vs active params per token (inner)</text>
 
 <!-- SRN-Small: 328M total, 119M active = 36% -->
-<g class="c-gray">
-<circle cx="120" cy="180" r="65" stroke-width="0.5"/>
-</g>
-<g class="c-teal">
-<circle cx="120" cy="180" r="39" stroke-width="0.5"/>
-</g>
+<circle class="gray-fill" cx="120" cy="180" r="65" stroke-width="0.5"/>
+<circle class="teal-fill" cx="120" cy="180" r="39" stroke-width="0.5"/>
 <text class="th" x="120" y="268" text-anchor="middle">SRN-Small</text>
 <text class="ts" x="120" y="286" text-anchor="middle">328M total</text>
 <text class="ts" x="120" y="302" text-anchor="middle">119M active (36%)</text>
-<text class="ts" x="120" y="322" text-anchor="middle" opacity="0.5">~0.6 GB VRAM</text>
+<text class="sub-text ts" x="120" y="322" text-anchor="middle">~0.6 GB VRAM</text>
 
 <!-- SRN-Medium: 3.9B total, 1.0B active = 26% -->
-<g class="c-gray">
-<circle cx="340" cy="180" r="85" stroke-width="0.5"/>
-</g>
-<g class="c-teal">
-<circle cx="340" cy="180" r="43" stroke-width="0.5"/>
-</g>
+<circle class="gray-fill" cx="340" cy="180" r="85" stroke-width="0.5"/>
+<circle class="teal-fill" cx="340" cy="180" r="43" stroke-width="0.5"/>
 <text class="th" x="340" y="288" text-anchor="middle">SRN-Medium</text>
 <text class="ts" x="340" y="306" text-anchor="middle">3.9B total</text>
 <text class="ts" x="340" y="322" text-anchor="middle">1.0B active (26%)</text>
-<text class="ts" x="340" y="342" text-anchor="middle" opacity="0.5">~7.3 GB VRAM</text>
+<text class="sub-text ts" x="340" y="342" text-anchor="middle">~7.3 GB VRAM</text>
 
 <!-- SRN-Large: 37.7B total, 5.4B active = 14% -->
-<g class="c-gray">
-<circle cx="560" cy="180" r="105" stroke-width="0.5"/>
-</g>
-<g class="c-teal">
-<circle cx="560" cy="180" r="40" stroke-width="0.5"/>
-</g>
+<circle class="gray-fill" cx="560" cy="180" r="105" stroke-width="0.5"/>
+<circle class="teal-fill" cx="560" cy="180" r="40" stroke-width="0.5"/>
 <text class="th" x="560" y="308" text-anchor="middle">SRN-Large</text>
 <text class="ts" x="560" y="326" text-anchor="middle">37.7B total</text>
 <text class="ts" x="560" y="342" text-anchor="middle">5.4B active (14%)</text>
-<text class="ts" x="560" y="362" text-anchor="middle" opacity="0.5">~70 GB VRAM</text>
+<text class="sub-text ts" x="560" y="362" text-anchor="middle">~70 GB VRAM</text>
 
 <!-- Bottom -->
-<line x1="40" y1="380" x2="640" y2="380" stroke="var(--t)" stroke-width="0.5" opacity="0.15"/>
-<text class="ts" x="340" y="405" text-anchor="middle">A 3.9B SRN fits in 8GB VRAM and computes like a 1B dense model,</text>
-<text class="ts" x="340" y="420" text-anchor="middle">but stores the knowledge capacity of a 3.9B model.</text>
+<line class="divider" x1="40" y1="380" x2="640" y2="380" stroke-width="0.5" opacity="0.15"/>
+<text class="sub-text ts" x="340" y="405" text-anchor="middle">A 3.9B SRN fits in 8GB VRAM and computes like a 1B dense model,</text>
+<text class="sub-text ts" x="340" y="420" text-anchor="middle">but stores the knowledge capacity of a 3.9B model.</text>
 
+</g>
 </svg>

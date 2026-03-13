@@ -1,4 +1,44 @@
-<svg width="100%" viewBox="0 0 680 420">
+<svg width="100%" viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .th { font-size: 14px; font-weight: 500; }
+  .ts { font-size: 12px; font-weight: 400; }
+
+  @media (prefers-color-scheme: dark) {
+    .auto .th, .auto .ts { fill: #e0e0e0; }
+    .auto .bg { fill: #1a1a2e; }
+    .auto .sub-text { fill: #999; }
+    .auto .grid-line { stroke: #e0e0e0; }
+    .auto .bracket-line { stroke: #e0e0e0; }
+    .auto .divider { stroke: #e0e0e0; }
+    .auto .amber-fill { fill: #633806; stroke: #EF9F27; }
+    .auto .amber-text { fill: #FAC775; }
+    .auto .coral-fill { fill: #791F1F; stroke: #F09595; }
+    .auto .coral-text { fill: #F7C1C1; }
+    .auto .purple-fill { fill: #3C3489; stroke: #AFA9EC; }
+    .auto .purple-text { fill: #CECBF6; }
+    .auto .blue-fill { fill: #1A3A5C; stroke: #85B7EB; }
+    .auto .blue-text { fill: #B8D8F8; }
+  }
+  @media (prefers-color-scheme: light) {
+    .auto .th, .auto .ts { fill: #1a1a2e; }
+    .auto .bg { fill: #ffffff; }
+    .auto .sub-text { fill: #666; }
+    .auto .grid-line { stroke: #1a1a2e; }
+    .auto .bracket-line { stroke: #1a1a2e; }
+    .auto .divider { stroke: #1a1a2e; }
+    .auto .amber-fill { fill: #FAEEDA; stroke: #BA7517; }
+    .auto .amber-text { fill: #633806; }
+    .auto .coral-fill { fill: #FCEBEB; stroke: #A32D2D; }
+    .auto .coral-text { fill: #791F1F; }
+    .auto .purple-fill { fill: #EEEDFE; stroke: #534AB7; }
+    .auto .purple-text { fill: #3C3489; }
+    .auto .blue-fill { fill: #DCEEFB; stroke: #2D6DA3; }
+    .auto .blue-text { fill: #1A3A5C; }
+  }
+</style>
+<g class="auto">
+<rect class="bg" x="0" y="0" width="680" height="420" rx="0"/>
 
 <text class="th" x="340" y="30" text-anchor="middle">Gap decomposition: where does the loss come from?</text>
 
@@ -7,66 +47,59 @@
 
 <!-- Y-axis scale -->
 <text class="ts" x="56" y="96" text-anchor="end">1.0</text>
-<line x1="60" y1="94" x2="640" y2="94" stroke="var(--t)" stroke-width="0.3" opacity="0.1"/>
+<line class="grid-line" x1="60" y1="94" x2="640" y2="94" stroke-width="0.3" opacity="0.1"/>
 
 <text class="ts" x="56" y="156" text-anchor="end">1.5</text>
-<line x1="60" y1="154" x2="640" y2="154" stroke="var(--t)" stroke-width="0.3" opacity="0.1"/>
+<line class="grid-line" x1="60" y1="154" x2="640" y2="154" stroke-width="0.3" opacity="0.1"/>
 
 <text class="ts" x="56" y="216" text-anchor="end">2.0</text>
-<line x1="60" y1="214" x2="640" y2="214" stroke="var(--t)" stroke-width="0.3" opacity="0.1"/>
+<line class="grid-line" x1="60" y1="214" x2="640" y2="214" stroke-width="0.3" opacity="0.1"/>
 
 <text class="ts" x="56" y="276" text-anchor="end">2.5</text>
-<line x1="60" y1="274" x2="640" y2="274" stroke="var(--t)" stroke-width="0.3" opacity="0.1"/>
+<line class="grid-line" x1="60" y1="274" x2="640" y2="274" stroke-width="0.3" opacity="0.1"/>
 
 <!-- Bars: scale 1 unit = 120px, baseline at y=334 (val_loss=0) -->
-<!-- Transformer 184M: 1.373 → height = 164.76, top = 334-164.76 = 169 -->
-<g class="c-amber">
-<rect x="90" y="169" width="100" height="165" rx="4" stroke-width="0.5"/>
-<text class="th" x="140" y="155" text-anchor="middle">1.373</text>
-</g>
+<!-- Transformer 184M: 1.373 -> height = 164.76, top = 334-164.76 = 169 -->
+<rect class="amber-fill" x="90" y="169" width="100" height="165" rx="4" stroke-width="0.5"/>
+<text class="amber-text th" x="140" y="155" text-anchor="middle">1.373</text>
 <text class="ts" x="140" y="354" text-anchor="middle">Transformer</text>
 <text class="ts" x="140" y="370" text-anchor="middle">184M</text>
 
-<!-- Transformer 112M: 1.470 → height = 176.4, top = 334-176.4 = 158 -->
-<g class="c-coral">
-<rect x="240" y="158" width="100" height="176" rx="4" stroke-width="0.5"/>
-<text class="th" x="290" y="144" text-anchor="middle">1.470</text>
-</g>
+<!-- Transformer 112M: 1.470 -> height = 176.4, top = 334-176.4 = 158 -->
+<rect class="coral-fill" x="240" y="158" width="100" height="176" rx="4" stroke-width="0.5"/>
+<text class="coral-text th" x="290" y="144" text-anchor="middle">1.470</text>
 <text class="ts" x="290" y="354" text-anchor="middle">Transformer</text>
 <text class="ts" x="290" y="370" text-anchor="middle">112M</text>
 
 <!-- Hybrid SRN: TBD -->
-<g class="c-purple">
-<rect x="390" y="130" width="100" height="204" rx="4" stroke-width="0.5" stroke-dasharray="4 3"/>
-<text class="th" x="440" y="118" text-anchor="middle">TBD</text>
-</g>
+<rect class="purple-fill" x="390" y="130" width="100" height="204" rx="4" stroke-width="0.5" stroke-dasharray="4 3"/>
+<text class="purple-text th" x="440" y="118" text-anchor="middle">TBD</text>
 <text class="ts" x="440" y="354" text-anchor="middle">Hybrid SRN</text>
 <text class="ts" x="440" y="370" text-anchor="middle">(Exp 1)</text>
 
-<!-- SRN Baseline: 2.528 → height = 303.36, top = 334-303.36 = 31 -->
-<g class="c-blue">
-<rect x="540" y="31" width="100" height="303" rx="4" stroke-width="0.5"/>
-<text class="th" x="590" y="22" text-anchor="middle">2.528</text>
-</g>
+<!-- SRN Baseline: 2.528 -> height = 303.36, top = 334-303.36 = 31 -->
+<rect class="blue-fill" x="540" y="31" width="100" height="303" rx="4" stroke-width="0.5"/>
+<text class="blue-text th" x="590" y="22" text-anchor="middle">2.528</text>
 <text class="ts" x="590" y="354" text-anchor="middle">SRN pure</text>
 <text class="ts" x="590" y="370" text-anchor="middle">146M</text>
 
 <!-- Gap annotations -->
 <!-- Compute gap bracket -->
-<line x1="192" y1="165" x2="238" y2="165" stroke="var(--t)" stroke-width="0.8" opacity="0.4"/>
-<line x1="192" y1="160" x2="192" y2="170" stroke="var(--t)" stroke-width="0.8" opacity="0.4"/>
-<line x1="238" y1="160" x2="238" y2="170" stroke="var(--t)" stroke-width="0.8" opacity="0.4"/>
-<text class="ts" x="215" y="180" text-anchor="middle" opacity="0.6">0.097</text>
-<text class="ts" x="215" y="194" text-anchor="middle" opacity="0.5">8%</text>
+<line class="bracket-line" x1="192" y1="165" x2="238" y2="165" stroke-width="0.8" opacity="0.4"/>
+<line class="bracket-line" x1="192" y1="160" x2="192" y2="170" stroke-width="0.8" opacity="0.4"/>
+<line class="bracket-line" x1="238" y1="160" x2="238" y2="170" stroke-width="0.8" opacity="0.4"/>
+<text class="sub-text ts" x="215" y="180" text-anchor="middle">0.097</text>
+<text class="sub-text ts" x="215" y="194" text-anchor="middle">8%</text>
 
 <!-- Architecture gap bracket -->
-<line x1="342" y1="100" x2="538" y2="100" stroke="var(--t)" stroke-width="0.8" opacity="0.4"/>
-<line x1="342" y1="95" x2="342" y2="105" stroke="var(--t)" stroke-width="0.8" opacity="0.4"/>
-<line x1="538" y1="95" x2="538" y2="105" stroke="var(--t)" stroke-width="0.8" opacity="0.4"/>
-<text class="ts" x="440" y="95" text-anchor="middle" opacity="0.6">1.058 — architectural gap</text>
+<line class="bracket-line" x1="342" y1="100" x2="538" y2="100" stroke-width="0.8" opacity="0.4"/>
+<line class="bracket-line" x1="342" y1="95" x2="342" y2="105" stroke-width="0.8" opacity="0.4"/>
+<line class="bracket-line" x1="538" y1="95" x2="538" y2="105" stroke-width="0.8" opacity="0.4"/>
+<text class="sub-text ts" x="440" y="95" text-anchor="middle">1.058 — architectural gap</text>
 
 <!-- Bottom summary -->
-<line x1="60" y1="390" x2="640" y2="390" stroke="var(--t)" stroke-width="0.5" opacity="0.15"/>
-<text class="ts" x="340" y="410" text-anchor="middle">92% of the gap is architectural, not computational. The slot bottleneck is the problem.</text>
+<line class="divider" x1="60" y1="390" x2="640" y2="390" stroke-width="0.5" opacity="0.15"/>
+<text class="sub-text ts" x="340" y="410" text-anchor="middle">92% of the gap is architectural, not computational. The slot bottleneck is the problem.</text>
 
+</g>
 </svg>
