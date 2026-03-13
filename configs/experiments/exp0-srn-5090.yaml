@@ -1,0 +1,41 @@
+# Exp0: SRN Baseline — 5090 config
+# Standard SRN-150M architecture for controlled comparison
+
+dataset_backend: memmap
+tokenizer_backend: bpe
+tokenizer_path: data/tinystories/tokenizer.json
+tokenizer_vocab_size: 32000
+train_tokens_path: data/tinystories/train_tokens.bin
+val_tokens_path: data/tinystories/val_tokens.bin
+
+train:
+  seed: 42
+  micro_batch: 24
+  accum_steps: 4
+  seq_len: 1024
+  max_steps: 5000
+  warmup_steps: 500
+  max_lr: 0.0003
+  min_lr: 0.00003
+  weight_decay: 0.1
+  max_grad_norm: 1.0
+  precision: fp16
+  eval_interval: 250
+  eval_batches: 20
+  log_interval: 25
+  checkpoint_dir: checkpoints/exp0-srn-5090
+
+model:
+  max_seq_len: 1024
+  d_model: 896
+  d_compressed: 224
+  n_layers: 12
+  n_memory_slots: 96
+  n_experts: 8
+  top_k_experts: 2
+  d_expert: 384
+  n_heads_route: 8
+  dropout: 0.1
+  causal_window: 64
+  csp_internal_residual: false
+  aux_loss_weight: 0.01

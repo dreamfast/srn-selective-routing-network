@@ -137,9 +137,13 @@ def test_config_path_resolution() -> None:
     assert path.name == "exp2a-slots128-4090.yaml"
 
 
-def test_missing_config_skipped() -> None:
+def test_missing_config_skipped(monkeypatch: pytest.MonkeyPatch) -> None:
     """Experiment with missing config file is skipped gracefully."""
-    # exp0 configs don't exist yet (Task 7)
+    import scripts.run_experiments as runner
+
+    # Point CONFIGS_DIR to a non-existent directory so all configs appear missing
+    monkeypatch.setattr(runner, "CONFIGS_DIR", Path("/tmp/nonexistent_configs_dir"))
+
     result = run_experiment("0", "2060", dry_run=False)
     # Should be skipped since config doesn't exist
     assert result["status"] == "skipped"

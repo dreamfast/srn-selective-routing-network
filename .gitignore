@@ -1,6 +1,7 @@
 # Training artifacts
 data/
 checkpoints/
+results/
 
 # Python
 __pycache__/
