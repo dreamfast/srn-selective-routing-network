@@ -211,11 +211,11 @@ All 6 ablation experiments completed. Each changes one variable from the SRN bas
 **Architecture decisions from ablations:**
 - **Hybrid attention anchors:** Keep — this is the breakthrough (95% gap closed)
 - **CSP bottleneck:** Keep — removing it makes things slightly worse
-- **Top-k 4 experts:** Promising — small solo improvement, testing in combination with hybrid
+- **Top-k 2 experts:** Keep at 2 — Exp7 showed top-k 4 doesn't help in hybrid mode (1.532 vs 1.522)
 - **Slot count:** Keep at 96 — more slots doesn't help and 256 actively hurts
 - **WCSG offset:** Drop — the score-space modification makes routing worse
 
-**Next:** Combined experiment (hybrid + top-k 4) to verify improvements stack before locking the architecture for 1B scale.
+**1B Architecture Locked:** Hybrid SRN with top-k 2, 96 slots, CSP enabled, no WCSG offset. ~956M total params, ~406M active/token (42.4%). Dense baseline: ~411M params (compute-fair match).
 
 **Observations:**
 - SRN expert utilization is perfectly uniform (0.250 per layer) throughout training, with aux_loss ~24 constant. The load balancing loss may be too dominant relative to the cross-entropy loss (~9% of total loss at convergence)
@@ -276,7 +276,7 @@ The compute gap is tiny — the SRN's problem is NOT sparse parameter usage. It'
 | Exp4 | No CSP | `disable_csp=true` | **2.588** | Done |
 | Exp5 | Top-k 4 | `top_k_experts=4` | **2.485** | Done |
 | Exp6 | WCSG Offset | `wcsg_key_offset=true, rank=16` | **2.620** | Done |
-| Exp7 | Combined | Hybrid + top-k 4 | — | Queued |
+| Exp7 | Combined | Hybrid + top-k 4 | **1.532** | Done |
 
 ### Running Experiments
 
@@ -300,7 +300,7 @@ docker compose run --rm srn python scripts/run_experiments.py \
   --compare --gpu 2060
 ```
 
-**Experiment IDs:** `0` (SRN baseline), `0t` (Transformer 184M), `0ts` (Transformer 112M), `1` (Hybrid), `2a` (128 slots), `2b` (256 slots), `3` (Full data), `4` (No CSP), `5` (Top-k 4), `6` (WCSG offset)
+**Experiment IDs:** `0` (SRN baseline), `0t` (Transformer 184M), `0ts` (Transformer 112M), `1` (Hybrid), `2a` (128 slots), `2b` (256 slots), `3` (Full data), `4` (No CSP), `5` (Top-k 4), `6` (WCSG offset), `7` (Combined)
 
 **Config naming:** `configs/experiments/exp{ID}-{name}-{gpu}.yaml` (e.g. `exp1-hybrid-2060.yaml`)
 
@@ -332,7 +332,7 @@ results/
 
 Use `--compare` to generate a summary table across all experiments for a given GPU tier. Results are collected from checkpoints (not stdout parsing) for reliability.
 
-**Status:** All ablations complete. Combined experiment (Exp7: hybrid + top-k 4) queued to verify improvements stack before 1B scale run.
+**Status:** All ablations complete. Exp7 (hybrid + top-k 4) showed no improvement over Exp1 (hybrid alone): 1.532 vs 1.522. Conclusion: attention layers already compensate for what extra expert activation provides. **Top-k 2 locked for 1B run.**
 
 ## Quick Start
 
@@ -468,6 +468,8 @@ scripts/
   run_experiments.py      # Experiment runner CLI (dry-run, compare, structured results)
   prepare_tinystories.py  # TinyStories data preparation + BPE tokenization
 configs/
+  srn-1b-hybrid.yaml     # 1B hybrid SRN for FineWeb-Edu (~956M total, ~406M active)
+  dense-500m.yaml         # Dense Transformer baseline (~411M, compute-fair match)
   experiments/            # 30 YAML configs (10 experiments × 3 GPU tiers)
 tests/                    # pytest suite (113 tests)
 results/                  # Experiment outputs (training logs)

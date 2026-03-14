@@ -1,9 +1,12 @@
-# Dense Transformer 500M — Compute-fair baseline for 1B SRN comparison
+# Dense Transformer 411M — Compute-fair baseline for 1B SRN comparison
 #
-# ~500M total params (all active) vs SRN hybrid's ~485M active params per token.
+# ~411M total params (all active) vs SRN hybrid's ~406M active params per token.
 # This is a fair compute-per-token comparison: similar FLOPs per forward pass.
-# The SRN has ~957M total params but only ~485M are active per token due to
-# sparse expert routing (top-k=4 of 16 experts).
+# The SRN has ~956M total params but only ~406M are active per token due to
+# sparse expert routing (top-k=2 of 16 experts).
+#
+# Sizing: d_model=1152, n_layers=22, d_ff=4608 (4x), n_heads=16 (head_dim=72)
+# Slightly generous to the dense baseline (+1.2%) — if SRN wins, it's more convincing.
 #
 # Target hardware: RTX 4090 (24GB) or RTX 5090 (32GB) with bf16
 # Same training budget: 5B tokens on FineWeb-Edu
@@ -24,14 +27,14 @@ train:
   eval_interval: 5000
   eval_batches: 20
   log_interval: 100
-  checkpoint_dir: checkpoints/dense-500m
+  checkpoint_dir: checkpoints/dense-411m
 
 model:
   max_seq_len: 2048
-  d_model: 1280
+  d_model: 1152
   n_layers: 22
   n_heads: 16
-  d_ff: 5120
+  d_ff: 4608
   dropout: 0.1
   bias: false
 

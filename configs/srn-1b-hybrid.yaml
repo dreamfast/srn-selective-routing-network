@@ -2,12 +2,12 @@
 #
 # Architecture decisions from 150M ablation experiments:
 #   - Hybrid attention every 4th layer (Exp1: 95% gap closure)
-#   - Top-k 4 experts (Exp5+Exp7: stacks with hybrid)
+#   - Top-k 2 experts (Exp7: top-k 4 doesn't help in hybrid mode)
 #   - 96 memory slots (Exp2a/2b: more slots doesn't help)
 #   - CSP bottleneck enabled (Exp4: removing it hurts)
 #   - No WCSG offset (Exp6: hurts performance)
 #
-# Total params: ~957M | Active/token: ~485M (50.6%)
+# Total params: ~956M | Active/token: ~406M (42.4%)
 # 5 attention layers (0,4,8,12,16) + 15 routing layers
 #
 # Target hardware: RTX 5090 (32GB) with bf16
@@ -37,7 +37,7 @@ model:
   n_layers: 20
   n_memory_slots: 96
   n_experts: 16
-  top_k_experts: 4
+  top_k_experts: 2
   d_expert: 640
   n_heads_route: 16
   dropout: 0.1
