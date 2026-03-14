@@ -1,0 +1,46 @@
+# Exp7: Combined — Hybrid Attention + Top-k 4 — 5090 config
+# Tests whether the two best ablation improvements stack:
+#   - Exp1 (hybrid): attention_every_n_layers=4 → val_loss 1.522
+#   - Exp5 (top-k 4): top_k_experts=4 → val_loss 2.485 (solo)
+# If combined < 1.522, the effects compound. If ≈ 1.522, attention already compensates.
+
+train:
+  seed: 42
+  max_lr: 0.0003
+  min_lr: 0.00003
+  weight_decay: 0.1
+  max_grad_norm: 1.0
+  precision: fp16
+  micro_batch: 16
+  accum_steps: 6
+  seq_len: 1024
+  max_steps: 5000
+  warmup_steps: 500
+  eval_interval: 250
+  eval_batches: 20
+  log_interval: 25
+  checkpoint_dir: checkpoints/exp7-combined-5090
+
+model:
+  max_seq_len: 1024
+  d_model: 896
+  d_compressed: 224
+  n_layers: 12
+  n_memory_slots: 96
+  n_experts: 8
+  top_k_experts: 4
+  d_expert: 384
+  n_heads_route: 8
+  dropout: 0.1
+  causal_window: 64
+  csp_internal_residual: false
+  aux_loss_weight: 0.01
+  attention_every_n_layers: 4
+  attention_n_heads: 8
+
+dataset_backend: memmap
+tokenizer_backend: bpe
+tokenizer_path: data/tinystories/tokenizer.json
+tokenizer_vocab_size: 32000
+train_tokens_path: data/tinystories/train_tokens.bin
+val_tokens_path: data/tinystories/val_tokens.bin

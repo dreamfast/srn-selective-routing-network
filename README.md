@@ -175,30 +175,47 @@ Architecture Gap = 2.528 - 1.470 = 1.058  (92% of gap — routing vs attention)
 
 **Key finding:** The compute gap is negligible. The 112M Transformer (matching SRN's active params/token) performs nearly as well as the 184M. This means the SRN's quality gap is almost entirely architectural — the routing mechanism itself, not the sparse parameter usage, is the bottleneck.
 
-### Hybrid SRN: The Breakthrough (Exp1 — In Progress)
+### Hybrid SRN: The Breakthrough (Exp1)
 
 ![Hybrid SRN Architecture](docs/diagrams/hybrid_srn_architecture.svg)
 
-Adding just 3 attention layers (every 4th layer) to the 12-layer SRN dramatically closes the gap:
+Adding just 3 attention layers (every 4th layer) to the 12-layer SRN closes 95% of the architecture gap:
 
-| Model | Val Loss @ Step 2750 | Final Val Loss |
-|-------|---------------------|----------------|
-| Transformer 184M | 1.502 | **1.373** |
-| **Hybrid SRN (Exp1)** | **1.639** | **~1.5 (projected)** |
-| Transformer 112M | ~1.55 | **1.470** |
-| Pure SRN | ~2.67 | **2.528** |
+| Model | Best Val Loss | Perplexity | Gap from Transformer 112M |
+|-------|--------------|------------|---------------------------|
+| Transformer 184M | **1.373** | 3.95 | -0.097 (more compute) |
+| Transformer 112M | **1.470** | 4.35 | — (equal compute baseline) |
+| **Hybrid SRN (Exp1)** | **1.522** | 4.58 | +0.052 |
+| Pure SRN | **2.528** | 12.53 | +1.058 |
 
-The hybrid SRN with 75% routing layers and 25% attention layers is tracking close to the pure Transformers — and learning faster in early training (beating both Transformers at step 1500).
+```
+Architecture gap closed: 1.006 / 1.058 = 95%
+Remaining gap: 0.052 (3.5% from equal-compute Transformer)
+```
 
-**What this means:** Routing layers are effective for most of the computation, but a few attention "anchor" layers are needed to capture patterns that slot routing misses. This is the best of both worlds — near-Transformer quality with mostly O(n·k) layers.
+**What this means:** Routing layers handle 75% of the work without quality collapse. A few attention "anchor" layers every 4th layer are enough to capture patterns that slot routing misses. This is the best of both worlds — near-Transformer quality with mostly O(n·k) layers.
 
-### Ablation Early Results
+### Full Ablation Results
 
-| Experiment | Val Loss @ Step 1500 | vs Baseline SRN | Signal |
-|-----------|---------------------|-----------------|--------|
-| **Exp1 (Hybrid Attention)** | **1.897** | **-1.13** | Massive improvement |
-| Exp4 (No CSP) | 3.071 | +0.05 | CSP is slightly helpful, not hurting |
-| Baseline SRN | 3.023 | — | — |
+All 6 ablation experiments completed. Each changes one variable from the SRN baseline:
+
+| Experiment | Key Change | Best Val Loss | vs SRN Baseline | Verdict |
+|-----------|------------|--------------|-----------------|---------|
+| **Exp1 (Hybrid Attention)** | 3 attn + 9 routing layers | **1.522** | **-1.006** | **Massive win — the key insight** |
+| Exp5 (Top-k 4) | Route to 4 experts instead of 2 | **2.485** | -0.043 | Small help |
+| Exp2a (128 Slots) | More memory slots | **2.530** | +0.002 | Neutral |
+| Exp4 (No CSP) | Disable bottleneck | **2.588** | +0.060 | CSP helps slightly |
+| Exp6 (WCSG Offset) | Score-space offset | **2.620** | +0.092 | Hurts — drop it |
+| Exp2b (256 Slots) | Even more memory slots | **2.790** | +0.262 | Hurts a lot — too diluted |
+
+**Architecture decisions from ablations:**
+- **Hybrid attention anchors:** Keep — this is the breakthrough (95% gap closed)
+- **CSP bottleneck:** Keep — removing it makes things slightly worse
+- **Top-k 4 experts:** Promising — small solo improvement, testing in combination with hybrid
+- **Slot count:** Keep at 96 — more slots doesn't help and 256 actively hurts
+- **WCSG offset:** Drop — the score-space modification makes routing worse
+
+**Next:** Combined experiment (hybrid + top-k 4) to verify improvements stack before locking the architecture for 1B scale.
 
 **Observations:**
 - SRN expert utilization is perfectly uniform (0.250 per layer) throughout training, with aux_loss ~24 constant. The load balancing loss may be too dominant relative to the cross-entropy loss (~9% of total loss at convergence)
@@ -252,13 +269,14 @@ The compute gap is tiny — the SRN's problem is NOT sparse parameter usage. It'
 | Exp0 | SRN Baseline | (none) | **2.528** | Done |
 | Exp0-T | Transformer 184M | Dense Transformer, param-matched | **1.373** | Done |
 | Exp0-Ts | Transformer 112M | Dense Transformer, compute-fair | **1.470** | Done |
-| Exp1 | Hybrid Attention | `attention_every_n_layers=4` | **~1.5** | Running |
-| Exp2a | 128 Slots | `n_memory_slots=128, d_expert=379` | — | Queued |
-| Exp2b | 256 Slots | `n_memory_slots=256, d_expert=358` | — | Queued |
-| Exp3 | Full TinyStories | `max_steps=12817` | — | Pending |
-| Exp4 | No CSP | `disable_csp=true` | ~3.07 @ 1500 | Running |
-| Exp5 | Top-k 4 | `top_k_experts=4` | — | Queued |
-| Exp6 | WCSG Offset | `wcsg_key_offset=true, rank=16` | — | Queued |
+| Exp1 | Hybrid Attention | `attention_every_n_layers=4` | **1.522** | Done |
+| Exp2a | 128 Slots | `n_memory_slots=128, d_expert=379` | **2.530** | Done |
+| Exp2b | 256 Slots | `n_memory_slots=256, d_expert=358` | **2.790** | Done |
+| Exp3 | Full TinyStories | `max_steps=12817` | — | Skipped |
+| Exp4 | No CSP | `disable_csp=true` | **2.588** | Done |
+| Exp5 | Top-k 4 | `top_k_experts=4` | **2.485** | Done |
+| Exp6 | WCSG Offset | `wcsg_key_offset=true, rank=16` | **2.620** | Done |
+| Exp7 | Combined | Hybrid + top-k 4 | — | Queued |
 
 ### Running Experiments
 
@@ -314,7 +332,7 @@ results/
 
 Use `--compare` to generate a summary table across all experiments for a given GPU tier. Results are collected from checkpoints (not stdout parsing) for reliability.
 
-**Status:** Baselines complete. Ablation experiments running overnight (Exp1, Exp4 active; Exp2a, Exp2b, Exp5, Exp6 queued).
+**Status:** All ablations complete. Combined experiment (Exp7: hybrid + top-k 4) queued to verify improvements stack before 1B scale run.
 
 ## Quick Start
 
@@ -424,7 +442,7 @@ SRN-150M configuration used for TinyStories experiments:
 | SRN-Medium | 3.9B | 1.0B | 7.3 GB | 26% |
 | SRN-Large | 37.7B | 5.4B | 70 GB | 14% |
 
-A 3.9B SRN fits in 8GB VRAM and computes like a 1B dense model, but has the knowledge capacity of a 3.9B model. With the hybrid approach (75% routing + 25% attention), quality approaches Transformer-level while maintaining the efficiency advantages.
+A 3.9B SRN fits in 8GB VRAM and computes like a 1B dense model, but has the knowledge capacity of a 3.9B model. With the hybrid approach (75% routing + 25% attention), quality is within 3.5% of an equal-compute Transformer while maintaining the efficiency advantages at longer sequences.
 
 ## Bugs Fixed from Original NumPy PoC
 
