@@ -15,6 +15,9 @@ Outputs:
 - manifest.json (checksums, token counts, tokenizer hash)
 
 Usage:
+    # GPT-2 tokenizer (recommended for 1B experiments — matches TinyStories runs)
+    python scripts/prepare_fineweb.py --pretrained gpt2
+
     # Prepare with existing tokenizer (fairness: reuse from TinyStories or prior run)
     python scripts/prepare_fineweb.py --tokenizer_path data/tinystories/tokenizer.json
 
@@ -22,7 +25,7 @@ Usage:
     python scripts/prepare_fineweb.py --train_tokenizer --vocab_size 32000
 
     # Limit document count for testing
-    python scripts/prepare_fineweb.py --max_docs 10000 --tokenizer_path data/tokenizer.json
+    python scripts/prepare_fineweb.py --max_docs 10000 --pretrained gpt2
 """
 
 from __future__ import annotations
@@ -60,6 +63,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output_dir", type=str, default="data/fineweb-edu",
         help="Output directory for shards and manifest",
+    )
+    parser.add_argument(
+        "--pretrained", type=str, default=None,
+        help="HuggingFace model ID for pretrained tokenizer (e.g. 'gpt2')",
     )
     parser.add_argument(
         "--tokenizer_path", type=str, default=None,
@@ -130,7 +137,12 @@ def main() -> None:
     # ── Step 2: Tokenizer ─────────────────────────────────────────────────
     tokenizer_out_path = output_dir / "tokenizer.json"
 
-    if args.tokenizer_path is not None and Path(args.tokenizer_path).exists():
+    if args.pretrained is not None:
+        print(f"Loading pretrained tokenizer: {args.pretrained}")
+        tokenizer = BPETokenizer.from_pretrained(args.pretrained)
+        tokenizer.save(str(tokenizer_out_path))
+        print(f"  Saved local copy -> {tokenizer_out_path}")
+    elif args.tokenizer_path is not None and Path(args.tokenizer_path).exists():
         print(f"Loading existing tokenizer: {args.tokenizer_path}")
         tokenizer = BPETokenizer.from_file(args.tokenizer_path)
         # Copy tokenizer to output dir for self-contained manifest
@@ -151,15 +163,26 @@ def main() -> None:
         print(f"  Saved tokenizer: {tokenizer_out_path}")
     else:
         raise ValueError(
-            "Must provide --tokenizer_path or --train_tokenizer. "
+            "Must provide --pretrained, --tokenizer_path, or --train_tokenizer. "
             "For fairness, reuse the same tokenizer across SRN and baseline."
         )
 
-    eos_id = tokenizer.token_to_id("<eos>")
+    # Resolve EOS token — try common candidates
+    eos_id = None
+    eos_token = None
+    for candidate in ["<|endoftext|>", "<eos>", "</s>"]:
+        eos_id = tokenizer.token_to_id(candidate)
+        if eos_id is not None:
+            eos_token = candidate
+            break
     if eos_id is None:
-        raise ValueError("Tokenizer is missing <eos> token")
+        raise ValueError(
+            "Could not find EOS token in tokenizer. "
+            "Tried: <|endoftext|>, <eos>, </s>"
+        )
 
     print(f"  Vocab size: {tokenizer.vocab_size:,}")
+    print(f"  EOS token: {eos_token!r} (id={eos_id})")
 
     # Validate train_ratio
     if not (0 < args.train_ratio < 1):
@@ -255,6 +278,9 @@ def main() -> None:
         "subset": args.subset,
         "documents": n_docs,
         "vocab_size": tokenizer.vocab_size,
+        "eos_token": eos_token,
+        "eos_id": eos_id,
+        "pretrained": args.pretrained,
         "special_tokens": SPECIAL_TOKENS,
         "train_ratio": args.train_ratio,
         "seed": args.seed,

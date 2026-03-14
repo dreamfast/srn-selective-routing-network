@@ -1,0 +1,43 @@
+# Dense Transformer 500M — Compute-fair baseline for 1B SRN comparison
+#
+# ~500M total params (all active) vs SRN hybrid's ~485M active params per token.
+# This is a fair compute-per-token comparison: similar FLOPs per forward pass.
+# The SRN has ~957M total params but only ~485M are active per token due to
+# sparse expert routing (top-k=4 of 16 experts).
+#
+# Target hardware: RTX 4090 (24GB) or RTX 5090 (32GB) with bf16
+# Same training budget: 10B tokens on FineWeb-Edu
+
+train:
+  seed: 42
+  model_type: dense
+  max_lr: 0.00015
+  min_lr: 0.000015
+  weight_decay: 0.1
+  max_grad_norm: 1.0
+  precision: bf16
+  micro_batch: 4
+  accum_steps: 8
+  seq_len: 2048
+  max_steps: 153000
+  warmup_steps: 5000
+  eval_interval: 5000
+  eval_batches: 20
+  log_interval: 100
+  checkpoint_dir: checkpoints/dense-500m
+
+model:
+  max_seq_len: 2048
+  d_model: 1280
+  n_layers: 22
+  n_heads: 16
+  d_ff: 5120
+  dropout: 0.1
+  bias: false
+
+dataset_backend: memmap
+tokenizer_backend: bpe
+tokenizer_path: data/fineweb-edu/tokenizer.json
+tokenizer_vocab_size: 50257
+train_tokens_path: data/fineweb-edu/train_tokens.bin
+val_tokens_path: data/fineweb-edu/val_tokens.bin
