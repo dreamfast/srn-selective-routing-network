@@ -6,7 +6,7 @@
 # sparse expert routing (top-k=4 of 16 experts).
 #
 # Target hardware: RTX 4090 (24GB) or RTX 5090 (32GB) with bf16
-# Same training budget: 10B tokens on FineWeb-Edu
+# Same training budget: 5B tokens on FineWeb-Edu
 
 train:
   seed: 42
@@ -19,7 +19,7 @@ train:
   micro_batch: 4
   accum_steps: 8
   seq_len: 2048
-  max_steps: 153000
+  max_steps: 76000
   warmup_steps: 5000
   eval_interval: 5000
   eval_batches: 20

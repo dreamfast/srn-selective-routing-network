@@ -11,7 +11,7 @@
 # 5 attention layers (0,4,8,12,16) + 15 routing layers
 #
 # Target hardware: RTX 5090 (32GB) with bf16
-# Estimated training time: ~5-7 days for 10B tokens
+# Estimated training time: ~2-3 days for 5B tokens
 
 train:
   seed: 42
@@ -23,7 +23,7 @@ train:
   micro_batch: 2
   accum_steps: 16
   seq_len: 2048
-  max_steps: 153000
+  max_steps: 76000
   warmup_steps: 5000
   eval_interval: 5000
   eval_batches: 20
