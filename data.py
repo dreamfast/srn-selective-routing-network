@@ -144,6 +144,22 @@ class BPETokenizer:
     def encode(self, text: str) -> list[int]:
         return self._tokenizer.encode(text).ids
 
+    def encode_batch(self, texts: list[str]) -> list[list[int]]:
+        """Encode multiple texts in parallel using Rust threads.
+
+        This is significantly faster than calling encode() in a loop —
+        the HuggingFace tokenizers library parallelizes across all CPU
+        cores via its Rust backend.
+
+        Args:
+            texts: list of strings to encode
+
+        Returns:
+            list of token ID lists, one per input text
+        """
+        encodings = self._tokenizer.encode_batch(texts)
+        return [enc.ids for enc in encodings]
+
     def decode(self, ids: list[int]) -> str:
         return self._tokenizer.decode(ids)
 

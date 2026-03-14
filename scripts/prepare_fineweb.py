@@ -190,54 +190,65 @@ def main() -> None:
             f"train_ratio must be between 0 and 1 (exclusive), got {args.train_ratio}"
         )
 
-    # ── Step 3: Tokenize (chunked to avoid OOM on large datasets) ─────────
-    # Instead of collecting all tokens in a Python list (which uses ~28 bytes
-    # per int on 64-bit CPython — 280GB for 10B tokens), we write chunks of
-    # numpy int32 arrays to a temporary file, then split into train/val.
-    print(f"Tokenizing {n_docs:,} documents (chunked write)...")
+    # ── Step 3: Tokenize (batched + chunked to avoid OOM) ───────────────
+    # Uses encode_batch() which parallelizes across all CPU cores via the
+    # HuggingFace tokenizers Rust backend. Typically 10-20x faster than
+    # single-threaded encode() in a Python loop.
+    #
+    # Documents are processed in batches of BATCH_SIZE, then token IDs are
+    # flushed to disk in chunks to avoid holding all tokens in memory.
+    BATCH_SIZE = 10_000  # Documents per encode_batch() call
+    print(f"Tokenizing {n_docs:,} documents (batched, {BATCH_SIZE} docs/batch)...")
     t0 = time.time()
-    log_interval = max(n_docs // 20, 1)
 
     # Write all tokens to a single temp file first
     all_tokens_path = output_dir / "_all_tokens.bin"
-    chunk_buf: list[int] = []  # Buffer for current chunk
     total_tokens = 0
-    chunk_flush_size = 1_000_000  # Flush every ~1M tokens (~4MB on disk)
+    docs_processed = 0
 
     with all_tokens_path.open("wb") as f:
-        for i, doc in enumerate(ds):
+        # Process documents in batches
+        batch_texts: list[str] = []
+        for doc in ds:
             text = doc["text"]
-            if not text or not text.strip():
-                continue
-            ids = tokenizer.encode(text)
-            chunk_buf.extend(ids)
-            chunk_buf.append(eos_id)
+            if text and text.strip():
+                batch_texts.append(text)
 
-            # Flush chunk to disk when buffer is large enough
-            if len(chunk_buf) >= chunk_flush_size:
+            if len(batch_texts) >= BATCH_SIZE:
+                # Encode entire batch in parallel (Rust threads)
+                all_ids = tokenizer.encode_batch(batch_texts)
+                # Flatten with EOS separators and write to disk
+                chunk_buf: list[int] = []
+                for ids in all_ids:
+                    chunk_buf.extend(ids)
+                    chunk_buf.append(eos_id)
                 chunk_array = np.array(chunk_buf, dtype=np.int32)
                 chunk_array.tofile(f)
                 total_tokens += len(chunk_buf)
-                chunk_buf.clear()
+                docs_processed += len(batch_texts)
+                batch_texts.clear()
 
-            if (i + 1) % log_interval == 0:
                 elapsed = time.time() - t0
-                docs_per_sec = (i + 1) / max(elapsed, 1e-6)
-                current_tokens = total_tokens + len(chunk_buf)
-                print(f"  {i + 1:>10,}/{n_docs:,} docs "
-                      f"({(i + 1) / n_docs * 100:.0f}%) "
-                      f"| {current_tokens:,} tokens "
-                      f"| {docs_per_sec:.0f} docs/s")
+                docs_per_sec = docs_processed / max(elapsed, 1e-6)
+                print(f"  {docs_processed:>10,}/{n_docs:,} docs "
+                      f"({docs_processed / n_docs * 100:.0f}%) "
+                      f"| {total_tokens:,} tokens "
+                      f"| {docs_per_sec:,.0f} docs/s")
 
-        # Flush remaining tokens
-        if chunk_buf:
+        # Flush remaining documents
+        if batch_texts:
+            all_ids = tokenizer.encode_batch(batch_texts)
+            chunk_buf = []
+            for ids in all_ids:
+                chunk_buf.extend(ids)
+                chunk_buf.append(eos_id)
             chunk_array = np.array(chunk_buf, dtype=np.int32)
             chunk_array.tofile(f)
             total_tokens += len(chunk_buf)
-            chunk_buf.clear()
+            docs_processed += len(batch_texts)
 
     elapsed = time.time() - t0
-    print(f"  Tokenized {n_docs:,} docs -> {total_tokens:,} tokens in {elapsed:.1f}s")
+    print(f"  Tokenized {docs_processed:,} docs -> {total_tokens:,} tokens in {elapsed:.1f}s")
 
     if total_tokens == 0:
         all_tokens_path.unlink(missing_ok=True)
