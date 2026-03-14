@@ -2,7 +2,7 @@
 #
 # Architecture decisions from 150M ablation experiments:
 #   - Hybrid attention every 4th layer (Exp1: 95% gap closure)
-#   - Top-k 2 experts (Exp7: top-k 4 doesn't help in hybrid mode)
+#   - Top-k 2 experts (Exp7: top-k 4 gives 1.532 vs 1.522 in hybrid mode)
 #   - 96 memory slots (Exp2a/2b: more slots doesn't help)
 #   - CSP bottleneck enabled (Exp4: removing it hurts)
 #   - No WCSG offset (Exp6: hurts performance)

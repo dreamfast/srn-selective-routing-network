@@ -469,7 +469,7 @@ scripts/
   prepare_tinystories.py  # TinyStories data preparation + BPE tokenization
 configs/
   srn-1b-hybrid.yaml     # 1B hybrid SRN for FineWeb-Edu (~956M total, ~406M active)
-  dense-500m.yaml         # Dense Transformer baseline (~411M, compute-fair match)
+  dense-411m.yaml          # Dense Transformer baseline (~411M, compute-fair match)
   experiments/            # 30 YAML configs (10 experiments × 3 GPU tiers)
 tests/                    # pytest suite (113 tests)
 results/                  # Experiment outputs (training logs)
