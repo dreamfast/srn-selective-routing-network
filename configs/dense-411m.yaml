@@ -8,8 +8,9 @@
 # Sizing: d_model=1152, n_layers=22, d_ff=4608 (4x), n_heads=16 (head_dim=72)
 # Slightly generous to the dense baseline (+1.2%) — if SRN wins, it's more convincing.
 #
-# Target hardware: RTX 4090 (24GB) or RTX 5090 (32GB) with bf16
+# Target hardware: RTX 5090 (32GB) with bf16
 # Same training budget: 5B tokens on FineWeb-Edu
+# Effective batch: micro_batch(4) × accum_steps(8) × seq_len(2048) = 65,536 tokens/step
 
 train:
   seed: 42

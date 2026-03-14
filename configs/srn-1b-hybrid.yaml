@@ -12,6 +12,7 @@
 #
 # Target hardware: RTX 5090 (32GB) with bf16
 # Estimated training time: ~2-3 days for 5B tokens
+# Effective batch: micro_batch(2) × accum_steps(16) × seq_len(2048) = 65,536 tokens/step
 
 train:
   seed: 42

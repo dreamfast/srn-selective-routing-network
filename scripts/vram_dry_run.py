@@ -8,17 +8,17 @@ Default headroom is 10% to leave room for CUDA context, fragmentation, and
 PyTorch memory allocator overhead.
 
 Usage:
-    # SRN-1B on current GPU
-    python scripts/vram_dry_run.py --config configs/srn-1b.yaml
+    # SRN-1B hybrid on current GPU (vocab_size auto-read from config)
+    python scripts/vram_dry_run.py --config configs/srn-1b-hybrid.yaml --precision bf16
 
     # Dense baseline
-    python scripts/vram_dry_run.py --config configs/dense-067b.yaml
+    python scripts/vram_dry_run.py --config configs/dense-411m.yaml --precision bf16
 
     # Custom headroom
-    python scripts/vram_dry_run.py --config configs/srn-1b.yaml --headroom 0.15
+    python scripts/vram_dry_run.py --config configs/srn-1b-hybrid.yaml --headroom 0.15
 
     # Specify target GPU memory (for planning without the actual GPU)
-    python scripts/vram_dry_run.py --config configs/srn-1b.yaml --gpu_mem_mb 32768
+    python scripts/vram_dry_run.py --config configs/srn-1b-hybrid.yaml --gpu_mem_mb 32768
 """
 
 from __future__ import annotations
@@ -103,6 +103,9 @@ def build_model(
             csp_internal_residual=model_section.get("csp_internal_residual", False),
             aux_loss_weight=model_section.get("aux_loss_weight", 0.01),
             sparse_moe=model_section.get("sparse_moe", False),
+            # Hybrid attention fields — critical for accurate VRAM profiling
+            attention_every_n_layers=model_section.get("attention_every_n_layers", 0),
+            attention_n_heads=model_section.get("attention_n_heads", 8),
         )
         model = SRNModel(config).to(device)
 
@@ -114,7 +117,7 @@ def run_dry_run(
     headroom: float = 0.10,
     gpu_mem_mb: float | None = None,
     precision: str = "fp16",
-    vocab_size: int = 32000,
+    vocab_size: int | None = None,
     micro_batch: int | None = None,
     seq_len: int | None = None,
 ) -> DryRunResult:
@@ -125,7 +128,7 @@ def run_dry_run(
         headroom: fraction of GPU memory to reserve (0.10 = 10%)
         gpu_mem_mb: override GPU total memory (for planning)
         precision: precision mode ("fp16" or "bf16")
-        vocab_size: vocabulary size for the model
+        vocab_size: vocabulary size (auto-read from config if not specified)
         micro_batch: override micro batch size from config
         seq_len: override sequence length from config
 
@@ -155,6 +158,11 @@ def run_dry_run(
         micro_batch = train_section.get("micro_batch", 2)
     if seq_len is None:
         seq_len = train_section.get("seq_len", 2048)
+
+    # Auto-read vocab_size from config if not explicitly provided
+    if vocab_size is None:
+        vocab_size = cfg.get("tokenizer_vocab_size", 32000)
+        print(f"  vocab_size from config: {vocab_size}")
 
     if micro_batch <= 0:
         raise ValueError(f"micro_batch must be positive, got {micro_batch}")
@@ -306,7 +314,8 @@ def parse_args() -> argparse.Namespace:
         "--precision", type=str, choices=["fp16", "bf16"], default="fp16",
     )
     parser.add_argument(
-        "--vocab_size", type=int, default=32000,
+        "--vocab_size", type=int, default=None,
+        help="Vocabulary size (auto-read from config's tokenizer_vocab_size if not set)",
     )
     parser.add_argument(
         "--micro_batch", type=int, default=None,

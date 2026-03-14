@@ -512,7 +512,7 @@ def test_parse_args_defaults() -> None:
         assert args.headroom == 0.10
         assert args.gpu_mem_mb is None
         assert args.precision == "fp16"
-        assert args.vocab_size == 32000
+        assert args.vocab_size is None  # Auto-read from config
         assert args.micro_batch is None
         assert args.seq_len is None
     finally:
