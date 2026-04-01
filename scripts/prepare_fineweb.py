@@ -254,25 +254,39 @@ def main() -> None:
         all_tokens_path.unlink(missing_ok=True)
         raise ValueError("No tokens produced — all documents may be empty")
 
-    # ── Step 4: Split into train/val shards ───────────────────────────────
-    # Memory-map the temp file and split by index
+    # ── Step 4: Split into train/val shards at document boundaries ────────
+    # Split at the last EOS token before the target split point to avoid
+    # cutting a document in half across train/val (data leakage).
     all_tokens = np.memmap(all_tokens_path, dtype=np.int32, mode="r")
-    split_idx = int(len(all_tokens) * args.train_ratio)
+    target_idx = int(len(all_tokens) * args.train_ratio)
+
+    # Search backwards from target_idx for the last EOS token
+    # Use a bounded search window (max 1M tokens = ~500 docs worth)
+    search_start = max(0, target_idx - 1_000_000)
+    search_region = all_tokens[search_start:target_idx]
+    eos_positions = np.where(search_region == eos_id)[0]
+
+    if len(eos_positions) > 0:
+        # Split just after the last EOS before target
+        split_idx = search_start + eos_positions[-1] + 1
+        print(f"  Adjusted split from {target_idx:,} to {split_idx:,} "
+              f"(moved {target_idx - split_idx:,} tokens to val for clean document boundary)")
+    else:
+        # No EOS found in window — fall back to target (rare edge case)
+        split_idx = target_idx
+        print(f"  WARNING: No EOS token found near split point. "
+              f"Using raw split at {split_idx:,} — may cut a document.")
 
     train_path = output_dir / "train_tokens.bin"
     val_path = output_dir / "val_tokens.bin"
 
-    # Write train shard
-    train_tokens = np.array(all_tokens[:split_idx])
-    train_tokens.tofile(train_path)
-    n_train = len(train_tokens)
-    del train_tokens
+    # Write train shard (stream from memmap — no full RAM copy)
+    all_tokens[:split_idx].tofile(train_path)
+    n_train = split_idx
 
-    # Write val shard
-    val_tokens = np.array(all_tokens[split_idx:])
-    val_tokens.tofile(val_path)
-    n_val = len(val_tokens)
-    del val_tokens
+    # Write val shard (stream from memmap — no full RAM copy)
+    all_tokens[split_idx:].tofile(val_path)
+    n_val = len(all_tokens) - split_idx
 
     # Clean up temp file
     del all_tokens
