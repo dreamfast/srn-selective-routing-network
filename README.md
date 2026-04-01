@@ -224,52 +224,64 @@ All 6 ablation experiments completed. Each changes one variable from the SRN bas
 
 **Note:** These baselines used different GPUs (5090 vs 4090) and slightly different effective batch sizes (96 vs 64). The param counts differ from original estimates because the tokenizer has 50,257 tokens (GPT-2 BPE) rather than the 32,000 assumed during planning. All experiments use the same tokenizer, so comparisons between them are valid.
 
-### FineWeb-Edu Verification (SRN 150M)
+### FineWeb-Edu Head-to-Head (SRN 150M vs Transformer 152M)
 
-First real-data verification of the SRN architecture on FineWeb-Edu (1M docs, ~500M tokens) with GPT-2 BPE tokenizer:
+Both models trained on the same FineWeb-Edu data (1M docs, ~500M tokens) with GPT-2 BPE tokenizer, identical batch config (micro=8, accum=12, effective=96, seq_len=1024), on the same RTX 5090:
 
-| Metric | Value |
-|--------|-------|
-| Model | SRN 150M (162M total, 112M active/token) |
-| Best val loss | **4.918** |
-| Final val loss | 4.952 |
-| Perplexity | 137 |
-| Peak VRAM | 17.0 GB (RTX 5090) |
-| Throughput | ~61K tok/s |
-| Training steps | 5,000 |
-| Dataset | FineWeb-Edu sample-10BT (1M docs) |
-| Tokenizer | GPT-2 BPE (vocab=50,257) |
-| Batch | micro=8, accum=12, effective=96, seq_len=1024 |
-| Training time | ~2.5 hours |
+| Metric | SRN 150M | Transformer 152M | Delta |
+|--------|----------|------------------|-------|
+| Total params | 162M | 200M | +38M |
+| Active/token | 112M (69%) | 200M (100%) | +88M |
+| **Best val_loss** | **4.918** | **3.755** | **-1.163** |
+| Perplexity | 137 | 43 | 3.2× better |
+| tok/s | 61K | 77K | +26% |
+| Peak VRAM | 17.0 GB | 13.3 GB | -22% |
+| Training time | ~2.5 hrs | ~1.8 hrs | -28% |
+| Steps | 5,000 | 5,000 | — |
 
-**Validation loss curve:**
+**Gap analysis:**
 
-| Step | Val Loss | Perplexity | Δ Loss |
-|------|----------|------------|--------|
-| 250  | 6.628    | 756        | —      |
-| 500  | 6.074    | 434        | -0.554 |
-| 750  | 5.764    | 319        | -0.310 |
-| 1000 | 5.529    | 252        | -0.235 |
-| 1250 | 5.387    | 219        | -0.142 |
-| 1500 | 5.289    | 198        | -0.098 |
-| 1750 | 5.219    | 185        | -0.070 |
-| 2000 | 5.164    | 175        | -0.055 |
-| 2250 | 5.114    | 166        | -0.050 |
-| 2500 | 5.076    | 160        | -0.038 |
-| 2750 | 5.040    | 155        | -0.036 |
-| 3000 | 5.019    | 151        | -0.021 |
-| 3250 | 4.994    | 148        | -0.025 |
-| 3500 | 4.977    | 145        | -0.017 |
-| 3750 | 4.958    | 142        | -0.019 |
-| 4000 | 4.943    | 140        | -0.015 |
-| 4250 | 4.932    | 139        | -0.011 |
-| 4500 | 4.927    | 138        | -0.005 |
-| **4750** | **4.918** | **137** | **-0.009** |
+```
+Total gap = 4.918 - 3.755 = 1.163
+```
 
-**Key observations:**
+This is remarkably consistent with the TinyStories gap (1.155), confirming the architecture gap is **stable across datasets** and not an artifact of the training data.
+
+**Key takeaways:**
+- The gap is architectural, not compute-related (proven by TinyStories ablations where the compute-matched 112M Transformer nearly matched the 184M)
+- Transformer still had decreasing loss at step 5000 — hasn't converged, could go lower with more training
+- Transformer uses less VRAM and is faster at seq_len=1024 (where attention is cheap)
+- SRN's efficiency advantage only materializes at longer context lengths where attention becomes O(n²)
+- The **hybrid approach** (Exp1, 3 attention + 9 routing layers) closes 95% of this gap on TinyStories
+
+### FineWeb-Edu SRN 150M — Validation Loss Curve
+
+| Step | SRN Val Loss | Transformer Val Loss | Gap |
+|------|-------------|---------------------|-----|
+| 250  | 6.628       | 6.423               | 0.205 |
+| 500  | 6.074       | 5.774               | 0.300 |
+| 750  | 5.764       | 5.222               | 0.542 |
+| 1000 | 5.529       | 4.866               | 0.663 |
+| 1250 | 5.387       | 4.587               | 0.800 |
+| 1500 | 5.289       | 4.377               | 0.912 |
+| 1750 | 5.219       | 4.249               | 0.970 |
+| 2000 | 5.164       | 4.151               | 1.013 |
+| 2250 | 5.114       | 4.075               | 1.039 |
+| 2500 | 5.076       | 4.015               | 1.061 |
+| 2750 | 5.040       | 3.956               | 1.084 |
+| 3000 | 5.019       | 3.912               | 1.107 |
+| 3250 | 4.994       | 3.875               | 1.119 |
+| 3500 | 4.977       | 3.843               | 1.134 |
+| 3750 | 4.958       | 3.816               | 1.142 |
+| 4000 | 4.943       | 3.797               | 1.146 |
+| 4250 | 4.932       | 3.780               | 1.152 |
+| 4500 | 4.927       | 3.763               | 1.164 |
+| **4750** | **4.918** | **3.755**         | **1.163** |
+
+**SRN observations:**
 - Loss was still decreasing at step 5000 — the model had not fully converged. More training steps or a longer cosine schedule would likely improve results.
 - Training was rock solid — no loss spikes, no instability, consistent 61K tok/s throughout.
-- Expert utilization spread widened over training (min=0.150, max=0.411 by step 4750) but per-layer averages remained flat at 0.250 due to a [known metric bug](#ablation-experiments).
+- Expert utilization spread widened over training (min=0.150, max=0.411 by step 4750).
 - Generated text at step 5000 showed coherent sentence structure and topic consistency, though still rambling.
 
 ### TinyShakespeare (Character-Level)

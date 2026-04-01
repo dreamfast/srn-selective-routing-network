@@ -1,0 +1,510 @@
+ Container srn-srn-run-51ccd1829cbe Creating 
+ Container srn-srn-run-51ccd1829cbe Created 
+Loaded config: configs/experiments/exp0-transformer-5090.yaml
+Device: cuda
+Precision: fp16
+
+Model type: Dense GPT
+Model: 200,147,584 params (200,147,584 active/token, 100.0%)
+Parameter groups: 154,140,672 with decay, 46,006,912 without decay
+
+============================================================
+Training Dense GPT — 5000 steps
+Micro batch: 8, Accum steps: 12, Effective batch: 96
+Seq len: 1024, LR: 0.0003, Weight decay: 0.1
+Precision: fp16, Compile: False
+============================================================
+
+step     0 | loss 11.0451 | ppl 62634.68 | aux 0.00 | lr 6.00e-07 | grad 4.77 | tok/s 61313 (avg 61313) | vram 11765M
+
+>>> Peak GPU memory after first step: 11765.1 MB <<<
+
+step    25 | loss 9.5713 | ppl 14347.19 | aux 0.00 | lr 1.56e-05 | grad 2.06 | tok/s 76634 (avg 76179) | vram 13292M
+step    50 | loss 8.9709 | ppl  7870.67 | aux 0.00 | lr 3.06e-05 | grad 1.73 | tok/s 76890 (avg 75888) | vram 13292M
+step    75 | loss 8.2507 | ppl  3830.42 | aux 0.00 | lr 4.56e-05 | grad 1.20 | tok/s 76322 (avg 75846) | vram 13292M
+step   100 | loss 7.5939 | ppl  1986.13 | aux 0.00 | lr 6.06e-05 | grad 0.55 | tok/s 76328 (avg 75994) | vram 13292M
+step   125 | loss 7.3147 | ppl  1502.23 | aux 0.00 | lr 7.56e-05 | grad 0.32 | tok/s 76304 (avg 75817) | vram 13292M
+step   150 | loss 7.1608 | ppl  1287.96 | aux 0.00 | lr 9.06e-05 | grad 0.31 | tok/s 76351 (avg 75685) | vram 13292M
+step   175 | loss 6.9367 | ppl  1029.39 | aux 0.00 | lr 1.06e-04 | grad 0.47 | tok/s 76133 (avg 75727) | vram 13292M
+step   200 | loss 6.7735 | ppl   874.35 | aux 0.00 | lr 1.21e-04 | grad 0.35 | tok/s 75997 (avg 75662) | vram 13292M
+step   225 | loss 6.6328 | ppl   759.63 | aux 0.00 | lr 1.36e-04 | grad 0.46 | tok/s 76292 (avg 75621) | vram 13292M
+step   250 | loss 6.5457 | ppl   696.23 | aux 0.00 | lr 1.51e-04 | grad 0.50 | tok/s 61838 (avg 75587) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 250: val_loss=6.4234, ppl=616.12
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO:Rdal �isionERSates&ologist and earlyeth:Daste:
+-( amphib labels Lissors, I Railway: fclean (80at-19-6pperM)
+-�ouation (16:
+-1810: Mr(10 (money (1)
+- Comments- Stler/g- When the student of New Mol) said-5-1.D.
+-to-
+-
+- A PM-white K- International:
+- More- Know: (A: (3-D. '- What, said, and safe
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=6.4234) <<<
+
+step   275 | loss 6.5213 | ppl   679.47 | aux 0.00 | lr 1.66e-04 | grad 0.45 | tok/s 75882 (avg 74797) | vram 13292M
+step   300 | loss 6.3707 | ppl   584.48 | aux 0.00 | lr 1.81e-04 | grad 0.38 | tok/s 75858 (avg 73567) | vram 13292M
+step   325 | loss 6.3698 | ppl   583.96 | aux 0.00 | lr 1.96e-04 | grad 0.38 | tok/s 76333 (avg 73767) | vram 13292M
+step   350 | loss 6.3170 | ppl   553.89 | aux 0.00 | lr 2.11e-04 | grad 0.47 | tok/s 76394 (avg 72886) | vram 13292M
+step   375 | loss 6.3004 | ppl   544.82 | aux 0.00 | lr 2.26e-04 | grad 0.54 | tok/s 76705 (avg 71937) | vram 13292M
+step   400 | loss 6.1362 | ppl   462.31 | aux 0.00 | lr 2.41e-04 | grad 0.46 | tok/s 76630 (avg 72161) | vram 13292M
+step   425 | loss 6.0839 | ppl   438.75 | aux 0.00 | lr 2.56e-04 | grad 0.39 | tok/s 76505 (avg 72400) | vram 13292M
+step   450 | loss 6.0450 | ppl   421.98 | aux 0.00 | lr 2.71e-04 | grad 0.70 | tok/s 76420 (avg 72587) | vram 13292M
+step   475 | loss 5.9306 | ppl   376.37 | aux 0.00 | lr 2.86e-04 | grad 0.43 | tok/s 76066 (avg 72749) | vram 13292M
+step   500 | loss 5.9396 | ppl   379.77 | aux 0.00 | lr 3.00e-04 | grad 0.47 | tok/s 76223 (avg 72923) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 500: val_loss=5.7737, ppl=321.74
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO:
+|||
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=5.7737) <<<
+
+step   525 | loss 5.8333 | ppl   341.48 | aux 0.00 | lr 3.00e-04 | grad 0.52 | tok/s 76484 (avg 71480) | vram 13292M
+step   550 | loss 5.7658 | ppl   319.19 | aux 0.00 | lr 3.00e-04 | grad 0.46 | tok/s 76749 (avg 71442) | vram 13292M
+step   575 | loss 5.7138 | ppl   303.01 | aux 0.00 | lr 3.00e-04 | grad 0.47 | tok/s 76539 (avg 71629) | vram 13292M
+step   600 | loss 5.6978 | ppl   298.22 | aux 0.00 | lr 3.00e-04 | grad 0.49 | tok/s 76771 (avg 71796) | vram 13292M
+step   625 | loss 5.6277 | ppl   278.03 | aux 0.00 | lr 2.99e-04 | grad 0.49 | tok/s 76599 (avg 71978) | vram 13292M
+step   650 | loss 5.6197 | ppl   275.81 | aux 0.00 | lr 2.99e-04 | grad 0.68 | tok/s 76984 (avg 72123) | vram 13292M
+step   675 | loss 5.5516 | ppl   257.64 | aux 0.00 | lr 2.99e-04 | grad 0.54 | tok/s 62103 (avg 71967) | vram 13292M
+step   700 | loss 5.4692 | ppl   237.28 | aux 0.00 | lr 2.99e-04 | grad 0.57 | tok/s 76669 (avg 71978) | vram 13292M
+step   725 | loss 5.4248 | ppl   226.98 | aux 0.00 | lr 2.98e-04 | grad 0.48 | tok/s 76947 (avg 72130) | vram 13292M
+step   750 | loss 5.3735 | ppl   215.62 | aux 0.00 | lr 2.98e-04 | grad 0.51 | tok/s 76671 (avg 72264) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 750: val_loss=5.2220, ppl=185.30
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO: I.
+- I'm you can take a computer product that you can be able to get the entirely subject of your life.
+- Designation: The main e-based types of your risk factors with away from what you can do to do with the top of day to avoid.
+- Vats and T-B
+- If you have a lot of your own medical provider
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=5.2220) <<<
+
+step   775 | loss 5.3662 | ppl   214.04 | aux 0.00 | lr 2.98e-04 | grad 0.54 | tok/s 70791 (avg 71345) | vram 13292M
+step   800 | loss 5.3182 | ppl   204.01 | aux 0.00 | lr 2.97e-04 | grad 0.57 | tok/s 76967 (avg 71219) | vram 13292M
+step   825 | loss 5.2625 | ppl   192.96 | aux 0.00 | lr 2.97e-04 | grad 0.44 | tok/s 76725 (avg 71368) | vram 13292M
+step   850 | loss 5.1943 | ppl   180.24 | aux 0.00 | lr 2.96e-04 | grad 0.51 | tok/s 77500 (avg 71512) | vram 13292M
+step   875 | loss 5.1647 | ppl   174.98 | aux 0.00 | lr 2.95e-04 | grad 0.45 | tok/s 77186 (avg 71659) | vram 13292M
+step   900 | loss 5.1480 | ppl   172.09 | aux 0.00 | lr 2.95e-04 | grad 0.49 | tok/s 72171 (avg 71779) | vram 13292M
+step   925 | loss 5.1647 | ppl   174.98 | aux 0.00 | lr 2.94e-04 | grad 0.42 | tok/s 77488 (avg 71913) | vram 13292M
+step   950 | loss 5.0730 | ppl   159.66 | aux 0.00 | lr 2.93e-04 | grad 0.40 | tok/s 76846 (avg 72041) | vram 13292M
+step   975 | loss 5.0889 | ppl   162.21 | aux 0.00 | lr 2.93e-04 | grad 0.43 | tok/s 77472 (avg 72158) | vram 13292M
+step  1000 | loss 4.9936 | ppl   147.47 | aux 0.00 | lr 2.92e-04 | grad 0.47 | tok/s 77272 (avg 72276) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 1000: val_loss=4.8663, ppl=129.84
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO:
+- Three-digit-effective
+- 9-08%
+- Ethernet applications
+- Variable- Electronics-based medicine
+- Grimming- Computing-driven innovations
+- take-up of Hardware
+- Type-job engineering
+- Developing software
+- Use, security, and protection
+-driven systems
+- Support, security
+- Opportunities, imple
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.8663) <<<
+
+step  1025 | loss 4.9713 | ppl   144.21 | aux 0.00 | lr 2.91e-04 | grad 0.41 | tok/s 77474 (avg 71968) | vram 13292M
+step  1050 | loss 4.9715 | ppl   144.24 | aux 0.00 | lr 2.90e-04 | grad 0.41 | tok/s 77299 (avg 72087) | vram 13292M
+step  1075 | loss 5.0103 | ppl   149.95 | aux 0.00 | lr 2.89e-04 | grad 0.47 | tok/s 71510 (avg 72068) | vram 13292M
+step  1100 | loss 4.9696 | ppl   143.97 | aux 0.00 | lr 2.88e-04 | grad 0.42 | tok/s 77105 (avg 72125) | vram 13292M
+step  1125 | loss 4.9523 | ppl   141.50 | aux 0.00 | lr 2.87e-04 | grad 0.45 | tok/s 77503 (avg 72233) | vram 13292M
+step  1150 | loss 4.8585 | ppl   128.82 | aux 0.00 | lr 2.86e-04 | grad 0.47 | tok/s 77122 (avg 72327) | vram 13292M
+step  1175 | loss 4.8651 | ppl   129.69 | aux 0.00 | lr 2.85e-04 | grad 0.46 | tok/s 77502 (avg 72425) | vram 13292M
+step  1200 | loss 4.8063 | ppl   122.28 | aux 0.00 | lr 2.84e-04 | grad 0.42 | tok/s 77655 (avg 72517) | vram 13292M
+step  1225 | loss 4.7662 | ppl   117.47 | aux 0.00 | lr 2.83e-04 | grad 0.47 | tok/s 77731 (avg 72609) | vram 13292M
+step  1250 | loss 4.7992 | ppl   121.42 | aux 0.00 | lr 2.82e-04 | grad 0.45 | tok/s 77169 (avg 72696) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 1250: val_loss=4.5865, ppl=98.15
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO: What are the most comprehensive feature of “Cover Me”:
+- How should we learn from?
+- How did we measure Core Successee?
+- What is these options for college education?
+- How do we use?
+- What are some questions that will I have routinely read about the classroom?
+- How do they have the best le
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.5865) <<<
+
+step  1275 | loss 4.7612 | ppl   116.89 | aux 0.00 | lr 2.81e-04 | grad 0.41 | tok/s 75493 (avg 72525) | vram 13292M
+step  1300 | loss 4.6915 | ppl   109.02 | aux 0.00 | lr 2.79e-04 | grad 0.40 | tok/s 77560 (avg 72597) | vram 13292M
+step  1325 | loss 4.7068 | ppl   110.69 | aux 0.00 | lr 2.78e-04 | grad 0.42 | tok/s 77321 (avg 72681) | vram 13292M
+step  1350 | loss 4.6607 | ppl   105.71 | aux 0.00 | lr 2.77e-04 | grad 0.44 | tok/s 77339 (avg 72761) | vram 13292M
+step  1375 | loss 4.5784 | ppl    97.36 | aux 0.00 | lr 2.76e-04 | grad 0.41 | tok/s 77702 (avg 72840) | vram 13292M
+step  1400 | loss 4.6225 | ppl   101.74 | aux 0.00 | lr 2.74e-04 | grad 0.42 | tok/s 77209 (avg 72916) | vram 13292M
+step  1425 | loss 4.6011 | ppl    99.60 | aux 0.00 | lr 2.73e-04 | grad 0.41 | tok/s 77605 (avg 72986) | vram 13292M
+step  1450 | loss 4.5157 | ppl    91.44 | aux 0.00 | lr 2.71e-04 | grad 0.40 | tok/s 77083 (avg 73058) | vram 13292M
+step  1475 | loss 4.5748 | ppl    97.01 | aux 0.00 | lr 2.70e-04 | grad 0.45 | tok/s 77236 (avg 73127) | vram 13292M
+step  1500 | loss 4.5010 | ppl    90.11 | aux 0.00 | lr 2.68e-04 | grad 0.42 | tok/s 77382 (avg 73162) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 1500: val_loss=4.3765, ppl=79.56
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO:
+- Ask
+- Have a life that is important to anyone who is pregnant by antidepressants that are a possible health hazard.
+- If your child is pregnant with a similar health gour, you can make these changes.
+- Avoid exposure to alcohol and alcohol. With this, it is important to make sure that your 
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.3765) <<<
+
+step  1525 | loss 4.5220 | ppl    92.01 | aux 0.00 | lr 2.67e-04 | grad 0.39 | tok/s 77929 (avg 72558) | vram 13292M
+step  1550 | loss 4.4816 | ppl    88.38 | aux 0.00 | lr 2.65e-04 | grad 0.39 | tok/s 77812 (avg 72603) | vram 13292M
+step  1575 | loss 4.5221 | ppl    92.02 | aux 0.00 | lr 2.64e-04 | grad 0.40 | tok/s 77735 (avg 72625) | vram 13292M
+step  1600 | loss 4.5527 | ppl    94.89 | aux 0.00 | lr 2.62e-04 | grad 0.40 | tok/s 77737 (avg 72689) | vram 13292M
+step  1625 | loss 4.3993 | ppl    81.39 | aux 0.00 | lr 2.60e-04 | grad 0.43 | tok/s 77750 (avg 72759) | vram 13292M
+step  1650 | loss 4.4824 | ppl    88.45 | aux 0.00 | lr 2.59e-04 | grad 0.43 | tok/s 77953 (avg 72823) | vram 13292M
+step  1675 | loss 4.4556 | ppl    86.11 | aux 0.00 | lr 2.57e-04 | grad 0.39 | tok/s 77452 (avg 72889) | vram 13292M
+step  1700 | loss 4.3614 | ppl    78.36 | aux 0.00 | lr 2.55e-04 | grad 0.41 | tok/s 77668 (avg 72953) | vram 13292M
+step  1725 | loss 4.3457 | ppl    77.15 | aux 0.00 | lr 2.54e-04 | grad 0.37 | tok/s 75057 (avg 73015) | vram 13292M
+step  1750 | loss 4.3624 | ppl    78.44 | aux 0.00 | lr 2.52e-04 | grad 0.38 | tok/s 77830 (avg 73077) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 1750: val_loss=4.2488, ppl=70.02
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO:0.5 µmol:1kg−3.4 µmol:1kg−3.5 µmol:1kg−3.6 µmol:1kg−3.3 µmol:1kg−3.7 µmol:1kg−3.5 µmol:1kg−3.3 μmol:1kg−3.5 µmol:1 kg−4.3 µmol:1,3.5 µmol:1kg−3.3 µmol:1kg−3.4 µmol:1kg−3.4 µmol:1kg−3.6 µmol:1kg−6.9 µmol:1kg−4.3 µmol:1kg−2.4 µmol:1kg−3.3 µmol:1kg−3.3 µco:1kg−4.5 µmol:1kg−3.4 µmol:1kg−3.4
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.2488) <<<
+
+step  1775 | loss 4.3717 | ppl    79.18 | aux 0.00 | lr 2.50e-04 | grad 0.36 | tok/s 77550 (avg 72996) | vram 13292M
+step  1800 | loss 4.3840 | ppl    80.16 | aux 0.00 | lr 2.48e-04 | grad 0.35 | tok/s 77785 (avg 73042) | vram 13292M
+step  1825 | loss 4.3174 | ppl    74.99 | aux 0.00 | lr 2.46e-04 | grad 0.40 | tok/s 74504 (avg 73090) | vram 13292M
+step  1850 | loss 4.4224 | ppl    83.30 | aux 0.00 | lr 2.44e-04 | grad 0.38 | tok/s 75000 (avg 73127) | vram 13292M
+step  1875 | loss 4.3263 | ppl    75.67 | aux 0.00 | lr 2.42e-04 | grad 0.38 | tok/s 77815 (avg 73181) | vram 13292M
+step  1900 | loss 4.3769 | ppl    79.59 | aux 0.00 | lr 2.40e-04 | grad 0.37 | tok/s 77973 (avg 73236) | vram 13292M
+step  1925 | loss 4.3619 | ppl    78.41 | aux 0.00 | lr 2.39e-04 | grad 0.35 | tok/s 77632 (avg 73288) | vram 13292M
+step  1950 | loss 4.3341 | ppl    76.26 | aux 0.00 | lr 2.37e-04 | grad 0.38 | tok/s 77764 (avg 73341) | vram 13292M
+step  1975 | loss 4.2756 | ppl    71.92 | aux 0.00 | lr 2.35e-04 | grad 0.35 | tok/s 77642 (avg 73393) | vram 13292M
+step  2000 | loss 4.2954 | ppl    73.36 | aux 0.00 | lr 2.32e-04 | grad 0.39 | tok/s 77456 (avg 73443) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 2000: val_loss=4.1508, ppl=63.48
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO: A new study, published in The Lancet, DOI: 10.1016/j.nlm.nih.gov/journal-scientist.
+- "The main difference provides for the study of the components of two-dimensional alignment between two-dimensional alignment and substrate-based interactions. This study is highly used for the study of the t
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.1508) <<<
+
+step  2025 | loss 4.2883 | ppl    72.84 | aux 0.00 | lr 2.30e-04 | grad 0.36 | tok/s 75006 (avg 73367) | vram 13292M
+step  2050 | loss 4.3228 | ppl    75.40 | aux 0.00 | lr 2.28e-04 | grad 0.38 | tok/s 72443 (avg 73403) | vram 13292M
+step  2075 | loss 4.2402 | ppl    69.42 | aux 0.00 | lr 2.26e-04 | grad 0.36 | tok/s 77901 (avg 73451) | vram 13292M
+step  2100 | loss 4.2354 | ppl    69.09 | aux 0.00 | lr 2.24e-04 | grad 0.38 | tok/s 77827 (avg 73500) | vram 13292M
+step  2125 | loss 4.3478 | ppl    77.31 | aux 0.00 | lr 2.22e-04 | grad 0.34 | tok/s 77757 (avg 73546) | vram 13292M
+step  2150 | loss 4.3063 | ppl    74.17 | aux 0.00 | lr 2.20e-04 | grad 0.37 | tok/s 77671 (avg 73591) | vram 13292M
+step  2175 | loss 4.2801 | ppl    72.25 | aux 0.00 | lr 2.18e-04 | grad 0.34 | tok/s 77719 (avg 73635) | vram 13292M
+step  2200 | loss 4.1830 | ppl    65.56 | aux 0.00 | lr 2.16e-04 | grad 0.38 | tok/s 77631 (avg 73671) | vram 13292M
+step  2225 | loss 4.2295 | ppl    68.68 | aux 0.00 | lr 2.13e-04 | grad 0.35 | tok/s 77948 (avg 73707) | vram 13292M
+step  2250 | loss 4.2361 | ppl    69.13 | aux 0.00 | lr 2.11e-04 | grad 0.37 | tok/s 77645 (avg 73743) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 2250: val_loss=4.0749, ppl=58.84
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO:
+- Main Summary: The DMS animation and the SDS/TRAM/PLO/ISZ/EMAR/ISZ/EMAR/ISZ/EMAR/MSAR/AMAR/EMAR/ICTAM/EMAR/CTAR/EMAR/EMAR/EMEMAR/EMAR/EMAR/EMAR/EMAR/BRO/EMAR/CTAR/EMAR/EMAR/EMAR/SMO/EMAR/EMAR/AMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/EMAR/
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.0749) <<<
+
+step  2275 | loss 4.1634 | ppl    64.29 | aux 0.00 | lr 2.09e-04 | grad 0.36 | tok/s 77502 (avg 73672) | vram 13292M
+step  2300 | loss 4.1729 | ppl    64.90 | aux 0.00 | lr 2.07e-04 | grad 0.38 | tok/s 77848 (avg 73708) | vram 13292M
+step  2325 | loss 4.2239 | ppl    68.30 | aux 0.00 | lr 2.04e-04 | grad 0.34 | tok/s 77859 (avg 73737) | vram 13292M
+step  2350 | loss 4.1882 | ppl    65.90 | aux 0.00 | lr 2.02e-04 | grad 0.39 | tok/s 77825 (avg 73775) | vram 13292M
+step  2375 | loss 4.1401 | ppl    62.81 | aux 0.00 | lr 2.00e-04 | grad 0.35 | tok/s 77757 (avg 73807) | vram 13292M
+step  2400 | loss 4.1816 | ppl    65.47 | aux 0.00 | lr 1.98e-04 | grad 0.34 | tok/s 77727 (avg 73842) | vram 13292M
+step  2425 | loss 4.1775 | ppl    65.20 | aux 0.00 | lr 1.95e-04 | grad 0.35 | tok/s 77759 (avg 73878) | vram 13292M
+step  2450 | loss 4.1921 | ppl    66.16 | aux 0.00 | lr 1.93e-04 | grad 0.39 | tok/s 76590 (avg 73916) | vram 13292M
+step  2475 | loss 4.1503 | ppl    63.46 | aux 0.00 | lr 1.91e-04 | grad 0.35 | tok/s 77744 (avg 73953) | vram 13292M
+step  2500 | loss 4.1017 | ppl    60.45 | aux 0.00 | lr 1.88e-04 | grad 0.36 | tok/s 77796 (avg 73989) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 2500: val_loss=4.0149, ppl=55.42
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO:
+Observe . . . . . with the real and real world, which is the only thing we treat them in the world, and the knowledge that the timing of our lives can be created, especially in the present day.
+Student opinion just just thought, but paralleling to the physical geology that we are going to tal
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.0149) <<<
+
+step  2525 | loss 4.1203 | ppl    61.58 | aux 0.00 | lr 1.86e-04 | grad 0.36 | tok/s 77901 (avg 73922) | vram 13292M
+step  2550 | loss 4.1639 | ppl    64.32 | aux 0.00 | lr 1.84e-04 | grad 0.38 | tok/s 77772 (avg 73952) | vram 13292M
+step  2575 | loss 4.1372 | ppl    62.63 | aux 0.00 | lr 1.81e-04 | grad 0.37 | tok/s 76609 (avg 73984) | vram 13292M
+step  2600 | loss 4.1098 | ppl    60.94 | aux 0.00 | lr 1.79e-04 | grad 0.34 | tok/s 77712 (avg 74016) | vram 13292M
+step  2625 | loss 4.1165 | ppl    61.34 | aux 0.00 | lr 1.77e-04 | grad 0.33 | tok/s 77905 (avg 74047) | vram 13292M
+step  2650 | loss 4.1810 | ppl    65.43 | aux 0.00 | lr 1.74e-04 | grad 0.35 | tok/s 77909 (avg 74068) | vram 13292M
+step  2675 | loss 4.0476 | ppl    57.26 | aux 0.00 | lr 1.72e-04 | grad 0.37 | tok/s 77784 (avg 74098) | vram 13292M
+step  2700 | loss 4.0521 | ppl    57.52 | aux 0.00 | lr 1.70e-04 | grad 0.33 | tok/s 77900 (avg 74130) | vram 13292M
+step  2725 | loss 4.0867 | ppl    59.54 | aux 0.00 | lr 1.67e-04 | grad 0.35 | tok/s 77972 (avg 74162) | vram 13292M
+step  2750 | loss 4.1245 | ppl    61.84 | aux 0.00 | lr 1.65e-04 | grad 0.33 | tok/s 77925 (avg 74193) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 2750: val_loss=3.9562, ppl=52.26
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO: The Rise of Indigenous Civilization, and a “UN-operation of the Third World” in ScholarEvery year in a country with a great deal of peace and its consequences, we are going to discuss the challenges facing a growing elephant population.
+In this article, we will discuss the needs and potential
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.9562) <<<
+
+step  2775 | loss 4.0705 | ppl    58.59 | aux 0.00 | lr 1.63e-04 | grad 0.34 | tok/s 77760 (avg 74140) | vram 13292M
+step  2800 | loss 4.1426 | ppl    62.96 | aux 0.00 | lr 1.60e-04 | grad 0.37 | tok/s 77750 (avg 74161) | vram 13292M
+step  2825 | loss 4.0998 | ppl    60.33 | aux 0.00 | lr 1.58e-04 | grad 0.37 | tok/s 77891 (avg 74191) | vram 13292M
+step  2850 | loss 4.0381 | ppl    56.72 | aux 0.00 | lr 1.56e-04 | grad 0.33 | tok/s 73416 (avg 74216) | vram 13292M
+step  2875 | loss 4.0031 | ppl    54.77 | aux 0.00 | lr 1.53e-04 | grad 0.37 | tok/s 77693 (avg 74242) | vram 13292M
+step  2900 | loss 4.0936 | ppl    59.96 | aux 0.00 | lr 1.51e-04 | grad 0.36 | tok/s 77862 (avg 74271) | vram 13292M
+step  2925 | loss 4.0505 | ppl    57.42 | aux 0.00 | lr 1.49e-04 | grad 0.34 | tok/s 77938 (avg 74297) | vram 13292M
+step  2950 | loss 4.0087 | ppl    55.07 | aux 0.00 | lr 1.46e-04 | grad 0.34 | tok/s 77785 (avg 74325) | vram 13292M
+step  2975 | loss 4.0446 | ppl    57.09 | aux 0.00 | lr 1.44e-04 | grad 0.33 | tok/s 77943 (avg 74353) | vram 13292M
+step  3000 | loss 4.0810 | ppl    59.20 | aux 0.00 | lr 1.42e-04 | grad 0.33 | tok/s 77814 (avg 74381) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 3000: val_loss=3.9116, ppl=49.98
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO: BA&B, Philadelphia, 1913.
+- "Orang America". Google Earth. Retrieved 2012-07-20.
+- Thomson, Murphy, BirdLife Association. (4): 741–615. Retrieved 2012-06-20.
+- "Rochan Island: The Chinese of the future". Microsoft Earth. Retrieved 2012-07-20.
+- Gerald, Terry K. (March 20, 2011). "The Chinese 
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.9116) <<<
+
+step  3025 | loss 4.0934 | ppl    59.94 | aux 0.00 | lr 1.39e-04 | grad 0.34 | tok/s 77849 (avg 74327) | vram 13292M
+step  3050 | loss 4.0267 | ppl    56.07 | aux 0.00 | lr 1.37e-04 | grad 0.37 | tok/s 76811 (avg 74348) | vram 13292M
+step  3075 | loss 4.0653 | ppl    58.28 | aux 0.00 | lr 1.35e-04 | grad 0.35 | tok/s 77985 (avg 74373) | vram 13292M
+step  3100 | loss 4.0681 | ppl    58.45 | aux 0.00 | lr 1.32e-04 | grad 0.34 | tok/s 77860 (avg 74399) | vram 13292M
+step  3125 | loss 4.0652 | ppl    58.28 | aux 0.00 | lr 1.30e-04 | grad 0.32 | tok/s 77978 (avg 74424) | vram 13292M
+step  3150 | loss 4.0280 | ppl    56.15 | aux 0.00 | lr 1.28e-04 | grad 0.33 | tok/s 77825 (avg 74450) | vram 13292M
+step  3175 | loss 3.9224 | ppl    50.52 | aux 0.00 | lr 1.26e-04 | grad 0.33 | tok/s 77713 (avg 74475) | vram 13292M
+step  3200 | loss 4.1018 | ppl    60.45 | aux 0.00 | lr 1.23e-04 | grad 0.34 | tok/s 77966 (avg 74500) | vram 13292M
+step  3225 | loss 4.0333 | ppl    56.45 | aux 0.00 | lr 1.21e-04 | grad 0.32 | tok/s 77937 (avg 74524) | vram 13292M
+step  3250 | loss 4.0281 | ppl    56.15 | aux 0.00 | lr 1.19e-04 | grad 0.34 | tok/s 77920 (avg 74548) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 3250: val_loss=3.8751, ppl=48.19
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO: 0.1 X17 X24, Prita Ld. – The presence of the Valerie and Beagle (CaryngusICK: 1.2 X17).
+In addition to the Ld in the study, the Ld have appeared: “The Lucy and Beagle (Caryngus Wedge: 1.4 X17) and as Fox Lizard (Caryngus Wedge: 1.4 X16) and as Fox Bug (Caryngus Wedge: 1.4 X17) are such a stri
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.8751) <<<
+
+step  3275 | loss 4.0438 | ppl    57.04 | aux 0.00 | lr 1.17e-04 | grad 0.33 | tok/s 77555 (avg 74499) | vram 13292M
+step  3300 | loss 3.9728 | ppl    53.13 | aux 0.00 | lr 1.14e-04 | grad 0.33 | tok/s 77948 (avg 74520) | vram 13292M
+step  3325 | loss 4.0597 | ppl    57.96 | aux 0.00 | lr 1.12e-04 | grad 0.35 | tok/s 77868 (avg 74543) | vram 13292M
+step  3350 | loss 3.9708 | ppl    53.03 | aux 0.00 | lr 1.10e-04 | grad 0.32 | tok/s 77823 (avg 74567) | vram 13292M
+step  3375 | loss 4.0083 | ppl    55.05 | aux 0.00 | lr 1.08e-04 | grad 0.32 | tok/s 74115 (avg 74584) | vram 13292M
+step  3400 | loss 4.0526 | ppl    57.55 | aux 0.00 | lr 1.06e-04 | grad 0.34 | tok/s 77727 (avg 74605) | vram 13292M
+step  3425 | loss 4.0681 | ppl    58.45 | aux 0.00 | lr 1.04e-04 | grad 0.34 | tok/s 77833 (avg 74628) | vram 13292M
+step  3450 | loss 4.0024 | ppl    54.73 | aux 0.00 | lr 1.02e-04 | grad 0.33 | tok/s 77813 (avg 74648) | vram 13292M
+step  3475 | loss 3.9809 | ppl    53.56 | aux 0.00 | lr 9.96e-05 | grad 0.33 | tok/s 74343 (avg 74668) | vram 13292M
+step  3500 | loss 4.0529 | ppl    57.56 | aux 0.00 | lr 9.75e-05 | grad 0.33 | tok/s 77817 (avg 74688) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 3500: val_loss=3.8431, ppl=46.67
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO:||I am here today to have this template and your original project to do. I have found this guidance as a good reminder to all that I have even been using scanning to I am not aware how to use it in my own educational library. I have been using this guide to thinking about how to use it in my c
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.8431) <<<
+
+step  3525 | loss 3.9745 | ppl    53.22 | aux 0.00 | lr 9.55e-05 | grad 0.33 | tok/s 77696 (avg 74631) | vram 13292M
+step  3550 | loss 3.9537 | ppl    52.13 | aux 0.00 | lr 9.35e-05 | grad 0.34 | tok/s 77785 (avg 74650) | vram 13292M
+step  3575 | loss 3.9596 | ppl    52.44 | aux 0.00 | lr 9.15e-05 | grad 0.36 | tok/s 77898 (avg 74669) | vram 13292M
+step  3600 | loss 4.0017 | ppl    54.69 | aux 0.00 | lr 8.95e-05 | grad 0.33 | tok/s 77923 (avg 74690) | vram 13292M
+step  3625 | loss 3.9253 | ppl    50.67 | aux 0.00 | lr 8.76e-05 | grad 0.32 | tok/s 77830 (avg 74709) | vram 13292M
+step  3650 | loss 3.9647 | ppl    52.70 | aux 0.00 | lr 8.56e-05 | grad 0.34 | tok/s 77698 (avg 74727) | vram 13292M
+step  3675 | loss 3.9494 | ppl    51.90 | aux 0.00 | lr 8.38e-05 | grad 0.33 | tok/s 77840 (avg 74747) | vram 13292M
+step  3700 | loss 3.9674 | ppl    52.85 | aux 0.00 | lr 8.19e-05 | grad 0.32 | tok/s 77911 (avg 74767) | vram 13292M
+step  3725 | loss 3.9942 | ppl    54.28 | aux 0.00 | lr 8.00e-05 | grad 0.35 | tok/s 77812 (avg 74786) | vram 13292M
+step  3750 | loss 3.9524 | ppl    52.06 | aux 0.00 | lr 7.82e-05 | grad 0.34 | tok/s 77834 (avg 74805) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 3750: val_loss=3.8164, ppl=45.44
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO: http://www.ear.org/force/
+- John E. Bellham, (died March 6, 2008). "Will the film be a propaganda documentary representing a political and political identity?" Proceedings of the National Academy of Sciences. https://www.belief.org/eng/article/1/2/3584-2250-11-9.
+- "New York and New York: The
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.8164) <<<
+
+step  3775 | loss 3.9741 | ppl    53.20 | aux 0.00 | lr 7.64e-05 | grad 0.33 | tok/s 77844 (avg 74757) | vram 13292M
+step  3800 | loss 3.9677 | ppl    52.86 | aux 0.00 | lr 7.47e-05 | grad 0.33 | tok/s 77698 (avg 74776) | vram 13292M
+step  3825 | loss 3.9615 | ppl    52.54 | aux 0.00 | lr 7.29e-05 | grad 0.33 | tok/s 77839 (avg 74793) | vram 13292M
+step  3850 | loss 3.9628 | ppl    52.60 | aux 0.00 | lr 7.12e-05 | grad 0.32 | tok/s 77845 (avg 74811) | vram 13292M
+step  3875 | loss 3.9133 | ppl    50.07 | aux 0.00 | lr 6.95e-05 | grad 0.32 | tok/s 77875 (avg 74830) | vram 13292M
+step  3900 | loss 3.8289 | ppl    46.01 | aux 0.00 | lr 6.79e-05 | grad 0.32 | tok/s 77960 (avg 74847) | vram 13292M
+step  3925 | loss 3.9134 | ppl    50.07 | aux 0.00 | lr 6.63e-05 | grad 0.33 | tok/s 77927 (avg 74865) | vram 13292M
+step  3950 | loss 3.9620 | ppl    52.56 | aux 0.00 | lr 6.47e-05 | grad 0.33 | tok/s 77876 (avg 74882) | vram 13292M
+step  3975 | loss 3.8515 | ppl    47.06 | aux 0.00 | lr 6.31e-05 | grad 0.31 | tok/s 77838 (avg 74899) | vram 13292M
+step  4000 | loss 3.8662 | ppl    47.76 | aux 0.00 | lr 6.16e-05 | grad 0.31 | tok/s 77824 (avg 74916) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 4000: val_loss=3.7967, ppl=44.55
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO: The New York Times, p. 1; Considering the importance of the MBU, the ALE has made it possible for LjD to suffer from severe morbidity or even death. Considering the large amount of LjD's life expectancy, the relatively small number of people who suffer from such profound and persistent mortal
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.7967) <<<
+
+step  4025 | loss 3.8757 | ppl    48.22 | aux 0.00 | lr 6.01e-05 | grad 0.32 | tok/s 77721 (avg 74872) | vram 13292M
+step  4050 | loss 3.9716 | ppl    53.07 | aux 0.00 | lr 5.86e-05 | grad 0.33 | tok/s 77899 (avg 74889) | vram 13292M
+step  4075 | loss 3.8756 | ppl    48.21 | aux 0.00 | lr 5.72e-05 | grad 0.32 | tok/s 77865 (avg 74906) | vram 13292M
+step  4100 | loss 3.8939 | ppl    49.10 | aux 0.00 | lr 5.58e-05 | grad 0.31 | tok/s 75360 (avg 74920) | vram 13292M
+step  4125 | loss 3.8646 | ppl    47.68 | aux 0.00 | lr 5.44e-05 | grad 0.33 | tok/s 78127 (avg 74936) | vram 13292M
+step  4150 | loss 3.9157 | ppl    50.18 | aux 0.00 | lr 5.31e-05 | grad 0.34 | tok/s 77796 (avg 74952) | vram 13292M
+step  4175 | loss 3.9348 | ppl    51.15 | aux 0.00 | lr 5.18e-05 | grad 0.33 | tok/s 77729 (avg 74968) | vram 13292M
+step  4200 | loss 3.9580 | ppl    52.35 | aux 0.00 | lr 5.05e-05 | grad 0.33 | tok/s 77853 (avg 74984) | vram 13292M
+step  4225 | loss 3.9317 | ppl    50.99 | aux 0.00 | lr 4.93e-05 | grad 0.32 | tok/s 77842 (avg 74999) | vram 13292M
+step  4250 | loss 3.8689 | ppl    47.89 | aux 0.00 | lr 4.81e-05 | grad 0.33 | tok/s 77817 (avg 75015) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 4250: val_loss=3.7799, ppl=43.81
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO: Chess and Games. And there is no magic in the 4th century, but it should not be seen in a trial, or in a legal code.
+400.5.6.6.6.7.7.1 The exception to the addition of in number for the register number, is that these for every other catalogue. So if the number of stamps in the same year is 1-
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.7799) <<<
+
+step  4275 | loss 3.8973 | ppl    49.27 | aux 0.00 | lr 4.69e-05 | grad 0.33 | tok/s 77759 (avg 74966) | vram 13292M
+step  4300 | loss 3.9361 | ppl    51.22 | aux 0.00 | lr 4.58e-05 | grad 0.32 | tok/s 77754 (avg 74980) | vram 13292M
+step  4325 | loss 3.8878 | ppl    48.80 | aux 0.00 | lr 4.47e-05 | grad 0.32 | tok/s 77751 (avg 74995) | vram 13292M
+step  4350 | loss 3.9544 | ppl    52.16 | aux 0.00 | lr 4.37e-05 | grad 0.33 | tok/s 77690 (avg 75009) | vram 13292M
+step  4375 | loss 3.9179 | ppl    50.30 | aux 0.00 | lr 4.26e-05 | grad 0.32 | tok/s 77751 (avg 75024) | vram 13292M
+step  4400 | loss 3.9354 | ppl    51.18 | aux 0.00 | lr 4.17e-05 | grad 0.32 | tok/s 77612 (avg 75039) | vram 13292M
+step  4425 | loss 3.8728 | ppl    48.08 | aux 0.00 | lr 4.07e-05 | grad 0.32 | tok/s 77716 (avg 75052) | vram 13292M
+step  4450 | loss 3.8647 | ppl    47.69 | aux 0.00 | lr 3.98e-05 | grad 0.32 | tok/s 77623 (avg 75067) | vram 13292M
+step  4475 | loss 3.8896 | ppl    48.89 | aux 0.00 | lr 3.90e-05 | grad 0.32 | tok/s 77777 (avg 75081) | vram 13292M
+step  4500 | loss 3.8813 | ppl    48.49 | aux 0.00 | lr 3.81e-05 | grad 0.32 | tok/s 77815 (avg 75095) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 4500: val_loss=3.7629, ppl=43.07
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO:
+- Invite and discuss the role of women in shaping the society’s character, economic and social services, and to ensure that women in the U.S. are able to cope with poverty and social inequality.
+- Encouraging the development of effective policies that put women at risk, and including policies
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.7629) <<<
+
+step  4525 | loss 3.9375 | ppl    51.29 | aux 0.00 | lr 3.74e-05 | grad 0.31 | tok/s 77797 (avg 75057) | vram 13292M
+step  4550 | loss 3.9387 | ppl    51.35 | aux 0.00 | lr 3.66e-05 | grad 0.32 | tok/s 77746 (avg 75071) | vram 13292M
+step  4575 | loss 3.8950 | ppl    49.16 | aux 0.00 | lr 3.59e-05 | grad 0.32 | tok/s 77820 (avg 75084) | vram 13292M
+step  4600 | loss 3.9085 | ppl    49.82 | aux 0.00 | lr 3.52e-05 | grad 0.33 | tok/s 76831 (avg 75098) | vram 13292M
+step  4625 | loss 3.8916 | ppl    48.99 | aux 0.00 | lr 3.46e-05 | grad 0.32 | tok/s 77866 (avg 75112) | vram 13292M
+step  4650 | loss 3.9632 | ppl    52.63 | aux 0.00 | lr 3.40e-05 | grad 0.32 | tok/s 77855 (avg 75126) | vram 13292M
+step  4675 | loss 3.8459 | ppl    46.80 | aux 0.00 | lr 3.35e-05 | grad 0.31 | tok/s 77880 (avg 75138) | vram 13292M
+step  4700 | loss 3.8854 | ppl    48.68 | aux 0.00 | lr 3.30e-05 | grad 0.32 | tok/s 77731 (avg 75151) | vram 13292M
+step  4725 | loss 3.8911 | ppl    48.96 | aux 0.00 | lr 3.25e-05 | grad 0.32 | tok/s 77784 (avg 75164) | vram 13292M
+step  4750 | loss 3.8217 | ppl    45.68 | aux 0.00 | lr 3.21e-05 | grad 0.32 | tok/s 77856 (avg 75177) | vram 13292M
+
+────────────────────────────────────────────────────────────
+Eval @ step 4750: val_loss=3.7549, ppl=42.73
+Peak VRAM (cumulative): 13291.9 MB
+
+Generated:
+ROMEO:
+The NRCA and the more stringent enforcement of EU defenses are the issue of pending initiatives to take effect.
+The wider public health sector is taking steps to ensure that these targets are still in compliance with EU regulation and, at the same time, in the, future, to help reduce the risk
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.7549) <<<
+
+step  4775 | loss 3.9052 | ppl    49.66 | aux 0.00 | lr 3.17e-05 | grad 0.34 | tok/s 77578 (avg 75139) | vram 13292M
+step  4800 | loss 3.8550 | ppl    47.23 | aux 0.00 | lr 3.13e-05 | grad 0.33 | tok/s 77841 (avg 75152) | vram 13292M
+step  4825 | loss 3.8677 | ppl    47.83 | aux 0.00 | lr 3.10e-05 | grad 0.31 | tok/s 77939 (avg 75165) | vram 13292M
+step  4850 | loss 3.8931 | ppl    49.06 | aux 0.00 | lr 3.07e-05 | grad 0.32 | tok/s 77761 (avg 75178) | vram 13292M
+step  4875 | loss 3.8251 | ppl    45.84 | aux 0.00 | lr 3.05e-05 | grad 0.32 | tok/s 77690 (avg 75190) | vram 13292M
+step  4900 | loss 3.8782 | ppl    48.34 | aux 0.00 | lr 3.03e-05 | grad 0.31 | tok/s 77754 (avg 75203) | vram 13292M
+step  4925 | loss 3.8722 | ppl    48.05 | aux 0.00 | lr 3.02e-05 | grad 0.32 | tok/s 77764 (avg 75215) | vram 13292M
+step  4950 | loss 3.9242 | ppl    50.61 | aux 0.00 | lr 3.01e-05 | grad 0.34 | tok/s 77898 (avg 75227) | vram 13292M
+step  4975 | loss 3.9678 | ppl    52.87 | aux 0.00 | lr 3.00e-05 | grad 0.34 | tok/s 77857 (avg 75240) | vram 13292M
+
+============================================================
+Training complete!
+============================================================
+Final val_loss: 3.7722, perplexity: 43.48
+Best val_loss:  3.7549
+
+Final generation:
+────────────────────────────────────────────────────────────
+ROMEO:
+O, .; Johnson, B.; Johnson, C.; Johnson, C.; Hayes, C.J., & Johnson, C. (1996). OASI has become the technology for any approximately 10 years. In 1938, a group of scientists and scientists took part in a series of research experiments to develop hundreds of thousands of studies to create a framework for the field. The team used a variety of educational materials and resources to effectively generate a "lative of knowledge" that continues to be used to make broad use of the technology.
+Back in London:
+- 1788 a person was first identified as a Japanese soldiers leader in World War I. Its leader was the commander of the Japanese Army, the Japanese military and the military.
+- 2217 U.S. Marines were classified as "Composers." They were first classified as "Chinese", U.S. Navy Navy and "Poets."
+- 2619 Japanese soldiers were assigned to the Marines as a Japanese military leader.
+- 2719 U.S. Marines were assigned to the Marines as the two Japanese military leaders.
+- 2720 Japanese troops were assigned to the Marines as other Japanese military leaders and when the Japanese Army was placed on the Army, it was suggested that the Japanese Army would be assigned to the Marines as well as other Japanese military leaders.
+- 3119 U.S. Marines were assigned to the Marines as liaison responders.
+- 2919 U.S. Japanese soldiers were assigned to the Marines as other Japanese military leaders.
+- 2919 U.S. Navy Captain Lee Frederic, U.S. Navy Navy (1945-1956) was assigned to the Japanese Army as two Japanese military leader groups.
+- 4119 U.S. Japanese soldiers were assigned to the Marines as other Japanese military leaders.
+- 3824 U.S. Navy Commander Lee Frederic, U.S. Navy Administrator, was assigned to the Marines as "Chinese".
+- 5324 U.S. Navy Commander Lee Frederic, U.S. Navy Chief Justice, was assigned to the Marines as other Japanese military leaders.
+- 5927 U.S. Navy Chief justice was assigned to the Marines as "Chinese".
+- 5426 U.S. Navy Vice President was assigned to the Marines as "Japanese military leader", U.S. Navy Chief Justice, U.S. Army Vice President, U.S. Navy Chief Justice, U.S.
+────────────────────────────────────────────────────────────
+
+Peak GPU memory: 13291.9 MB
