@@ -224,6 +224,54 @@ All 6 ablation experiments completed. Each changes one variable from the SRN bas
 
 **Note:** These baselines used different GPUs (5090 vs 4090) and slightly different effective batch sizes (96 vs 64). The param counts differ from original estimates because the tokenizer has 50,257 tokens (GPT-2 BPE) rather than the 32,000 assumed during planning. All experiments use the same tokenizer, so comparisons between them are valid.
 
+### FineWeb-Edu Verification (SRN 150M)
+
+First real-data verification of the SRN architecture on FineWeb-Edu (1M docs, ~500M tokens) with GPT-2 BPE tokenizer:
+
+| Metric | Value |
+|--------|-------|
+| Model | SRN 150M (162M total, 112M active/token) |
+| Best val loss | **4.918** |
+| Final val loss | 4.952 |
+| Perplexity | 137 |
+| Peak VRAM | 17.0 GB (RTX 5090) |
+| Throughput | ~61K tok/s |
+| Training steps | 5,000 |
+| Dataset | FineWeb-Edu sample-10BT (1M docs) |
+| Tokenizer | GPT-2 BPE (vocab=50,257) |
+| Batch | micro=8, accum=12, effective=96, seq_len=1024 |
+| Training time | ~2.5 hours |
+
+**Validation loss curve:**
+
+| Step | Val Loss | Perplexity | Δ Loss |
+|------|----------|------------|--------|
+| 250  | 6.628    | 756        | —      |
+| 500  | 6.074    | 434        | -0.554 |
+| 750  | 5.764    | 319        | -0.310 |
+| 1000 | 5.529    | 252        | -0.235 |
+| 1250 | 5.387    | 219        | -0.142 |
+| 1500 | 5.289    | 198        | -0.098 |
+| 1750 | 5.219    | 185        | -0.070 |
+| 2000 | 5.164    | 175        | -0.055 |
+| 2250 | 5.114    | 166        | -0.050 |
+| 2500 | 5.076    | 160        | -0.038 |
+| 2750 | 5.040    | 155        | -0.036 |
+| 3000 | 5.019    | 151        | -0.021 |
+| 3250 | 4.994    | 148        | -0.025 |
+| 3500 | 4.977    | 145        | -0.017 |
+| 3750 | 4.958    | 142        | -0.019 |
+| 4000 | 4.943    | 140        | -0.015 |
+| 4250 | 4.932    | 139        | -0.011 |
+| 4500 | 4.927    | 138        | -0.005 |
+| **4750** | **4.918** | **137** | **-0.009** |
+
+**Key observations:**
+- Loss was still decreasing at step 5000 — the model had not fully converged. More training steps or a longer cosine schedule would likely improve results.
+- Training was rock solid — no loss spikes, no instability, consistent 61K tok/s throughout.
+- Expert utilization spread widened over training (min=0.150, max=0.411 by step 4750) but per-layer averages remained flat at 0.250 due to a [known metric bug](#ablation-experiments).
+- Generated text at step 5000 showed coherent sentence structure and topic consistency, though still rambling.
+
 ### TinyShakespeare (Character-Level)
 
 Earlier proof-of-concept trained on TinyShakespeare (~1.1MB) for 5,000 steps on an RTX 2060:

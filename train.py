@@ -203,11 +203,15 @@ def get_expert_utilization(model: SRNModel, x: torch.Tensor) -> dict:
     model.train()
 
     all_fracs = torch.stack(all_fracs)  # (n_layers, E)
+    per_layer_max = all_fracs.max(dim=1).values  # (n_layers,)
+    per_layer_min = all_fracs.min(dim=1).values   # (n_layers,)
+    per_layer_spread = (per_layer_max - per_layer_min).tolist()
     return {
         "min": all_fracs.min().item(),
         "max": all_fracs.max().item(),
         "std": all_fracs.std().item(),
-        "per_layer": all_fracs.mean(dim=1).tolist(),
+        "per_layer_spread": per_layer_spread,
+        "per_layer_top": per_layer_max.tolist(),
     }
 
 
@@ -683,8 +687,14 @@ def train(args: argparse.Namespace) -> None:
                 expert_util = get_expert_utilization(raw_model, sample_x.to(device))
                 print(f"Expert util: min={expert_util['min']:.3f}, max={expert_util['max']:.3f}, "
                       f"std={expert_util['std']:.4f}")
-                per_layer_str = ", ".join(f"L{i}={v:.3f}" for i, v in enumerate(expert_util["per_layer"]))
-                print(f"  per-layer: {per_layer_str}")
+                spread_str = ", ".join(
+                    f"L{i}={v:.3f}" for i, v in enumerate(expert_util["per_layer_spread"])
+                )
+                top_str = ", ".join(
+                    f"L{i}={v:.3f}" for i, v in enumerate(expert_util["per_layer_top"])
+                )
+                print(f"  layer spread (max-min): {spread_str}")
+                print(f"  layer top expert:       {top_str}")
 
             # Peak VRAM at eval time
             if torch.cuda.is_available():

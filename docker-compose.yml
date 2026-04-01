@@ -7,15 +7,11 @@ services:
       - .:/app
       - ./data:/app/data
       - ./checkpoints:/app/checkpoints
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: ['${NVIDIA_GPU:-0}']
-              capabilities: [gpu]
+    runtime: nvidia
     environment:
       - PYTHONUNBUFFERED=1
       - HF_TOKEN=${HF_TOKEN:-}
+      - NVIDIA_VISIBLE_DEVICES=${NVIDIA_GPU:-all}
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     stdin_open: true
     tty: true
