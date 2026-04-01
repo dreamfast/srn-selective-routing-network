@@ -1,5 +1,22 @@
 # SRN: Selective Routing Network
 
+## TL;DR — What We Found
+
+**SRN is a real architecture that matches Transformer quality, but Flash Attention killed the efficiency story.**
+
+| Finding | Details |
+|---------|---------|
+| **Quality: Hybrid matches Transformer** | Hybrid SRN (3 attention + 9 routing layers) reached val_loss 3.753 vs Transformer's 3.755 on FineWeb-Edu. Perplexity 43 vs 43. |
+| **But needs 2x training steps** | Transformer hit 3.755 at 5K steps. Hybrid needed 10K steps to reach 3.753. At equal steps (5K), hybrid was at 3.953. |
+| **SRN uses MORE VRAM, not less** | At 8K context: Hybrid 28.3GB vs Transformer 10.7GB. The expert routing layers create massive activation tensors at long context. |
+| **Flash Attention solved the Transformer's scaling problem** | Transformer handles 16K context at 20.4GB VRAM. Both models OOM at 32K. The "SRN scales better" narrative doesn't hold. |
+| **The routing is efficient, the experts are not** | The DynamicSparseRouter is O(N×96) — already linear. But the GEM expert layers create (B, N, 8, 384) activation tensors that blow up at long context. |
+| **SRN is a legitimate research result** | It matches Transformer quality with a novel architecture. That's genuinely impressive. But matching isn't enough to dethrone the incumbent. |
+
+**Bottom line:** SRN is a cool architecture that works. It's not a lie. But it's not a win either. Flash Attention + years of engineering investment made Transformers too good to beat with a routing-based alternative.
+
+---
+
 A neural network architecture that replaces Transformer self-attention with dynamic sparse routing to learned memory slots. Designed to enable large model capacity on consumer GPUs (6GB VRAM).
 
 **Key approach: Windowed Causal Score Gating (WCSG)** — a score-side gating mechanism for causal, position-dependent routing with O(1) extra memory overhead, instead of the O(n²) attention matrix.
@@ -153,6 +170,63 @@ WCSG's contribution is a practical read-side alternative: causal, position-depen
 
 ## Results
 
+### FineWeb-Edu Hybrid SRN — The Main Experiment (10,000 steps)
+
+The hybrid SRN (3 attention layers every 4th layer + 9 routing layers) trained on FineWeb-Edu (1M docs, ~500M tokens, GPT-2 BPE tokenizer) for 10,000 steps on RTX 5090:
+
+| Model | Steps | Best Val Loss | Perplexity | Gap from Transformer |
+|-------|-------|--------------|------------|---------------------|
+| Transformer 152M | 5,000 | **3.755** | 43 | — |
+| **Hybrid SRN (10K)** | **10,000** | **3.753** | **43** | **-0.002 (wins!)** |
+| Hybrid SRN (5K) | 5,000 | 3.953 | 52 | +0.198 |
+| Pure SRN | 5,000 | 4.918 | 137 | +1.163 |
+
+**The hybrid matched the Transformer's quality** — but needed 2x the training steps to get there. At equal step count (5K), the hybrid was 0.198 worse.
+
+**Hybrid training curve on FineWeb-Edu:**
+
+| Step | Val Loss | Gap to Transformer |
+|------|----------|-------------------|
+| 1,500 | 4.931 | 1.176 |
+| 2,000 | 4.610 | 0.855 |
+| 2,500 | 4.386 | 0.631 |
+| 3,000 | 4.241 | 0.486 |
+| 3,500 | 4.140 | 0.385 |
+| 4,000 | 4.062 | 0.307 |
+| 5,000 | 3.953 | 0.198 |
+| 6,000 | 3.877 | 0.122 |
+| 6,500 | 3.850 | 0.095 |
+| 7,000 | 3.825 | 0.070 |
+| 7,500 | 3.800 | 0.045 |
+| 8,000 | 3.788 | 0.033 |
+| 8,500 | 3.772 | 0.017 |
+| **10,000** | **3.753** | **-0.002** |
+
+### VRAM Comparison at Long Context
+
+Tested with VRAM dry-run (forward + backward pass, fp16, RTX 5090 32GB):
+
+| Context | Hybrid SRN | Transformer | Winner |
+|---------|-----------|-------------|--------|
+| 1K (mb=8) | 16.8 GB | 13.0 GB | Transformer |
+| 8K (mb=2/1) | 28.3 GB | 10.7 GB | **Transformer** |
+| 16K (mb=1) | — | 20.4 GB | Transformer |
+| 32K (mb=1) | 💀 OOM | 💀 OOM | Neither |
+
+**The Transformer uses LESS VRAM at every context length.** Flash Attention (PyTorch's `scaled_dot_product_attention`) makes the Transformer's attention layers incredibly memory-efficient. Meanwhile, the hybrid's GEM expert layers create massive activation tensors `(B, N, 8, 384)` that scale linearly with sequence length.
+
+**Why the hybrid uses more VRAM:**
+- The DynamicSparseRouter is O(N×96) — already efficient, no N² problem
+- The GEM expert layers do `einsum("bneh,ehd->bned")` which materializes a `(B, N, 8, 384)` intermediate tensor per layer
+- At 8K context: 8192 × 8 × 384 = 25M elements per layer × 12 layers = 300M+ elements
+- The Transformer's FFN is just two linear layers — no giant intermediates
+
+**Why Flash Attention can't help SRN:**
+- Flash Attention is a hyper-optimized kernel for Q×K^T attention specifically
+- The hybrid's 3 attention layers already use it (via `F.scaled_dot_product_attention`)
+- The routing layers don't have an N×N attention matrix — they do Q×K_slots^T where K_slots is (96, d_head), which is already O(N×96)
+- The bottleneck is the expert computation, which is a completely different operation that Flash Attention doesn't address
+
 ### TinyStories Baselines (5,000 steps)
 
 Three controlled baselines on TinyStories with BPE tokenizer (vocab=50,257):
@@ -195,36 +269,7 @@ Remaining gap: 0.052 (3.5% from equal-compute Transformer)
 
 **What this means:** Routing layers handle 75% of the work without quality collapse. A few attention "anchor" layers every 4th layer are enough to capture patterns that slot routing misses. This is the best of both worlds — near-Transformer quality with mostly O(n·k) layers.
 
-### Full Ablation Results
-
-All 6 ablation experiments completed. Each changes one variable from the SRN baseline:
-
-| Experiment | Key Change | Best Val Loss | vs SRN Baseline | Verdict |
-|-----------|------------|--------------|-----------------|---------|
-| **Exp1 (Hybrid Attention)** | 3 attn + 9 routing layers | **1.522** | **-1.006** | **Massive win — the key insight** |
-| Exp5 (Top-k 4) | Route to 4 experts instead of 2 | **2.485** | -0.043 | Small help |
-| Exp2a (128 Slots) | More memory slots | **2.530** | +0.002 | Neutral |
-| Exp4 (No CSP) | Disable bottleneck | **2.588** | +0.060 | CSP helps slightly |
-| Exp6 (WCSG Offset) | Score-space offset | **2.620** | +0.092 | Hurts — drop it |
-| Exp2b (256 Slots) | Even more memory slots | **2.790** | +0.262 | Hurts a lot — too diluted |
-
-**Architecture decisions from ablations:**
-- **Hybrid attention anchors:** Keep — this is the breakthrough (95% gap closed)
-- **CSP bottleneck:** Keep — removing it makes things slightly worse
-- **Top-k 2 experts:** Keep at 2 — Exp7 showed top-k 4 doesn't help in hybrid mode (1.532 vs 1.522)
-- **Slot count:** Keep at 96 — more slots doesn't help and 256 actively hurts
-- **WCSG offset:** Drop — the score-space modification makes routing worse
-
-**1B Architecture Locked:** Hybrid SRN with top-k 2, 96 slots, CSP enabled, no WCSG offset. ~956M total params, ~406M active/token (42.4%). Dense baseline: ~411M params (compute-fair match).
-
-**Observations:**
-- SRN expert utilization is perfectly uniform (0.250 per layer) throughout training, with aux_loss ~24 constant. The load balancing loss may be too dominant relative to the cross-entropy loss (~9% of total loss at convergence)
-- Expert utilization spread widened over training (min=0.110, max=0.472 by step 5000) suggesting some specialization despite the strong balancing pressure
-- SRN throughput (65K tok/s on 5090) is competitive with the 112M Transformer (66K tok/s on 4090), confirming the efficiency thesis — routing is not slower than attention at this scale
-
-**Note:** These baselines used different GPUs (5090 vs 4090) and slightly different effective batch sizes (96 vs 64). The param counts differ from original estimates because the tokenizer has 50,257 tokens (GPT-2 BPE) rather than the 32,000 assumed during planning. All experiments use the same tokenizer, so comparisons between them are valid.
-
-### FineWeb-Edu Head-to-Head (SRN 150M vs Transformer 152M)
+### FineWeb-Edu Head-to-Head (Pure SRN 150M vs Transformer 152M)
 
 Both models trained on the same FineWeb-Edu data (1M docs, ~500M tokens) with GPT-2 BPE tokenizer, identical batch config (micro=8, accum=12, effective=96, seq_len=1024), on the same RTX 5090:
 
@@ -492,6 +537,8 @@ SRN-150M configuration used for TinyStories experiments:
 | Parameter activity | 100% active | ~66% active per token |
 | Memory scaling | Quadratic in seq_len | Linear in seq_len |
 
+**Note:** These are theoretical FLOP counts. In practice, Flash Attention makes the Transformer's memory scaling O(n) and its compute extremely optimized. The SRN's expert layers create large activation tensors that scale linearly with sequence length, which can exceed the Transformer's memory usage in practice.
+
 ## Scaling Vision
 
 ![Scaling Vision](docs/diagrams/srn_scaling_vision.svg)
@@ -527,12 +574,15 @@ srn_architecture.py       # Original NumPy proof-of-concept (reference, untouche
 scripts/
   run_experiments.py      # Experiment runner CLI (dry-run, compare, structured results)
   prepare_tinystories.py  # TinyStories data preparation + BPE tokenization
+  prepare_fineweb.py      # FineWeb-Edu data preparation + BPE tokenization
+  vram_dry_run.py         # VRAM profiling gate for training runs
 configs/
   srn-1b-hybrid.yaml     # 1B hybrid SRN for FineWeb-Edu (~956M total, ~406M active)
   dense-411m.yaml          # Dense Transformer baseline (~411M, compute-fair match)
-  experiments/            # 30 YAML configs (10 experiments × 3 GPU tiers)
+  experiments/            # 31 YAML configs (experiments × GPU tiers)
 tests/                    # pytest suite (113 tests)
 results/                  # Experiment outputs (training logs)
+logs/                     # Training and VRAM profiling logs
 docs/
   diagrams/               # SVG architecture diagrams
 Dockerfile                # PyTorch 2.7.0 + CUDA 12.8
@@ -546,4 +596,4 @@ Apache License 2.0 — see [LICENSE](LICENSE) for details.
 
 ## Author
 
-Built by Nathan Sapwell with Claude (Anthropic). Experimental research — use at your own risk. Honestly I am not a smart maths guy so I am just messing with this to learn about LLM stuff.
+Built by Nathan Sapwell with help from various AI coding assistants. Experimental research — use at your own risk. Honestly I am not a smart maths guy so I am just messing with this to learn about LLM stuff.

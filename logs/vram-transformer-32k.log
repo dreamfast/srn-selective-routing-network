@@ -1,0 +1,19 @@
+ Container srn-srn-run-f7a028a20773 Creating 
+ Container srn-srn-run-f7a028a20773 Created 
+Building model from configs/experiments/exp0-transformer-8k-5090.yaml...
+  Model: Dense GPT
+  Params: 228,590,208 total, 228,590,208 active/token
+
+  Forward pass (batch=1, seq_len=32768, precision=fp16)...
+Traceback (most recent call last):
+  File "/app/scripts/vram_dry_run.py", line 333, in <module>
+    result = run_dry_run(
+             ^^^^^^^^^^^^
+  File "/app/scripts/vram_dry_run.py", line 219, in run_dry_run
+    ce_loss = F.cross_entropy(
+              ^^^^^^^^^^^^^^^^
+  File "/opt/conda/lib/python3.11/site-packages/torch/nn/functional.py", line 3494, in cross_entropy
+    return torch._C._nn.cross_entropy_loss(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 6.14 GiB. GPU 0 has a total capacity of 31.36 GiB of which 3.35 GiB is free. Including non-PyTorch memory, this process has 27.08 GiB memory in use. Of the allocated memory 26.39 GiB is allocated by PyTorch, and 82.20 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+

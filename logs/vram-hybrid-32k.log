@@ -1,0 +1,49 @@
+ Container srn-srn-run-666ee8eb0671 Creating 
+ Container srn-srn-run-666ee8eb0671 Created 
+Building model from configs/experiments/exp1-hybrid-32k-5090.yaml...
+  Model: SRN
+  Params: 219,408,832 total, 169,688,704 active/token
+
+  Forward pass (batch=1, seq_len=32768, precision=fp16)...
+Traceback (most recent call last):
+  File "/app/scripts/vram_dry_run.py", line 333, in <module>
+    result = run_dry_run(
+             ^^^^^^^^^^^^
+  File "/app/scripts/vram_dry_run.py", line 218, in run_dry_run
+    logits, aux_loss = model(x)
+                       ^^^^^^^^
+  File "/opt/conda/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/conda/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/srn_model.py", line 693, in forward
+    x, aux_loss = layer(x)
+                  ^^^^^^^^
+  File "/opt/conda/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/conda/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/srn_model.py", line 620, in forward
+    gem_out, aux_loss = self.gem(self.ln3(x))
+                        ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/conda/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/conda/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/srn_model.py", line 429, in forward
+    output = self._dense_expert_forward(x, router_weights)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/srn_model.py", line 466, in _dense_expert_forward
+    h = torch.einsum("bneh,ehd->bned", h, self.W_down) + self.b_down  # (B, N, E, D)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/conda/lib/python3.11/site-packages/torch/functional.py", line 422, in einsum
+    return _VF.einsum(equation, operands)  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 192.00 MiB. GPU 0 has a total capacity of 31.36 GiB of which 61.44 MiB is free. Including non-PyTorch memory, this process has 30.37 GiB memory in use. Of the allocated memory 29.37 GiB is allocated by PyTorch, and 400.54 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+

@@ -1,0 +1,44 @@
+# Exp1-32K: Hybrid SRN on FineWeb-Edu — 32K context, 5090 config
+# Same 150M architecture, max context window
+# Flash Attention (SDPA) should handle the memory
+
+dataset_backend: memmap
+tokenizer_backend: bpe
+tokenizer_path: data/fineweb-edu/tokenizer.json
+tokenizer_vocab_size: 50257
+train_tokens_path: data/fineweb-edu/train_tokens.bin
+val_tokens_path: data/fineweb-edu/val_tokens.bin
+
+train:
+  seed: 42
+  micro_batch: 1
+  accum_steps: 4
+  seq_len: 32768
+  max_steps: 500
+  warmup_steps: 50
+  max_lr: 0.0003
+  min_lr: 0.00003
+  weight_decay: 0.1
+  max_grad_norm: 1.0
+  precision: fp16
+  eval_interval: 100
+  eval_batches: 20
+  log_interval: 25
+  checkpoint_dir: checkpoints/exp1-hybrid-32k-5090
+
+model:
+  max_seq_len: 32768
+  d_model: 896
+  d_compressed: 224
+  n_layers: 12
+  n_memory_slots: 96
+  n_experts: 8
+  top_k_experts: 2
+  d_expert: 384
+  n_heads_route: 8
+  dropout: 0.1
+  causal_window: 64
+  csp_internal_residual: false
+  aux_loss_weight: 0.01
+  attention_every_n_layers: 4
+  attention_n_heads: 8

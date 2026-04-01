@@ -1,0 +1,25 @@
+ Container srn-srn-run-a270e526ca0b Creating 
+ Container srn-srn-run-a270e526ca0b Created 
+Building model from configs/experiments/exp0-transformer-8k-5090.yaml...
+  Model: Dense GPT
+  Params: 206,570,112 total, 206,570,112 active/token
+
+  Forward pass (batch=1, seq_len=8192, precision=fp16)...
+  Backward pass...
+
+============================================================
+VRAM DRY-RUN RESULT: [PASS] ✓
+============================================================
+  Model type:     dense
+  Total params:    206,570,112
+  Active/token:    206,570,112
+  Precision:      fp16
+  Peak VRAM:         10760.5 MB
+  GPU total:         32107.9 MB
+  Headroom:               10%
+  Budget:            28897.1 MB
+  Utilization:          33.5%
+  Forward time:        236.7 ms
+  Backward time:       186.7 ms
+  Margin:            18136.7 MB (56.5%)
+============================================================

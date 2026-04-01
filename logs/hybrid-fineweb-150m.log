@@ -1,0 +1,815 @@
+ Container srn-srn-run-9ada33ecab1f Creating 
+ Container srn-srn-run-9ada33ecab1f Created 
+Loaded config: configs/experiments/exp1-hybrid-fineweb-5090.yaml
+Device: cuda
+Precision: fp16
+
+Model type: SRN
+Model: 163,539,392 params (113,819,264 active/token, 69.6%)
+Parameter groups: 116,588,544 with decay, 46,950,848 without decay
+
+============================================================
+Training SRN — 10000 steps
+Micro batch: 8, Accum steps: 12, Effective batch: 96
+Seq len: 1024, LR: 0.0003, Weight decay: 0.1
+Precision: fp16, Compile: False
+============================================================
+
+step     0 | loss 11.0173 | ppl 60918.34 | aux 34.07 | lr 3.00e-07 | grad 1.63 | tok/s 49622 (avg 49622) | vram 15516M
+
+>>> Peak GPU memory after first step: 15515.7 MB <<<
+
+step    25 | loss 10.6484 | ppl 42124.72 | aux 31.05 | lr 7.80e-06 | grad 1.61 | tok/s 61432 (avg 61199) | vram 16775M
+step    50 | loss 9.7680 | ppl 17466.53 | aux 38.77 | lr 1.53e-05 | grad 2.11 | tok/s 60697 (avg 60869) | vram 16775M
+step    75 | loss 9.1257 | ppl  9188.84 | aux 32.48 | lr 2.28e-05 | grad 1.83 | tok/s 60695 (avg 60633) | vram 16775M
+step   100 | loss 8.4735 | ppl  4786.00 | aux 29.65 | lr 3.03e-05 | grad 1.50 | tok/s 52302 (avg 60512) | vram 16775M
+step   125 | loss 7.9886 | ppl  2947.30 | aux 28.97 | lr 3.78e-05 | grad 0.96 | tok/s 60508 (avg 60490) | vram 16775M
+step   150 | loss 7.6032 | ppl  2004.66 | aux 28.39 | lr 4.53e-05 | grad 0.46 | tok/s 60522 (avg 60407) | vram 16775M
+step   175 | loss 7.4221 | ppl  1672.49 | aux 28.01 | lr 5.28e-05 | grad 0.25 | tok/s 60585 (avg 60377) | vram 16775M
+step   200 | loss 7.2917 | ppl  1468.07 | aux 27.39 | lr 6.03e-05 | grad 0.23 | tok/s 60298 (avg 60383) | vram 16775M
+step   225 | loss 7.1531 | ppl  1278.07 | aux 26.06 | lr 6.78e-05 | grad 0.34 | tok/s 60619 (avg 60335) | vram 16775M
+step   250 | loss 7.0236 | ppl  1122.83 | aux 24.98 | lr 7.53e-05 | grad 0.26 | tok/s 60764 (avg 60303) | vram 16775M
+step   275 | loss 6.8198 | ppl   915.77 | aux 24.98 | lr 8.28e-05 | grad 0.31 | tok/s 60648 (avg 60335) | vram 16775M
+step   300 | loss 6.7769 | ppl   877.38 | aux 24.66 | lr 9.03e-05 | grad 0.28 | tok/s 60621 (avg 60321) | vram 16775M
+step   325 | loss 6.6883 | ppl   802.98 | aux 24.78 | lr 9.78e-05 | grad 0.28 | tok/s 60701 (avg 60320) | vram 16775M
+step   350 | loss 6.6586 | ppl   779.49 | aux 24.43 | lr 1.05e-04 | grad 0.30 | tok/s 60857 (avg 60348) | vram 16775M
+step   375 | loss 6.5315 | ppl   686.43 | aux 24.44 | lr 1.13e-04 | grad 0.31 | tok/s 60960 (avg 60346) | vram 16775M
+step   400 | loss 6.5174 | ppl   676.82 | aux 24.50 | lr 1.20e-04 | grad 0.26 | tok/s 60892 (avg 60359) | vram 16775M
+step   425 | loss 6.4506 | ppl   633.09 | aux 24.40 | lr 1.28e-04 | grad 0.31 | tok/s 59017 (avg 60382) | vram 16775M
+step   450 | loss 6.4112 | ppl   608.60 | aux 24.50 | lr 1.35e-04 | grad 0.38 | tok/s 60705 (avg 60372) | vram 16775M
+step   475 | loss 6.4068 | ppl   605.96 | aux 24.35 | lr 1.43e-04 | grad 0.30 | tok/s 60955 (avg 60392) | vram 16775M
+step   500 | loss 6.2845 | ppl   536.19 | aux 24.54 | lr 1.50e-04 | grad 0.37 | tok/s 60610 (avg 60404) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 500: val_loss=6.1691, ppl=477.73
+Expert util: min=0.169, max=0.335, std=0.0334
+  layer spread (max-min): L0=0.090, L1=0.097, L2=0.097, L3=0.098, L4=0.120, L5=0.092, L6=0.133, L7=0.074, L8=0.097, L9=0.082, L10=0.166, L11=0.075
+  layer top expert:       L0=0.297, L1=0.286, L2=0.283, L3=0.302, L4=0.304, L5=0.294, L6=0.322, L7=0.278, L8=0.291, L9=0.292, L10=0.335, L11=0.291
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO:/For the Hunger of night of hAmp.
+H.
+-9/ARS)
+- Names.4.
+1.8.
+W.
+- Phia
+- The Boy.
+E.10.
+- Ast. R.edu/38 perhem M.
+- Wide
+- Building. 5.
+- attract the King. Retrieved These conditions.
+-
+- Western Health
+-�ic ( subscription
+- A- What are looking to humans
+-
+- What is usually used every
+- The la
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=6.1691) <<<
+
+step   525 | loss 6.2425 | ppl   514.16 | aux 24.42 | lr 1.58e-04 | grad 0.36 | tok/s 57420 (avg 60100) | vram 16775M
+step   550 | loss 6.2242 | ppl   504.84 | aux 24.40 | lr 1.65e-04 | grad 0.45 | tok/s 60784 (avg 60016) | vram 16775M
+step   575 | loss 6.1878 | ppl   486.75 | aux 24.40 | lr 1.73e-04 | grad 0.35 | tok/s 60849 (avg 60045) | vram 16775M
+step   600 | loss 6.1050 | ppl   448.11 | aux 24.40 | lr 1.80e-04 | grad 0.34 | tok/s 60824 (avg 60077) | vram 16775M
+step   625 | loss 6.0733 | ppl   434.12 | aux 24.44 | lr 1.88e-04 | grad 0.48 | tok/s 53241 (avg 60032) | vram 16775M
+step   650 | loss 6.0883 | ppl   440.67 | aux 24.35 | lr 1.95e-04 | grad 0.51 | tok/s 61264 (avg 60017) | vram 16775M
+step   675 | loss 6.0207 | ppl   411.88 | aux 24.41 | lr 2.03e-04 | grad 0.37 | tok/s 60860 (avg 60052) | vram 16775M
+step   700 | loss 5.9206 | ppl   372.63 | aux 24.46 | lr 2.10e-04 | grad 0.45 | tok/s 61266 (avg 60074) | vram 16775M
+step   725 | loss 5.9389 | ppl   379.50 | aux 24.46 | lr 2.18e-04 | grad 0.36 | tok/s 59549 (avg 60103) | vram 16775M
+step   750 | loss 5.9265 | ppl   374.86 | aux 24.34 | lr 2.25e-04 | grad 0.40 | tok/s 60936 (avg 60131) | vram 16775M
+step   775 | loss 5.8887 | ppl   360.93 | aux 24.50 | lr 2.33e-04 | grad 0.42 | tok/s 61009 (avg 60154) | vram 16775M
+step   800 | loss 5.8576 | ppl   349.89 | aux 24.45 | lr 2.40e-04 | grad 0.40 | tok/s 61006 (avg 60181) | vram 16775M
+step   825 | loss 5.7866 | ppl   325.92 | aux 24.35 | lr 2.48e-04 | grad 0.46 | tok/s 61088 (avg 60202) | vram 16775M
+step   850 | loss 5.8034 | ppl   331.44 | aux 24.41 | lr 2.55e-04 | grad 0.51 | tok/s 61363 (avg 60231) | vram 16775M
+step   875 | loss 5.7542 | ppl   315.50 | aux 24.45 | lr 2.63e-04 | grad 0.46 | tok/s 61168 (avg 60255) | vram 16775M
+step   900 | loss 5.7258 | ppl   306.68 | aux 24.31 | lr 2.70e-04 | grad 0.52 | tok/s 61243 (avg 60281) | vram 16775M
+step   925 | loss 5.6609 | ppl   287.41 | aux 24.37 | lr 2.78e-04 | grad 0.55 | tok/s 61449 (avg 60305) | vram 16775M
+step   950 | loss 5.6595 | ppl   287.00 | aux 24.42 | lr 2.85e-04 | grad 0.45 | tok/s 61141 (avg 60326) | vram 16775M
+step   975 | loss 5.6244 | ppl   277.11 | aux 24.39 | lr 2.93e-04 | grad 0.44 | tok/s 61286 (avg 60350) | vram 16775M
+step  1000 | loss 5.5866 | ppl   266.82 | aux 24.44 | lr 3.00e-04 | grad 0.44 | tok/s 61364 (avg 60367) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 1000: val_loss=5.4475, ppl=232.17
+Expert util: min=0.174, max=0.344, std=0.0329
+  layer spread (max-min): L0=0.104, L1=0.143, L2=0.059, L3=0.069, L4=0.101, L5=0.131, L6=0.088, L7=0.090, L8=0.129, L9=0.133, L10=0.090, L11=0.077
+  layer top expert:       L0=0.310, L1=0.318, L2=0.280, L3=0.278, L4=0.302, L5=0.344, L6=0.284, L7=0.278, L8=0.338, L9=0.324, L10=0.295, L11=0.284
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO:
+- A article: 5-15-29-5
+- N, 10, 1993, 1459, pp.
+- 30, pp.
+- A, p. (2001). "- "All the modern totest" 1:24 d)
+- "The final the five years."
+- "A slight origin, p. The Taylor: (1)
+- Zeigh, pp.
+- "3) by the z'tai - "It is said: "the and "It's true, but he says with a small, but not born, the "to
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=5.4475) <<<
+
+step  1025 | loss 5.5701 | ppl   262.45 | aux 24.46 | lr 3.00e-04 | grad 0.49 | tok/s 60654 (avg 60167) | vram 16775M
+step  1050 | loss 5.5083 | ppl   246.73 | aux 24.40 | lr 3.00e-04 | grad 0.39 | tok/s 61577 (avg 60184) | vram 16775M
+step  1075 | loss 5.4891 | ppl   242.05 | aux 24.39 | lr 3.00e-04 | grad 0.42 | tok/s 61595 (avg 60209) | vram 16775M
+step  1100 | loss 5.5517 | ppl   257.66 | aux 24.32 | lr 3.00e-04 | grad 0.46 | tok/s 61380 (avg 60236) | vram 16775M
+step  1125 | loss 5.4776 | ppl   239.28 | aux 24.31 | lr 3.00e-04 | grad 0.49 | tok/s 61500 (avg 60255) | vram 16775M
+step  1150 | loss 5.4426 | ppl   231.03 | aux 24.34 | lr 3.00e-04 | grad 0.44 | tok/s 61711 (avg 60281) | vram 16775M
+step  1175 | loss 5.4656 | ppl   236.41 | aux 24.30 | lr 3.00e-04 | grad 0.40 | tok/s 61394 (avg 60303) | vram 16775M
+step  1200 | loss 5.3473 | ppl   210.04 | aux 24.33 | lr 3.00e-04 | grad 0.32 | tok/s 61747 (avg 60328) | vram 16775M
+step  1225 | loss 5.3665 | ppl   214.11 | aux 24.31 | lr 3.00e-04 | grad 0.42 | tok/s 61085 (avg 60330) | vram 16775M
+step  1250 | loss 5.3317 | ppl   206.79 | aux 24.30 | lr 2.99e-04 | grad 0.42 | tok/s 61660 (avg 60338) | vram 16775M
+step  1275 | loss 5.3214 | ppl   204.67 | aux 24.30 | lr 2.99e-04 | grad 0.39 | tok/s 61760 (avg 60365) | vram 16775M
+step  1300 | loss 5.2518 | ppl   190.91 | aux 24.28 | lr 2.99e-04 | grad 0.43 | tok/s 61857 (avg 60390) | vram 16775M
+step  1325 | loss 5.2372 | ppl   188.14 | aux 24.23 | lr 2.99e-04 | grad 0.42 | tok/s 61748 (avg 60414) | vram 16775M
+step  1350 | loss 5.2952 | ppl   199.38 | aux 24.26 | lr 2.99e-04 | grad 0.46 | tok/s 61806 (avg 60439) | vram 16775M
+step  1375 | loss 5.1836 | ppl   178.33 | aux 24.27 | lr 2.99e-04 | grad 0.37 | tok/s 61949 (avg 60464) | vram 16775M
+step  1400 | loss 5.1505 | ppl   172.52 | aux 24.24 | lr 2.99e-04 | grad 0.39 | tok/s 61930 (avg 60487) | vram 16775M
+step  1425 | loss 5.1318 | ppl   169.33 | aux 24.28 | lr 2.99e-04 | grad 0.44 | tok/s 61899 (avg 60511) | vram 16775M
+step  1450 | loss 5.1658 | ppl   175.19 | aux 24.28 | lr 2.98e-04 | grad 0.39 | tok/s 62023 (avg 60536) | vram 16775M
+step  1475 | loss 5.1653 | ppl   175.08 | aux 24.20 | lr 2.98e-04 | grad 0.39 | tok/s 61884 (avg 60559) | vram 16775M
+step  1500 | loss 5.1096 | ppl   165.61 | aux 24.22 | lr 2.98e-04 | grad 0.38 | tok/s 62050 (avg 60583) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 1500: val_loss=4.9309, ppl=138.50
+Expert util: min=0.163, max=0.339, std=0.0321
+  layer spread (max-min): L0=0.131, L1=0.143, L2=0.089, L3=0.071, L4=0.077, L5=0.111, L6=0.087, L7=0.120, L8=0.115, L9=0.082, L10=0.061, L11=0.059
+  layer top expert:       L0=0.339, L1=0.313, L2=0.286, L3=0.280, L4=0.284, L5=0.309, L6=0.278, L7=0.282, L8=0.321, L9=0.275, L10=0.281, L11=0.285
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO:
+This lesson starts with various types of diseases. This is to enhance our daily lives, efficiency and well- farm.
+We will get away from our furry and the following categories of exercises:
+- Understand thoughts and help us learn how they will see, it’s a story with a kid’s not only to get fro
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.9309) <<<
+
+step  1525 | loss 5.1484 | ppl   172.16 | aux 24.18 | lr 2.98e-04 | grad 0.40 | tok/s 62179 (avg 60473) | vram 16775M
+step  1550 | loss 5.0181 | ppl   151.12 | aux 24.16 | lr 2.98e-04 | grad 0.39 | tok/s 61878 (avg 60492) | vram 16775M
+step  1575 | loss 5.0250 | ppl   152.16 | aux 24.23 | lr 2.97e-04 | grad 0.39 | tok/s 62041 (avg 60516) | vram 16775M
+step  1600 | loss 5.0521 | ppl   156.35 | aux 24.18 | lr 2.97e-04 | grad 0.41 | tok/s 62140 (avg 60540) | vram 16775M
+step  1625 | loss 5.0258 | ppl   152.30 | aux 24.15 | lr 2.97e-04 | grad 0.44 | tok/s 62198 (avg 60562) | vram 16775M
+step  1650 | loss 5.0373 | ppl   154.06 | aux 24.17 | lr 2.97e-04 | grad 0.38 | tok/s 62236 (avg 60585) | vram 16775M
+step  1675 | loss 5.0088 | ppl   149.72 | aux 24.22 | lr 2.96e-04 | grad 0.39 | tok/s 61773 (avg 60607) | vram 16775M
+step  1700 | loss 4.9260 | ppl   137.83 | aux 24.26 | lr 2.96e-04 | grad 0.40 | tok/s 62291 (avg 60628) | vram 16775M
+step  1725 | loss 4.9680 | ppl   143.73 | aux 24.21 | lr 2.96e-04 | grad 0.41 | tok/s 62193 (avg 60648) | vram 16775M
+step  1750 | loss 4.9681 | ppl   143.76 | aux 24.08 | lr 2.95e-04 | grad 0.43 | tok/s 62206 (avg 60670) | vram 16775M
+step  1775 | loss 4.8340 | ppl   125.72 | aux 24.15 | lr 2.95e-04 | grad 0.42 | tok/s 62146 (avg 60689) | vram 16775M
+step  1800 | loss 4.9351 | ppl   139.09 | aux 24.13 | lr 2.95e-04 | grad 0.40 | tok/s 62340 (avg 60710) | vram 16775M
+step  1825 | loss 4.8891 | ppl   132.83 | aux 24.14 | lr 2.94e-04 | grad 0.41 | tok/s 62242 (avg 60730) | vram 16775M
+step  1850 | loss 4.8778 | ppl   131.34 | aux 24.21 | lr 2.94e-04 | grad 0.43 | tok/s 62299 (avg 60748) | vram 16775M
+step  1875 | loss 4.9041 | ppl   134.84 | aux 24.14 | lr 2.94e-04 | grad 0.43 | tok/s 62322 (avg 60767) | vram 16775M
+step  1900 | loss 4.8266 | ppl   124.78 | aux 24.14 | lr 2.93e-04 | grad 0.43 | tok/s 62235 (avg 60784) | vram 16775M
+step  1925 | loss 4.8203 | ppl   124.00 | aux 24.15 | lr 2.93e-04 | grad 0.44 | tok/s 62349 (avg 60802) | vram 16775M
+step  1950 | loss 4.8646 | ppl   129.62 | aux 24.13 | lr 2.93e-04 | grad 0.38 | tok/s 61278 (avg 60815) | vram 16775M
+step  1975 | loss 4.7735 | ppl   118.34 | aux 24.19 | lr 2.92e-04 | grad 0.36 | tok/s 62101 (avg 60824) | vram 16775M
+step  2000 | loss 4.8660 | ppl   129.80 | aux 24.09 | lr 2.92e-04 | grad 0.41 | tok/s 62099 (avg 60841) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 2000: val_loss=4.6098, ppl=100.47
+Expert util: min=0.171, max=0.361, std=0.0312
+  layer spread (max-min): L0=0.156, L1=0.132, L2=0.073, L3=0.073, L4=0.071, L5=0.062, L6=0.064, L7=0.105, L8=0.118, L9=0.110, L10=0.057, L11=0.054
+  layer top expert:       L0=0.361, L1=0.303, L2=0.282, L3=0.280, L4=0.289, L5=0.281, L6=0.286, L7=0.282, L8=0.312, L9=0.300, L10=0.274, L11=0.279
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO:
+- ROUNDAM: 2, 3]
+- Jethylene: 5-5
+- Kphrote: 4
+- D: 3
+- Rug: 3
+- Lateral: 3
+- M: 1
+- D: 1
+- C: 3
+- B edler: 3
+- H: 4
+- Pershing: 4
+- P: 3
+- D: 12
+- D: 5
+- B: 3
+- B: 3
+- D: 3
+- C: 4
+- C: 3
+- P: 5
+- C: 3
+- D: 5
+- D: 3
+- Thraying: 2
+- P: 1
+- D: 3
+- B: 3
+- B: C: 1
+- B: 3
+- V: 3
+- R: a: 3
+- D: str
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.6098) <<<
+
+step  2025 | loss 4.7564 | ppl   116.33 | aux 24.20 | lr 2.91e-04 | grad 0.41 | tok/s 62085 (avg 60761) | vram 16775M
+step  2050 | loss 4.8295 | ppl   125.15 | aux 24.12 | lr 2.91e-04 | grad 0.49 | tok/s 62451 (avg 60775) | vram 16775M
+step  2075 | loss 4.7686 | ppl   117.76 | aux 24.16 | lr 2.91e-04 | grad 0.41 | tok/s 62376 (avg 60793) | vram 16775M
+step  2100 | loss 4.7458 | ppl   115.10 | aux 24.16 | lr 2.90e-04 | grad 0.46 | tok/s 62378 (avg 60810) | vram 16775M
+step  2125 | loss 4.7125 | ppl   111.32 | aux 24.11 | lr 2.90e-04 | grad 0.43 | tok/s 62304 (avg 60825) | vram 16775M
+step  2150 | loss 4.7529 | ppl   115.92 | aux 24.09 | lr 2.89e-04 | grad 0.46 | tok/s 61704 (avg 60841) | vram 16775M
+step  2175 | loss 4.6272 | ppl   102.23 | aux 24.16 | lr 2.89e-04 | grad 0.42 | tok/s 62457 (avg 60857) | vram 16775M
+step  2200 | loss 4.7035 | ppl   110.33 | aux 24.03 | lr 2.88e-04 | grad 0.40 | tok/s 62278 (avg 60873) | vram 16775M
+step  2225 | loss 4.7381 | ppl   114.21 | aux 24.09 | lr 2.88e-04 | grad 0.46 | tok/s 62288 (avg 60889) | vram 16775M
+step  2250 | loss 4.5847 | ppl    97.97 | aux 24.08 | lr 2.87e-04 | grad 0.47 | tok/s 62392 (avg 60904) | vram 16775M
+step  2275 | loss 4.6598 | ppl   105.61 | aux 24.13 | lr 2.87e-04 | grad 0.43 | tok/s 62381 (avg 60918) | vram 16775M
+step  2300 | loss 4.5712 | ppl    96.66 | aux 24.08 | lr 2.86e-04 | grad 0.42 | tok/s 62316 (avg 60933) | vram 16775M
+step  2325 | loss 4.5727 | ppl    96.80 | aux 24.20 | lr 2.86e-04 | grad 0.44 | tok/s 62459 (avg 60947) | vram 16775M
+step  2350 | loss 4.5963 | ppl    99.12 | aux 24.12 | lr 2.85e-04 | grad 0.40 | tok/s 62259 (avg 60961) | vram 16775M
+step  2375 | loss 4.6622 | ppl   105.87 | aux 24.11 | lr 2.85e-04 | grad 0.41 | tok/s 62255 (avg 60975) | vram 16775M
+step  2400 | loss 4.5885 | ppl    98.34 | aux 24.18 | lr 2.84e-04 | grad 0.40 | tok/s 62370 (avg 60988) | vram 16775M
+step  2425 | loss 4.5934 | ppl    98.83 | aux 24.26 | lr 2.84e-04 | grad 0.45 | tok/s 62381 (avg 60999) | vram 16775M
+step  2450 | loss 4.5368 | ppl    93.39 | aux 24.15 | lr 2.83e-04 | grad 0.48 | tok/s 62290 (avg 61012) | vram 16775M
+step  2475 | loss 4.5415 | ppl    93.83 | aux 24.13 | lr 2.82e-04 | grad 0.43 | tok/s 62438 (avg 61025) | vram 16775M
+step  2500 | loss 4.6066 | ppl   100.15 | aux 24.06 | lr 2.82e-04 | grad 0.48 | tok/s 62359 (avg 61039) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 2500: val_loss=4.3857, ppl=80.29
+Expert util: min=0.165, max=0.383, std=0.0332
+  layer spread (max-min): L0=0.178, L1=0.140, L2=0.094, L3=0.073, L4=0.065, L5=0.078, L6=0.064, L7=0.088, L8=0.093, L9=0.100, L10=0.117, L11=0.073
+  layer top expert:       L0=0.383, L1=0.304, L2=0.293, L3=0.275, L4=0.283, L5=0.300, L6=0.285, L7=0.293, L8=0.302, L9=0.292, L10=0.323, L11=0.293
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO:
+- The Tag: The New World in Independent Studies and Development
+- The History of Ages and the Civil War
+- National Influence of the Civil War
+- National Council has proposed the United States
+- National Assembly
+- United States
+- International Constitution, which had about 26 states and aroun
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.3857) <<<
+
+step  2525 | loss 4.5974 | ppl    99.23 | aux 24.08 | lr 2.81e-04 | grad 0.43 | tok/s 62521 (avg 60975) | vram 16775M
+step  2550 | loss 4.5702 | ppl    96.57 | aux 24.15 | lr 2.81e-04 | grad 0.46 | tok/s 62454 (avg 60987) | vram 16775M
+step  2575 | loss 4.5549 | ppl    95.10 | aux 24.13 | lr 2.80e-04 | grad 0.40 | tok/s 62437 (avg 60999) | vram 16775M
+step  2600 | loss 4.5164 | ppl    91.51 | aux 24.17 | lr 2.79e-04 | grad 0.44 | tok/s 62361 (avg 61013) | vram 16775M
+step  2625 | loss 4.5004 | ppl    90.05 | aux 24.07 | lr 2.79e-04 | grad 0.44 | tok/s 62338 (avg 61025) | vram 16775M
+step  2650 | loss 4.5329 | ppl    93.03 | aux 24.24 | lr 2.78e-04 | grad 0.47 | tok/s 62483 (avg 61037) | vram 16775M
+step  2675 | loss 4.5160 | ppl    91.47 | aux 24.13 | lr 2.78e-04 | grad 0.42 | tok/s 62499 (avg 61049) | vram 16775M
+step  2700 | loss 4.5608 | ppl    95.66 | aux 24.15 | lr 2.77e-04 | grad 0.42 | tok/s 62275 (avg 61060) | vram 16775M
+step  2725 | loss 4.5225 | ppl    92.07 | aux 24.13 | lr 2.76e-04 | grad 0.42 | tok/s 62165 (avg 61072) | vram 16775M
+step  2750 | loss 4.5213 | ppl    91.95 | aux 24.07 | lr 2.76e-04 | grad 0.45 | tok/s 62495 (avg 61080) | vram 16775M
+step  2775 | loss 4.4377 | ppl    84.58 | aux 24.21 | lr 2.75e-04 | grad 0.44 | tok/s 62530 (avg 61092) | vram 16775M
+step  2800 | loss 4.5218 | ppl    92.00 | aux 24.16 | lr 2.74e-04 | grad 0.41 | tok/s 62429 (avg 61103) | vram 16775M
+step  2825 | loss 4.4473 | ppl    85.40 | aux 24.08 | lr 2.74e-04 | grad 0.43 | tok/s 62447 (avg 61114) | vram 16775M
+step  2850 | loss 4.4561 | ppl    86.15 | aux 24.16 | lr 2.73e-04 | grad 0.42 | tok/s 62482 (avg 61124) | vram 16775M
+step  2875 | loss 4.4617 | ppl    86.64 | aux 24.19 | lr 2.72e-04 | grad 0.43 | tok/s 62454 (avg 61135) | vram 16775M
+step  2900 | loss 4.5217 | ppl    91.99 | aux 24.14 | lr 2.71e-04 | grad 0.42 | tok/s 62248 (avg 61145) | vram 16775M
+step  2925 | loss 4.5532 | ppl    94.93 | aux 24.19 | lr 2.71e-04 | grad 0.42 | tok/s 62472 (avg 61155) | vram 16775M
+step  2950 | loss 4.4405 | ppl    84.82 | aux 24.09 | lr 2.70e-04 | grad 0.42 | tok/s 61771 (avg 61166) | vram 16775M
+step  2975 | loss 4.4756 | ppl    87.85 | aux 24.03 | lr 2.69e-04 | grad 0.46 | tok/s 62507 (avg 61176) | vram 16775M
+step  3000 | loss 4.3473 | ppl    77.27 | aux 24.11 | lr 2.68e-04 | grad 0.45 | tok/s 62412 (avg 61185) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 3000: val_loss=4.2408, ppl=69.46
+Expert util: min=0.168, max=0.379, std=0.0314
+  layer spread (max-min): L0=0.178, L1=0.151, L2=0.082, L3=0.059, L4=0.050, L5=0.088, L6=0.072, L7=0.058, L8=0.079, L9=0.114, L10=0.075, L11=0.062
+  layer top expert:       L0=0.379, L1=0.319, L2=0.293, L3=0.287, L4=0.281, L5=0.305, L6=0.286, L7=0.279, L8=0.291, L9=0.301, L10=0.285, L11=0.287
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO: "The United States is the world's most ambitious global human-discovery, and has become the world's largest international corporations and the world's largest city, but it has been the largest member of the global world's largest and world's most influential and regional environment that has 
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.2408) <<<
+
+step  3025 | loss 4.3899 | ppl    80.64 | aux 24.13 | lr 2.68e-04 | grad 0.43 | tok/s 62467 (avg 61134) | vram 16775M
+step  3050 | loss 4.4282 | ppl    83.78 | aux 24.13 | lr 2.67e-04 | grad 0.46 | tok/s 62379 (avg 61143) | vram 16775M
+step  3075 | loss 4.3992 | ppl    81.38 | aux 24.07 | lr 2.66e-04 | grad 0.43 | tok/s 62419 (avg 61152) | vram 16775M
+step  3100 | loss 4.4148 | ppl    82.66 | aux 24.09 | lr 2.65e-04 | grad 0.45 | tok/s 62521 (avg 61161) | vram 16775M
+step  3125 | loss 4.4558 | ppl    86.13 | aux 24.14 | lr 2.65e-04 | grad 0.43 | tok/s 62574 (avg 61169) | vram 16775M
+step  3150 | loss 4.3977 | ppl    81.27 | aux 24.25 | lr 2.64e-04 | grad 0.44 | tok/s 62481 (avg 61178) | vram 16775M
+step  3175 | loss 4.4018 | ppl    81.59 | aux 24.15 | lr 2.63e-04 | grad 0.42 | tok/s 62303 (avg 61187) | vram 16775M
+step  3200 | loss 4.2904 | ppl    72.99 | aux 24.11 | lr 2.62e-04 | grad 0.47 | tok/s 62493 (avg 61195) | vram 16775M
+step  3225 | loss 4.3612 | ppl    78.35 | aux 24.15 | lr 2.61e-04 | grad 0.47 | tok/s 62483 (avg 61204) | vram 16775M
+step  3250 | loss 4.3729 | ppl    79.27 | aux 24.09 | lr 2.60e-04 | grad 0.44 | tok/s 62362 (avg 61213) | vram 16775M
+step  3275 | loss 4.3608 | ppl    78.32 | aux 24.07 | lr 2.60e-04 | grad 0.43 | tok/s 62451 (avg 61222) | vram 16775M
+step  3300 | loss 4.3589 | ppl    78.17 | aux 24.18 | lr 2.59e-04 | grad 0.43 | tok/s 62319 (avg 61230) | vram 16775M
+step  3325 | loss 4.3614 | ppl    78.36 | aux 24.09 | lr 2.58e-04 | grad 0.44 | tok/s 62432 (avg 61239) | vram 16775M
+step  3350 | loss 4.3067 | ppl    74.19 | aux 24.07 | lr 2.57e-04 | grad 0.45 | tok/s 62508 (avg 61247) | vram 16775M
+step  3375 | loss 4.3256 | ppl    75.61 | aux 24.15 | lr 2.56e-04 | grad 0.45 | tok/s 62416 (avg 61254) | vram 16775M
+step  3400 | loss 4.3521 | ppl    77.64 | aux 24.08 | lr 2.55e-04 | grad 0.44 | tok/s 62334 (avg 61261) | vram 16775M
+step  3425 | loss 4.3474 | ppl    77.27 | aux 24.07 | lr 2.54e-04 | grad 0.47 | tok/s 62393 (avg 61269) | vram 16775M
+step  3450 | loss 4.2611 | ppl    70.89 | aux 24.13 | lr 2.54e-04 | grad 0.44 | tok/s 62445 (avg 61277) | vram 16775M
+step  3475 | loss 4.2946 | ppl    73.31 | aux 24.06 | lr 2.53e-04 | grad 0.40 | tok/s 62518 (avg 61285) | vram 16775M
+step  3500 | loss 4.2690 | ppl    71.45 | aux 23.99 | lr 2.52e-04 | grad 0.41 | tok/s 62425 (avg 61292) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 3500: val_loss=4.1399, ppl=62.80
+Expert util: min=0.172, max=0.369, std=0.0313
+  layer spread (max-min): L0=0.167, L1=0.138, L2=0.083, L3=0.057, L4=0.072, L5=0.070, L6=0.079, L7=0.066, L8=0.085, L9=0.099, L10=0.070, L11=0.103
+  layer top expert:       L0=0.369, L1=0.310, L2=0.286, L3=0.287, L4=0.296, L5=0.285, L6=0.292, L7=0.282, L8=0.283, L9=0.292, L10=0.296, L11=0.311
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO: U.S. Department of Homeland Security Special Rapporteur Committee, 2013
+SE: President Lyndon Johnson was born on October 29, 2012.
+EN: President Lyndon Johnson was born in Elsouthern province in the capital of Shahy, and a member of the lieutenant. In 1884, two members of the Democratic Repub
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.1399) <<<
+
+step  3525 | loss 4.3014 | ppl    73.80 | aux 24.07 | lr 2.51e-04 | grad 0.42 | tok/s 62457 (avg 61247) | vram 16775M
+step  3550 | loss 4.2935 | ppl    73.22 | aux 24.09 | lr 2.50e-04 | grad 0.44 | tok/s 62509 (avg 61254) | vram 16775M
+step  3575 | loss 4.3553 | ppl    77.89 | aux 24.04 | lr 2.49e-04 | grad 0.47 | tok/s 62508 (avg 61261) | vram 16775M
+step  3600 | loss 4.3017 | ppl    73.83 | aux 24.12 | lr 2.48e-04 | grad 0.43 | tok/s 62378 (avg 61268) | vram 16775M
+step  3625 | loss 4.2775 | ppl    72.06 | aux 24.11 | lr 2.47e-04 | grad 0.41 | tok/s 62501 (avg 61276) | vram 16775M
+step  3650 | loss 4.3277 | ppl    75.77 | aux 24.10 | lr 2.46e-04 | grad 0.44 | tok/s 62395 (avg 61284) | vram 16775M
+step  3675 | loss 4.2905 | ppl    73.00 | aux 24.14 | lr 2.45e-04 | grad 0.43 | tok/s 62423 (avg 61291) | vram 16775M
+step  3700 | loss 4.3060 | ppl    74.15 | aux 24.07 | lr 2.44e-04 | grad 0.40 | tok/s 62483 (avg 61299) | vram 16775M
+step  3725 | loss 4.3144 | ppl    74.77 | aux 24.07 | lr 2.43e-04 | grad 0.39 | tok/s 61790 (avg 61305) | vram 16775M
+step  3750 | loss 4.2896 | ppl    72.94 | aux 24.07 | lr 2.42e-04 | grad 0.44 | tok/s 62514 (avg 61313) | vram 16775M
+step  3775 | loss 4.2647 | ppl    71.14 | aux 24.09 | lr 2.41e-04 | grad 0.44 | tok/s 62559 (avg 61320) | vram 16775M
+step  3800 | loss 4.2622 | ppl    70.97 | aux 24.14 | lr 2.40e-04 | grad 0.40 | tok/s 62486 (avg 61327) | vram 16775M
+step  3825 | loss 4.2245 | ppl    68.34 | aux 24.11 | lr 2.40e-04 | grad 0.42 | tok/s 62416 (avg 61334) | vram 16775M
+step  3850 | loss 4.2599 | ppl    70.80 | aux 24.05 | lr 2.39e-04 | grad 0.42 | tok/s 62387 (avg 61341) | vram 16775M
+step  3875 | loss 4.2383 | ppl    69.29 | aux 24.11 | lr 2.38e-04 | grad 0.38 | tok/s 62536 (avg 61348) | vram 16775M
+step  3900 | loss 4.2233 | ppl    68.26 | aux 24.02 | lr 2.37e-04 | grad 0.44 | tok/s 62394 (avg 61355) | vram 16775M
+step  3925 | loss 4.2551 | ppl    70.46 | aux 24.06 | lr 2.36e-04 | grad 0.44 | tok/s 62582 (avg 61361) | vram 16775M
+step  3950 | loss 4.2666 | ppl    71.28 | aux 24.05 | lr 2.35e-04 | grad 0.42 | tok/s 62578 (avg 61368) | vram 16775M
+step  3975 | loss 4.2282 | ppl    68.59 | aux 24.11 | lr 2.34e-04 | grad 0.45 | tok/s 62473 (avg 61375) | vram 16775M
+step  4000 | loss 4.2731 | ppl    71.74 | aux 24.09 | lr 2.32e-04 | grad 0.41 | tok/s 62606 (avg 61381) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 4000: val_loss=4.0624, ppl=58.11
+Expert util: min=0.171, max=0.370, std=0.0316
+  layer spread (max-min): L0=0.163, L1=0.142, L2=0.092, L3=0.069, L4=0.049, L5=0.065, L6=0.066, L7=0.050, L8=0.094, L9=0.097, L10=0.056, L11=0.093
+  layer top expert:       L0=0.370, L1=0.312, L2=0.283, L3=0.292, L4=0.282, L5=0.272, L6=0.285, L7=0.279, L8=0.287, L9=0.291, L10=0.277, L11=0.292
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO: If you purchase our IYESOSE at (PELA) then it might be the same as for the circuit or VICGEXPELA.
+ALCKSUGE X100205: How many bits of [1,2,4] are not released. It may not be called Projects, but you can also export it to other hardware, such as wSNiL.
+The output of the output of the output of 
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.0624) <<<
+
+step  4025 | loss 4.3517 | ppl    77.61 | aux 24.11 | lr 2.31e-04 | grad 0.44 | tok/s 61979 (avg 61342) | vram 16775M
+step  4050 | loss 4.2430 | ppl    69.62 | aux 24.15 | lr 2.30e-04 | grad 0.44 | tok/s 62552 (avg 61349) | vram 16775M
+step  4075 | loss 4.1728 | ppl    64.90 | aux 24.11 | lr 2.29e-04 | grad 0.41 | tok/s 62595 (avg 61356) | vram 16775M
+step  4100 | loss 4.2345 | ppl    69.03 | aux 24.08 | lr 2.28e-04 | grad 0.43 | tok/s 62622 (avg 61363) | vram 16775M
+step  4125 | loss 4.2428 | ppl    69.60 | aux 24.03 | lr 2.27e-04 | grad 0.45 | tok/s 62540 (avg 61370) | vram 16775M
+step  4150 | loss 4.2282 | ppl    68.59 | aux 24.11 | lr 2.26e-04 | grad 0.41 | tok/s 62551 (avg 61377) | vram 16775M
+step  4175 | loss 4.2238 | ppl    68.29 | aux 24.08 | lr 2.25e-04 | grad 0.39 | tok/s 62586 (avg 61382) | vram 16775M
+step  4200 | loss 4.2304 | ppl    68.75 | aux 24.09 | lr 2.24e-04 | grad 0.44 | tok/s 62613 (avg 61389) | vram 16775M
+step  4225 | loss 4.1930 | ppl    66.22 | aux 24.17 | lr 2.23e-04 | grad 0.39 | tok/s 62548 (avg 61396) | vram 16775M
+step  4250 | loss 4.1845 | ppl    65.66 | aux 24.06 | lr 2.22e-04 | grad 0.39 | tok/s 62518 (avg 61402) | vram 16775M
+step  4275 | loss 4.2199 | ppl    68.03 | aux 24.11 | lr 2.21e-04 | grad 0.40 | tok/s 62583 (avg 61408) | vram 16775M
+step  4300 | loss 4.2061 | ppl    67.10 | aux 24.08 | lr 2.20e-04 | grad 0.43 | tok/s 62567 (avg 61415) | vram 16775M
+step  4325 | loss 4.1357 | ppl    62.53 | aux 24.08 | lr 2.19e-04 | grad 0.41 | tok/s 62542 (avg 61421) | vram 16775M
+step  4350 | loss 4.1545 | ppl    63.72 | aux 24.08 | lr 2.18e-04 | grad 0.39 | tok/s 61855 (avg 61427) | vram 16775M
+step  4375 | loss 4.2233 | ppl    68.26 | aux 24.07 | lr 2.17e-04 | grad 0.39 | tok/s 62665 (avg 61433) | vram 16775M
+step  4400 | loss 4.1875 | ppl    65.86 | aux 24.01 | lr 2.16e-04 | grad 0.42 | tok/s 62593 (avg 61439) | vram 16775M
+step  4425 | loss 4.2141 | ppl    67.63 | aux 24.15 | lr 2.14e-04 | grad 0.42 | tok/s 62614 (avg 61445) | vram 16775M
+step  4450 | loss 4.1376 | ppl    62.66 | aux 24.08 | lr 2.13e-04 | grad 0.40 | tok/s 62492 (avg 61451) | vram 16775M
+step  4475 | loss 4.1165 | ppl    61.34 | aux 24.12 | lr 2.12e-04 | grad 0.42 | tok/s 61939 (avg 61457) | vram 16775M
+step  4500 | loss 4.1277 | ppl    62.04 | aux 24.24 | lr 2.11e-04 | grad 0.38 | tok/s 62634 (avg 61463) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 4500: val_loss=4.0025, ppl=54.74
+Expert util: min=0.171, max=0.370, std=0.0315
+  layer spread (max-min): L0=0.164, L1=0.160, L2=0.076, L3=0.062, L4=0.069, L5=0.043, L6=0.065, L7=0.073, L8=0.086, L9=0.105, L10=0.055, L11=0.088
+  layer top expert:       L0=0.370, L1=0.331, L2=0.280, L3=0.292, L4=0.272, L5=0.273, L6=0.285, L7=0.295, L8=0.280, L9=0.300, L10=0.281, L11=0.301
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO:
+- the final Conferences/Organizational Security Report
+- the Act of 1995 (BRI)
+- the principle of land ownership in the political system
+- the constitutional system
+- the law
+- the creation of the state and its powers
+- the laws of the states in the law
+- the implementation of the state and t
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=4.0025) <<<
+
+step  4525 | loss 4.1635 | ppl    64.30 | aux 24.19 | lr 2.10e-04 | grad 0.41 | tok/s 62670 (avg 61427) | vram 16775M
+step  4550 | loss 4.1914 | ppl    66.12 | aux 24.07 | lr 2.09e-04 | grad 0.43 | tok/s 62585 (avg 61433) | vram 16775M
+step  4575 | loss 4.1734 | ppl    64.93 | aux 24.06 | lr 2.08e-04 | grad 0.39 | tok/s 62659 (avg 61438) | vram 16775M
+step  4600 | loss 4.2101 | ppl    67.36 | aux 24.08 | lr 2.07e-04 | grad 0.41 | tok/s 62557 (avg 61444) | vram 16775M
+step  4625 | loss 4.1393 | ppl    62.76 | aux 24.14 | lr 2.06e-04 | grad 0.41 | tok/s 62566 (avg 61450) | vram 16775M
+step  4650 | loss 4.1641 | ppl    64.33 | aux 24.05 | lr 2.04e-04 | grad 0.39 | tok/s 62629 (avg 61456) | vram 16775M
+step  4675 | loss 4.1975 | ppl    66.52 | aux 24.12 | lr 2.03e-04 | grad 0.40 | tok/s 62671 (avg 61462) | vram 16775M
+step  4700 | loss 4.1688 | ppl    64.64 | aux 24.15 | lr 2.02e-04 | grad 0.43 | tok/s 62663 (avg 61468) | vram 16775M
+step  4725 | loss 4.1568 | ppl    63.86 | aux 24.06 | lr 2.01e-04 | grad 0.42 | tok/s 62490 (avg 61473) | vram 16775M
+step  4750 | loss 4.0585 | ppl    57.89 | aux 24.08 | lr 2.00e-04 | grad 0.41 | tok/s 62636 (avg 61479) | vram 16775M
+step  4775 | loss 4.2179 | ppl    67.89 | aux 24.12 | lr 1.99e-04 | grad 0.42 | tok/s 62557 (avg 61484) | vram 16775M
+step  4800 | loss 4.1233 | ppl    61.77 | aux 24.06 | lr 1.98e-04 | grad 0.39 | tok/s 61800 (avg 61489) | vram 16775M
+step  4825 | loss 4.2287 | ppl    68.63 | aux 24.09 | lr 1.97e-04 | grad 0.40 | tok/s 62573 (avg 61494) | vram 16775M
+step  4850 | loss 4.1503 | ppl    63.45 | aux 24.09 | lr 1.95e-04 | grad 0.41 | tok/s 62465 (avg 61499) | vram 16775M
+step  4875 | loss 4.1663 | ppl    64.47 | aux 24.05 | lr 1.94e-04 | grad 0.41 | tok/s 62450 (avg 61503) | vram 16775M
+step  4900 | loss 4.1323 | ppl    62.32 | aux 24.10 | lr 1.93e-04 | grad 0.42 | tok/s 62511 (avg 61508) | vram 16775M
+step  4925 | loss 4.1662 | ppl    64.47 | aux 24.02 | lr 1.92e-04 | grad 0.42 | tok/s 62523 (avg 61513) | vram 16775M
+step  4950 | loss 4.1213 | ppl    61.64 | aux 24.12 | lr 1.91e-04 | grad 0.42 | tok/s 62452 (avg 61517) | vram 16775M
+step  4975 | loss 4.0746 | ppl    58.83 | aux 24.09 | lr 1.90e-04 | grad 0.43 | tok/s 62519 (avg 61522) | vram 16775M
+step  5000 | loss 4.1340 | ppl    62.43 | aux 24.12 | lr 1.88e-04 | grad 0.40 | tok/s 62488 (avg 61527) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 5000: val_loss=3.9532, ppl=52.10
+Expert util: min=0.177, max=0.371, std=0.0317
+  layer spread (max-min): L0=0.174, L1=0.145, L2=0.086, L3=0.051, L4=0.054, L5=0.056, L6=0.067, L7=0.057, L8=0.106, L9=0.084, L10=0.078, L11=0.107
+  layer top expert:       L0=0.371, L1=0.321, L2=0.286, L3=0.285, L4=0.281, L5=0.271, L6=0.282, L7=0.280, L8=0.294, L9=0.285, L10=0.285, L11=0.313
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO: The Ya-S-Y-K-K-K-K-12 S-K-3C-ST-EN-106-J-G-3-K-3C-EN-mil-K-CI-EN--3-C-Go-2-TE-EN-G-M-K-12 S-G-K-G-M-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-G-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-K-
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.9532) <<<
+
+step  5025 | loss 4.1250 | ppl    61.87 | aux 24.12 | lr 1.87e-04 | grad 0.43 | tok/s 62576 (avg 61494) | vram 16775M
+step  5050 | loss 4.1046 | ppl    60.62 | aux 24.06 | lr 1.86e-04 | grad 0.40 | tok/s 62509 (avg 61499) | vram 16775M
+step  5075 | loss 4.0808 | ppl    59.19 | aux 24.08 | lr 1.85e-04 | grad 0.41 | tok/s 62581 (avg 61504) | vram 16775M
+step  5100 | loss 4.1035 | ppl    60.55 | aux 24.09 | lr 1.84e-04 | grad 0.40 | tok/s 62638 (avg 61508) | vram 16775M
+step  5125 | loss 4.1895 | ppl    65.99 | aux 24.07 | lr 1.83e-04 | grad 0.40 | tok/s 62558 (avg 61513) | vram 16775M
+step  5150 | loss 4.0962 | ppl    60.11 | aux 24.05 | lr 1.81e-04 | grad 0.41 | tok/s 62565 (avg 61517) | vram 16775M
+step  5175 | loss 4.1479 | ppl    63.30 | aux 24.09 | lr 1.80e-04 | grad 0.42 | tok/s 62554 (avg 61522) | vram 16775M
+step  5200 | loss 4.1794 | ppl    65.32 | aux 24.05 | lr 1.79e-04 | grad 0.45 | tok/s 62633 (avg 61527) | vram 16775M
+step  5225 | loss 4.1029 | ppl    60.52 | aux 24.03 | lr 1.78e-04 | grad 0.41 | tok/s 62535 (avg 61532) | vram 16775M
+step  5250 | loss 4.0591 | ppl    57.92 | aux 24.08 | lr 1.77e-04 | grad 0.41 | tok/s 62609 (avg 61536) | vram 16775M
+step  5275 | loss 4.0714 | ppl    58.64 | aux 24.01 | lr 1.76e-04 | grad 0.42 | tok/s 62554 (avg 61541) | vram 16775M
+step  5300 | loss 4.1404 | ppl    62.83 | aux 24.02 | lr 1.74e-04 | grad 0.43 | tok/s 62669 (avg 61546) | vram 16775M
+step  5325 | loss 4.0995 | ppl    60.31 | aux 24.10 | lr 1.73e-04 | grad 0.41 | tok/s 62632 (avg 61550) | vram 16775M
+step  5350 | loss 4.1328 | ppl    62.35 | aux 24.16 | lr 1.72e-04 | grad 0.39 | tok/s 62572 (avg 61555) | vram 16775M
+step  5375 | loss 4.1305 | ppl    62.21 | aux 24.08 | lr 1.71e-04 | grad 0.42 | tok/s 62648 (avg 61560) | vram 16775M
+step  5400 | loss 4.0583 | ppl    57.88 | aux 24.06 | lr 1.70e-04 | grad 0.42 | tok/s 62485 (avg 61564) | vram 16775M
+step  5425 | loss 4.0566 | ppl    57.78 | aux 24.10 | lr 1.69e-04 | grad 0.39 | tok/s 62597 (avg 61569) | vram 16775M
+step  5450 | loss 4.0508 | ppl    57.44 | aux 24.04 | lr 1.67e-04 | grad 0.41 | tok/s 62594 (avg 61573) | vram 16775M
+step  5475 | loss 4.1253 | ppl    61.89 | aux 24.14 | lr 1.66e-04 | grad 0.41 | tok/s 62601 (avg 61578) | vram 16775M
+step  5500 | loss 4.0700 | ppl    58.56 | aux 24.07 | lr 1.65e-04 | grad 0.37 | tok/s 62591 (avg 61582) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 5500: val_loss=3.9105, ppl=49.92
+Expert util: min=0.166, max=0.370, std=0.0327
+  layer spread (max-min): L0=0.176, L1=0.160, L2=0.078, L3=0.067, L4=0.028, L5=0.070, L6=0.066, L7=0.071, L8=0.089, L9=0.085, L10=0.057, L11=0.107
+  layer top expert:       L0=0.370, L1=0.326, L2=0.286, L3=0.293, L4=0.263, L5=0.285, L6=0.284, L7=0.286, L8=0.292, L9=0.284, L10=0.280, L11=0.316
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO: www.storstor.org.uk/intercopies/2015/global-fosted-annual-policy.html.
+- "Strainway on the Black Sea". T financiers.org. 2009. Retrieved 2013-04-11.
+- "As a NOAA/Freeway on the Black Sea". T financiers.org. 2010. Retrieved 2013-11-11.
+- "Can You Still a Bump?". www.br.com. Archived from the o
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.9105) <<<
+
+step  5525 | loss 4.0916 | ppl    59.84 | aux 24.06 | lr 1.64e-04 | grad 0.42 | tok/s 62560 (avg 61552) | vram 16775M
+step  5550 | loss 4.0295 | ppl    56.23 | aux 24.05 | lr 1.63e-04 | grad 0.38 | tok/s 62587 (avg 61556) | vram 16775M
+step  5575 | loss 4.0617 | ppl    58.07 | aux 24.09 | lr 1.61e-04 | grad 0.43 | tok/s 62618 (avg 61561) | vram 16775M
+step  5600 | loss 4.0948 | ppl    60.03 | aux 24.06 | lr 1.60e-04 | grad 0.40 | tok/s 62585 (avg 61565) | vram 16775M
+step  5625 | loss 4.0767 | ppl    58.95 | aux 24.07 | lr 1.59e-04 | grad 0.39 | tok/s 62651 (avg 61570) | vram 16775M
+step  5650 | loss 4.0483 | ppl    57.30 | aux 24.01 | lr 1.58e-04 | grad 0.40 | tok/s 62494 (avg 61574) | vram 16775M
+step  5675 | loss 4.0515 | ppl    57.48 | aux 24.05 | lr 1.57e-04 | grad 0.38 | tok/s 62698 (avg 61578) | vram 16775M
+step  5700 | loss 4.0587 | ppl    57.90 | aux 24.03 | lr 1.56e-04 | grad 0.40 | tok/s 62652 (avg 61583) | vram 16775M
+step  5725 | loss 4.1047 | ppl    60.62 | aux 24.09 | lr 1.54e-04 | grad 0.39 | tok/s 62645 (avg 61587) | vram 16775M
+step  5750 | loss 4.0474 | ppl    57.25 | aux 24.07 | lr 1.53e-04 | grad 0.39 | tok/s 62710 (avg 61592) | vram 16775M
+step  5775 | loss 4.0295 | ppl    56.23 | aux 24.06 | lr 1.52e-04 | grad 0.38 | tok/s 62681 (avg 61596) | vram 16775M
+step  5800 | loss 4.0996 | ppl    60.32 | aux 24.09 | lr 1.51e-04 | grad 0.39 | tok/s 62522 (avg 61600) | vram 16775M
+step  5825 | loss 4.1078 | ppl    60.81 | aux 24.09 | lr 1.50e-04 | grad 0.43 | tok/s 62675 (avg 61604) | vram 16775M
+step  5850 | loss 4.0394 | ppl    56.79 | aux 24.05 | lr 1.49e-04 | grad 0.38 | tok/s 62620 (avg 61608) | vram 16775M
+step  5875 | loss 4.0515 | ppl    57.48 | aux 24.13 | lr 1.47e-04 | grad 0.41 | tok/s 62611 (avg 61612) | vram 16775M
+step  5900 | loss 4.0222 | ppl    55.82 | aux 24.01 | lr 1.46e-04 | grad 0.40 | tok/s 62650 (avg 61617) | vram 16775M
+step  5925 | loss 4.0683 | ppl    58.46 | aux 24.14 | lr 1.45e-04 | grad 0.39 | tok/s 62720 (avg 61621) | vram 16775M
+step  5950 | loss 4.0729 | ppl    58.73 | aux 24.03 | lr 1.44e-04 | grad 0.41 | tok/s 62669 (avg 61625) | vram 16775M
+step  5975 | loss 4.0899 | ppl    59.73 | aux 24.02 | lr 1.43e-04 | grad 0.39 | tok/s 62616 (avg 61629) | vram 16775M
+step  6000 | loss 4.1799 | ppl    65.36 | aux 24.07 | lr 1.42e-04 | grad 0.41 | tok/s 62594 (avg 61632) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 6000: val_loss=3.8774, ppl=48.30
+Expert util: min=0.170, max=0.369, std=0.0335
+  layer spread (max-min): L0=0.183, L1=0.144, L2=0.093, L3=0.063, L4=0.035, L5=0.069, L6=0.065, L7=0.065, L8=0.089, L9=0.082, L10=0.074, L11=0.109
+  layer top expert:       L0=0.369, L1=0.313, L2=0.302, L3=0.287, L4=0.269, L5=0.272, L6=0.278, L7=0.284, L8=0.293, L9=0.288, L10=0.279, L11=0.307
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO:
+The T-M1 was leptopohedic acid powder, with a single-phase crystal at the same core.
+The cone at the length of the cone was a bright red glow on the Ildrom.
+The thickness of the crystal has two thin layers of a little effect, showing that there are not exactly a few smaller crystals.
+The leng
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.8774) <<<
+
+step  6025 | loss 4.0573 | ppl    57.82 | aux 24.04 | lr 1.40e-04 | grad 0.42 | tok/s 62517 (avg 61605) | vram 16775M
+step  6050 | loss 4.0011 | ppl    54.66 | aux 24.16 | lr 1.39e-04 | grad 0.38 | tok/s 62570 (avg 61608) | vram 16775M
+step  6075 | loss 4.0069 | ppl    54.98 | aux 24.07 | lr 1.38e-04 | grad 0.41 | tok/s 62459 (avg 61612) | vram 16775M
+step  6100 | loss 4.0640 | ppl    58.20 | aux 24.06 | lr 1.37e-04 | grad 0.39 | tok/s 62454 (avg 61615) | vram 16775M
+step  6125 | loss 3.9993 | ppl    54.56 | aux 24.14 | lr 1.36e-04 | grad 0.39 | tok/s 61834 (avg 61618) | vram 16775M
+step  6150 | loss 3.9394 | ppl    51.39 | aux 24.05 | lr 1.35e-04 | grad 0.43 | tok/s 61731 (avg 61621) | vram 16775M
+step  6175 | loss 4.0396 | ppl    56.81 | aux 24.02 | lr 1.33e-04 | grad 0.39 | tok/s 62211 (avg 61622) | vram 16775M
+step  6200 | loss 4.0168 | ppl    55.52 | aux 24.13 | lr 1.32e-04 | grad 0.40 | tok/s 61984 (avg 61623) | vram 16775M
+step  6225 | loss 4.0120 | ppl    55.26 | aux 24.04 | lr 1.31e-04 | grad 0.40 | tok/s 62255 (avg 61625) | vram 16775M
+step  6250 | loss 4.0422 | ppl    56.95 | aux 24.03 | lr 1.30e-04 | grad 0.40 | tok/s 62221 (avg 61627) | vram 16775M
+step  6275 | loss 4.0428 | ppl    56.98 | aux 24.05 | lr 1.29e-04 | grad 0.40 | tok/s 62275 (avg 61630) | vram 16775M
+step  6300 | loss 3.9745 | ppl    53.22 | aux 24.10 | lr 1.28e-04 | grad 0.40 | tok/s 62378 (avg 61632) | vram 16775M
+step  6325 | loss 4.0258 | ppl    56.03 | aux 24.13 | lr 1.27e-04 | grad 0.39 | tok/s 62407 (avg 61635) | vram 16775M
+step  6350 | loss 4.0250 | ppl    55.98 | aux 24.01 | lr 1.26e-04 | grad 0.39 | tok/s 62237 (avg 61637) | vram 16775M
+step  6375 | loss 4.0463 | ppl    57.19 | aux 24.10 | lr 1.24e-04 | grad 0.40 | tok/s 62431 (avg 61639) | vram 16775M
+step  6400 | loss 4.0428 | ppl    56.99 | aux 24.03 | lr 1.23e-04 | grad 0.39 | tok/s 62425 (avg 61642) | vram 16775M
+step  6425 | loss 3.9697 | ppl    52.97 | aux 24.05 | lr 1.22e-04 | grad 0.44 | tok/s 61689 (avg 61644) | vram 16775M
+step  6450 | loss 4.0218 | ppl    55.80 | aux 24.15 | lr 1.21e-04 | grad 0.43 | tok/s 62336 (avg 61647) | vram 16775M
+step  6475 | loss 4.0175 | ppl    55.56 | aux 24.02 | lr 1.20e-04 | grad 0.40 | tok/s 62303 (avg 61649) | vram 16775M
+step  6500 | loss 4.0323 | ppl    56.39 | aux 24.07 | lr 1.19e-04 | grad 0.40 | tok/s 61766 (avg 61651) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 6500: val_loss=3.8503, ppl=47.01
+Expert util: min=0.170, max=0.373, std=0.0329
+  layer spread (max-min): L0=0.184, L1=0.147, L2=0.081, L3=0.058, L4=0.053, L5=0.054, L6=0.070, L7=0.066, L8=0.095, L9=0.091, L10=0.077, L11=0.117
+  layer top expert:       L0=0.373, L1=0.317, L2=0.292, L3=0.288, L4=0.271, L5=0.268, L6=0.280, L7=0.282, L8=0.300, L9=0.292, L10=0.288, L11=0.316
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO:
+Download PDF PDF version at original.
+This page is ISBN 0-8106-175-3.
+See the image below for details.
+The image below contains an image of the original image (such as the image above) covering the original image, the image below is the image.
+The image above gives a drawing of the original i
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.8503) <<<
+
+step  6525 | loss 3.9936 | ppl    54.25 | aux 24.06 | lr 1.18e-04 | grad 0.39 | tok/s 62471 (avg 61623) | vram 16775M
+step  6550 | loss 3.9566 | ppl    52.28 | aux 24.04 | lr 1.17e-04 | grad 0.39 | tok/s 62476 (avg 61625) | vram 16775M
+step  6575 | loss 4.0661 | ppl    58.33 | aux 24.08 | lr 1.16e-04 | grad 0.41 | tok/s 62469 (avg 61628) | vram 16775M
+step  6600 | loss 4.0011 | ppl    54.66 | aux 24.08 | lr 1.14e-04 | grad 0.39 | tok/s 61763 (avg 61630) | vram 16775M
+step  6625 | loss 4.0423 | ppl    56.96 | aux 24.02 | lr 1.13e-04 | grad 0.38 | tok/s 62494 (avg 61631) | vram 16775M
+step  6650 | loss 4.0245 | ppl    55.95 | aux 24.07 | lr 1.12e-04 | grad 0.40 | tok/s 62497 (avg 61634) | vram 16775M
+step  6675 | loss 4.0106 | ppl    55.18 | aux 24.04 | lr 1.11e-04 | grad 0.40 | tok/s 62436 (avg 61637) | vram 16775M
+step  6700 | loss 3.9586 | ppl    52.39 | aux 24.04 | lr 1.10e-04 | grad 0.41 | tok/s 62595 (avg 61640) | vram 16775M
+step  6725 | loss 3.9871 | ppl    53.90 | aux 24.04 | lr 1.09e-04 | grad 0.38 | tok/s 62561 (avg 61642) | vram 16775M
+step  6750 | loss 4.0197 | ppl    55.69 | aux 24.08 | lr 1.08e-04 | grad 0.39 | tok/s 62007 (avg 61645) | vram 16775M
+step  6775 | loss 4.0554 | ppl    57.71 | aux 24.03 | lr 1.07e-04 | grad 0.38 | tok/s 62606 (avg 61648) | vram 16775M
+step  6800 | loss 3.9858 | ppl    53.83 | aux 24.16 | lr 1.06e-04 | grad 0.38 | tok/s 62513 (avg 61651) | vram 16775M
+step  6825 | loss 3.9440 | ppl    51.63 | aux 24.08 | lr 1.05e-04 | grad 0.39 | tok/s 62481 (avg 61654) | vram 16775M
+step  6850 | loss 4.0375 | ppl    56.69 | aux 24.04 | lr 1.04e-04 | grad 0.38 | tok/s 62519 (avg 61656) | vram 16775M
+step  6875 | loss 4.0063 | ppl    54.95 | aux 24.12 | lr 1.03e-04 | grad 0.39 | tok/s 61778 (avg 61659) | vram 16775M
+step  6900 | loss 4.0006 | ppl    54.63 | aux 24.12 | lr 1.02e-04 | grad 0.41 | tok/s 62391 (avg 61662) | vram 16775M
+step  6925 | loss 4.0172 | ppl    55.54 | aux 24.04 | lr 1.01e-04 | grad 0.39 | tok/s 62576 (avg 61664) | vram 16775M
+step  6950 | loss 3.9341 | ppl    51.12 | aux 24.06 | lr 9.96e-05 | grad 0.39 | tok/s 62594 (avg 61667) | vram 16775M
+step  6975 | loss 3.9903 | ppl    54.07 | aux 24.08 | lr 9.85e-05 | grad 0.42 | tok/s 62444 (avg 61670) | vram 16775M
+step  7000 | loss 4.0051 | ppl    54.88 | aux 24.18 | lr 9.75e-05 | grad 0.39 | tok/s 62609 (avg 61672) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 7000: val_loss=3.8250, ppl=45.83
+Expert util: min=0.170, max=0.377, std=0.0342
+  layer spread (max-min): L0=0.186, L1=0.142, L2=0.081, L3=0.064, L4=0.047, L5=0.077, L6=0.060, L7=0.064, L8=0.093, L9=0.096, L10=0.080, L11=0.127
+  layer top expert:       L0=0.377, L1=0.312, L2=0.285, L3=0.288, L4=0.272, L5=0.278, L6=0.275, L7=0.273, L8=0.294, L9=0.298, L10=0.292, L11=0.326
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO:
+- The only person whose name is
+- GUTONS: Our
+- The like eMESER:
+- Theresurable, but also of a person whose name is
+- The like-
+- The places of the person who
+- the sabbath is
+- The place of birth
+- . . . . . . .
+- The place of birth
+- The part of life
+- The place of birth
+- The place of birt
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.8250) <<<
+
+step  7025 | loss 3.9390 | ppl    51.37 | aux 24.08 | lr 9.65e-05 | grad 0.38 | tok/s 62500 (avg 61647) | vram 16775M
+step  7050 | loss 3.9799 | ppl    53.51 | aux 24.09 | lr 9.55e-05 | grad 0.39 | tok/s 62441 (avg 61649) | vram 16775M
+step  7075 | loss 3.9955 | ppl    54.35 | aux 24.03 | lr 9.45e-05 | grad 0.40 | tok/s 62619 (avg 61652) | vram 16775M
+step  7100 | loss 3.9760 | ppl    53.30 | aux 24.08 | lr 9.35e-05 | grad 0.39 | tok/s 62509 (avg 61654) | vram 16775M
+step  7125 | loss 3.9927 | ppl    54.20 | aux 24.08 | lr 9.25e-05 | grad 0.39 | tok/s 62596 (avg 61657) | vram 16775M
+step  7150 | loss 3.9423 | ppl    51.54 | aux 24.03 | lr 9.15e-05 | grad 0.39 | tok/s 62548 (avg 61659) | vram 16775M
+step  7175 | loss 4.0483 | ppl    57.30 | aux 24.08 | lr 9.05e-05 | grad 0.40 | tok/s 60348 (avg 61662) | vram 16775M
+step  7200 | loss 3.9879 | ppl    53.94 | aux 24.12 | lr 8.95e-05 | grad 0.38 | tok/s 62554 (avg 61664) | vram 16775M
+step  7225 | loss 3.9763 | ppl    53.32 | aux 24.08 | lr 8.85e-05 | grad 0.39 | tok/s 62650 (avg 61667) | vram 16775M
+step  7250 | loss 3.9398 | ppl    51.41 | aux 24.07 | lr 8.76e-05 | grad 0.39 | tok/s 62596 (avg 61669) | vram 16775M
+step  7275 | loss 4.0019 | ppl    54.70 | aux 24.09 | lr 8.66e-05 | grad 0.39 | tok/s 62612 (avg 61672) | vram 16775M
+step  7300 | loss 3.9711 | ppl    53.04 | aux 24.01 | lr 8.56e-05 | grad 0.40 | tok/s 62573 (avg 61675) | vram 16775M
+step  7325 | loss 3.9727 | ppl    53.13 | aux 24.06 | lr 8.47e-05 | grad 0.40 | tok/s 62537 (avg 61677) | vram 16775M
+step  7350 | loss 4.0087 | ppl    55.07 | aux 24.07 | lr 8.38e-05 | grad 0.39 | tok/s 62442 (avg 61680) | vram 16775M
+step  7375 | loss 4.0075 | ppl    55.01 | aux 24.12 | lr 8.28e-05 | grad 0.37 | tok/s 61838 (avg 61682) | vram 16775M
+step  7400 | loss 3.9157 | ppl    50.18 | aux 24.08 | lr 8.19e-05 | grad 0.38 | tok/s 62513 (avg 61685) | vram 16775M
+step  7425 | loss 4.0393 | ppl    56.79 | aux 24.09 | lr 8.10e-05 | grad 0.38 | tok/s 62566 (avg 61687) | vram 16775M
+step  7450 | loss 4.0176 | ppl    55.57 | aux 24.07 | lr 8.00e-05 | grad 0.39 | tok/s 62451 (avg 61689) | vram 16775M
+step  7475 | loss 3.9911 | ppl    54.11 | aux 24.05 | lr 7.91e-05 | grad 0.39 | tok/s 62480 (avg 61691) | vram 16775M
+step  7500 | loss 3.9966 | ppl    54.41 | aux 24.05 | lr 7.82e-05 | grad 0.38 | tok/s 62385 (avg 61694) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 7500: val_loss=3.7999, ppl=44.70
+Expert util: min=0.175, max=0.373, std=0.0324
+  layer spread (max-min): L0=0.182, L1=0.134, L2=0.080, L3=0.065, L4=0.031, L5=0.063, L6=0.064, L7=0.061, L8=0.094, L9=0.101, L10=0.070, L11=0.122
+  layer top expert:       L0=0.373, L1=0.309, L2=0.286, L3=0.293, L4=0.269, L5=0.276, L6=0.276, L7=0.279, L8=0.293, L9=0.301, L10=0.288, L11=0.325
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO: HEAT-PEREINHIRPHY WEHIRPHY: BEANCHPLING: GEOLOGICAL DEVELOPMENT AND TECHNOLOGY: DEVELOPMENT OF EMERGENCY: DEVELOPMENT DEVELOPMENT OF DEVELOPMENT OF DEVELOPMENT INCLOSES: DEVELOPMENT OF DEVELOPMENT OF DEVELOPMENT OF DEVELOPMENT OF DEVELOPMENT OF DEVELOPMENT OF DEVELOPMENT OF DEVELOPMENTAL DEVE
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.7999) <<<
+
+step  7525 | loss 4.0081 | ppl    55.04 | aux 24.09 | lr 7.73e-05 | grad 0.39 | tok/s 61489 (avg 61670) | vram 16775M
+step  7550 | loss 4.0100 | ppl    55.14 | aux 24.07 | lr 7.64e-05 | grad 0.39 | tok/s 62511 (avg 61671) | vram 16775M
+step  7575 | loss 3.9516 | ppl    52.02 | aux 24.05 | lr 7.55e-05 | grad 0.38 | tok/s 62585 (avg 61674) | vram 16775M
+step  7600 | loss 3.9398 | ppl    51.41 | aux 24.09 | lr 7.47e-05 | grad 0.37 | tok/s 61873 (avg 61676) | vram 16775M
+step  7625 | loss 3.9344 | ppl    51.13 | aux 24.06 | lr 7.38e-05 | grad 0.39 | tok/s 62529 (avg 61679) | vram 16775M
+step  7650 | loss 3.9764 | ppl    53.32 | aux 24.06 | lr 7.29e-05 | grad 0.41 | tok/s 62608 (avg 61680) | vram 16775M
+step  7675 | loss 3.9369 | ppl    51.26 | aux 24.06 | lr 7.21e-05 | grad 0.40 | tok/s 62501 (avg 61683) | vram 16775M
+step  7700 | loss 4.0160 | ppl    55.48 | aux 24.05 | lr 7.12e-05 | grad 0.38 | tok/s 62510 (avg 61685) | vram 16775M
+step  7725 | loss 3.9442 | ppl    51.63 | aux 24.10 | lr 7.04e-05 | grad 0.38 | tok/s 62562 (avg 61687) | vram 16775M
+step  7750 | loss 3.9579 | ppl    52.35 | aux 24.04 | lr 6.95e-05 | grad 0.39 | tok/s 62493 (avg 61690) | vram 16775M
+step  7775 | loss 3.9603 | ppl    52.47 | aux 24.08 | lr 6.87e-05 | grad 0.37 | tok/s 62562 (avg 61692) | vram 16775M
+step  7800 | loss 3.9604 | ppl    52.48 | aux 24.05 | lr 6.79e-05 | grad 0.38 | tok/s 62485 (avg 61694) | vram 16775M
+step  7825 | loss 3.9558 | ppl    52.24 | aux 24.05 | lr 6.71e-05 | grad 0.38 | tok/s 62540 (avg 61697) | vram 16775M
+step  7850 | loss 3.9977 | ppl    54.47 | aux 24.05 | lr 6.63e-05 | grad 0.37 | tok/s 62429 (avg 61699) | vram 16775M
+step  7875 | loss 3.9582 | ppl    52.36 | aux 24.08 | lr 6.55e-05 | grad 0.39 | tok/s 62492 (avg 61701) | vram 16775M
+step  7900 | loss 3.9314 | ppl    50.98 | aux 24.09 | lr 6.47e-05 | grad 0.38 | tok/s 62560 (avg 61704) | vram 16775M
+step  7925 | loss 3.9516 | ppl    52.02 | aux 24.12 | lr 6.39e-05 | grad 0.40 | tok/s 61883 (avg 61706) | vram 16775M
+step  7950 | loss 3.9089 | ppl    49.84 | aux 24.01 | lr 6.31e-05 | grad 0.40 | tok/s 62553 (avg 61708) | vram 16775M
+step  7975 | loss 3.9980 | ppl    54.49 | aux 24.08 | lr 6.23e-05 | grad 0.38 | tok/s 62482 (avg 61711) | vram 16775M
+step  8000 | loss 3.9994 | ppl    54.57 | aux 24.09 | lr 6.16e-05 | grad 0.38 | tok/s 62004 (avg 61713) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 8000: val_loss=3.7879, ppl=44.17
+Expert util: min=0.176, max=0.377, std=0.0325
+  layer spread (max-min): L0=0.184, L1=0.133, L2=0.082, L3=0.069, L4=0.023, L5=0.067, L6=0.069, L7=0.060, L8=0.099, L9=0.092, L10=0.079, L11=0.115
+  layer top expert:       L0=0.377, L1=0.309, L2=0.288, L3=0.298, L4=0.261, L5=0.274, L6=0.279, L7=0.280, L8=0.297, L9=0.299, L10=0.287, L11=0.322
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO: HUM:10-11.
+Weather, Weather, and Fire.
+Sept. 21, 2002
+1993: Civilizations, air freight, and agriculture.
+1990s: California was the largest alcoholic beverage in the world. It’s an economic power used to produce electricity from the Amazon, which has the largest beverage in the world. The aver
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.7879) <<<
+
+step  8025 | loss 3.9576 | ppl    52.33 | aux 24.11 | lr 6.08e-05 | grad 0.42 | tok/s 62566 (avg 61691) | vram 16775M
+step  8050 | loss 3.8766 | ppl    48.26 | aux 24.09 | lr 6.01e-05 | grad 0.39 | tok/s 61816 (avg 61692) | vram 16775M
+step  8075 | loss 3.9581 | ppl    52.36 | aux 24.07 | lr 5.93e-05 | grad 0.38 | tok/s 61956 (avg 61694) | vram 16775M
+step  8100 | loss 3.9618 | ppl    52.55 | aux 24.14 | lr 5.86e-05 | grad 0.38 | tok/s 62582 (avg 61696) | vram 16775M
+step  8125 | loss 3.9669 | ppl    52.82 | aux 24.05 | lr 5.79e-05 | grad 0.38 | tok/s 62651 (avg 61698) | vram 16775M
+step  8150 | loss 3.9294 | ppl    50.88 | aux 24.10 | lr 5.72e-05 | grad 0.38 | tok/s 62581 (avg 61700) | vram 16775M
+step  8175 | loss 3.9693 | ppl    52.95 | aux 24.09 | lr 5.65e-05 | grad 0.36 | tok/s 62654 (avg 61702) | vram 16775M
+step  8200 | loss 3.8705 | ppl    47.97 | aux 24.07 | lr 5.58e-05 | grad 0.37 | tok/s 61896 (avg 61704) | vram 16775M
+step  8225 | loss 3.9081 | ppl    49.81 | aux 24.05 | lr 5.51e-05 | grad 0.39 | tok/s 61932 (avg 61707) | vram 16775M
+step  8250 | loss 3.9701 | ppl    52.99 | aux 24.02 | lr 5.44e-05 | grad 0.39 | tok/s 62583 (avg 61709) | vram 16775M
+step  8275 | loss 4.0197 | ppl    55.68 | aux 24.07 | lr 5.37e-05 | grad 0.36 | tok/s 62500 (avg 61711) | vram 16775M
+step  8300 | loss 4.0008 | ppl    54.64 | aux 24.10 | lr 5.31e-05 | grad 0.39 | tok/s 62418 (avg 61713) | vram 16775M
+step  8325 | loss 3.8763 | ppl    48.25 | aux 24.13 | lr 5.24e-05 | grad 0.42 | tok/s 62602 (avg 61715) | vram 16775M
+step  8350 | loss 3.9370 | ppl    51.27 | aux 24.06 | lr 5.18e-05 | grad 0.40 | tok/s 62680 (avg 61718) | vram 16775M
+step  8375 | loss 3.9453 | ppl    51.69 | aux 24.05 | lr 5.11e-05 | grad 0.37 | tok/s 62637 (avg 61720) | vram 16775M
+step  8400 | loss 3.9406 | ppl    51.45 | aux 24.06 | lr 5.05e-05 | grad 0.37 | tok/s 62661 (avg 61722) | vram 16775M
+step  8425 | loss 3.9711 | ppl    53.04 | aux 24.05 | lr 4.99e-05 | grad 0.37 | tok/s 62632 (avg 61724) | vram 16775M
+step  8450 | loss 3.9293 | ppl    50.87 | aux 24.05 | lr 4.93e-05 | grad 0.38 | tok/s 62590 (avg 61727) | vram 16775M
+step  8475 | loss 3.8973 | ppl    49.27 | aux 24.03 | lr 4.87e-05 | grad 0.38 | tok/s 62405 (avg 61729) | vram 16775M
+step  8500 | loss 3.9228 | ppl    50.54 | aux 24.07 | lr 4.81e-05 | grad 0.37 | tok/s 62632 (avg 61731) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 8500: val_loss=3.7724, ppl=43.48
+Expert util: min=0.174, max=0.376, std=0.0323
+  layer spread (max-min): L0=0.178, L1=0.134, L2=0.068, L3=0.062, L4=0.025, L5=0.061, L6=0.071, L7=0.044, L8=0.094, L9=0.099, L10=0.080, L11=0.112
+  layer top expert:       L0=0.376, L1=0.308, L2=0.279, L3=0.290, L4=0.263, L5=0.269, L6=0.280, L7=0.272, L8=0.297, L9=0.302, L10=0.288, L11=0.318
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO: The Unified Standard Dictionary of the American English Language (ASCEA) is a document published in 1797, and includes a national text, printed by a student of the Philosophical Society of America (ASCEA), Argentina's editor (see above), and a new edition of the National Reference Librarian (
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.7724) <<<
+
+step  8525 | loss 3.8987 | ppl    49.34 | aux 24.07 | lr 4.75e-05 | grad 0.38 | tok/s 62490 (avg 61711) | vram 16775M
+step  8550 | loss 3.9672 | ppl    52.84 | aux 24.06 | lr 4.69e-05 | grad 0.36 | tok/s 62479 (avg 61714) | vram 16775M
+step  8575 | loss 4.0200 | ppl    55.70 | aux 24.01 | lr 4.64e-05 | grad 0.38 | tok/s 62531 (avg 61715) | vram 16775M
+step  8600 | loss 3.9061 | ppl    49.70 | aux 24.14 | lr 4.58e-05 | grad 0.37 | tok/s 62437 (avg 61717) | vram 16775M
+step  8625 | loss 3.9616 | ppl    52.54 | aux 24.01 | lr 4.53e-05 | grad 0.38 | tok/s 62652 (avg 61720) | vram 16775M
+step  8650 | loss 3.9582 | ppl    52.36 | aux 24.04 | lr 4.47e-05 | grad 0.38 | tok/s 62643 (avg 61722) | vram 16775M
+step  8675 | loss 3.9720 | ppl    53.09 | aux 24.09 | lr 4.42e-05 | grad 0.38 | tok/s 62618 (avg 61725) | vram 16775M
+step  8700 | loss 3.9244 | ppl    50.62 | aux 24.07 | lr 4.37e-05 | grad 0.37 | tok/s 62016 (avg 61727) | vram 16775M
+step  8725 | loss 3.9763 | ppl    53.32 | aux 24.12 | lr 4.32e-05 | grad 0.39 | tok/s 62629 (avg 61729) | vram 16775M
+step  8750 | loss 3.9529 | ppl    52.08 | aux 24.04 | lr 4.26e-05 | grad 0.37 | tok/s 62685 (avg 61731) | vram 16775M
+step  8775 | loss 3.9330 | ppl    51.06 | aux 24.05 | lr 4.22e-05 | grad 0.37 | tok/s 62654 (avg 61733) | vram 16775M
+step  8800 | loss 4.0021 | ppl    54.71 | aux 24.06 | lr 4.17e-05 | grad 0.37 | tok/s 62659 (avg 61735) | vram 16775M
+step  8825 | loss 3.9234 | ppl    50.57 | aux 24.11 | lr 4.12e-05 | grad 0.39 | tok/s 61945 (avg 61737) | vram 16775M
+step  8850 | loss 3.9235 | ppl    50.58 | aux 24.11 | lr 4.07e-05 | grad 0.39 | tok/s 62663 (avg 61739) | vram 16775M
+step  8875 | loss 3.9868 | ppl    53.88 | aux 24.04 | lr 4.03e-05 | grad 0.39 | tok/s 62670 (avg 61741) | vram 16775M
+step  8900 | loss 3.9578 | ppl    52.34 | aux 24.06 | lr 3.98e-05 | grad 0.37 | tok/s 62709 (avg 61743) | vram 16775M
+step  8925 | loss 3.9501 | ppl    51.94 | aux 24.05 | lr 3.94e-05 | grad 0.37 | tok/s 62674 (avg 61746) | vram 16775M
+step  8950 | loss 3.8656 | ppl    47.73 | aux 24.06 | lr 3.90e-05 | grad 0.38 | tok/s 62617 (avg 61748) | vram 16775M
+step  8975 | loss 3.9169 | ppl    50.25 | aux 24.07 | lr 3.85e-05 | grad 0.38 | tok/s 62701 (avg 61750) | vram 16775M
+step  9000 | loss 3.9659 | ppl    52.77 | aux 24.06 | lr 3.81e-05 | grad 0.38 | tok/s 62597 (avg 61752) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 9000: val_loss=3.7596, ppl=42.93
+Expert util: min=0.172, max=0.379, std=0.0331
+  layer spread (max-min): L0=0.179, L1=0.137, L2=0.092, L3=0.056, L4=0.029, L5=0.057, L6=0.077, L7=0.063, L8=0.099, L9=0.097, L10=0.083, L11=0.124
+  layer top expert:       L0=0.379, L1=0.308, L2=0.298, L3=0.287, L4=0.261, L5=0.267, L6=0.284, L7=0.278, L8=0.300, L9=0.301, L10=0.293, L11=0.328
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO: Art and Economy
+This is an item that has been rented because of its secrecy and freedom, as well as its prosaic, classical and classical forms, of the human soul, of the human soul, of the soul, of the hearts of the world, of the world, of the world, of the soul, of the world, of the universe
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.7596) <<<
+
+step  9025 | loss 3.9357 | ppl    51.20 | aux 24.04 | lr 3.77e-05 | grad 0.39 | tok/s 62753 (avg 61733) | vram 16775M
+step  9050 | loss 4.0260 | ppl    56.04 | aux 24.02 | lr 3.74e-05 | grad 0.40 | tok/s 62077 (avg 61734) | vram 16775M
+step  9075 | loss 3.9888 | ppl    53.99 | aux 24.06 | lr 3.70e-05 | grad 0.36 | tok/s 62679 (avg 61737) | vram 16775M
+step  9100 | loss 3.9304 | ppl    50.93 | aux 24.09 | lr 3.66e-05 | grad 0.36 | tok/s 61933 (avg 61739) | vram 16775M
+step  9125 | loss 3.9032 | ppl    49.56 | aux 24.08 | lr 3.62e-05 | grad 0.40 | tok/s 62610 (avg 61741) | vram 16775M
+step  9150 | loss 3.9662 | ppl    52.78 | aux 24.13 | lr 3.59e-05 | grad 0.38 | tok/s 61975 (avg 61743) | vram 16775M
+step  9175 | loss 3.9807 | ppl    53.55 | aux 24.10 | lr 3.56e-05 | grad 0.38 | tok/s 62020 (avg 61745) | vram 16775M
+step  9200 | loss 3.9094 | ppl    49.87 | aux 24.06 | lr 3.52e-05 | grad 0.37 | tok/s 62563 (avg 61746) | vram 16775M
+step  9225 | loss 3.9936 | ppl    54.25 | aux 24.05 | lr 3.49e-05 | grad 0.38 | tok/s 62343 (avg 61748) | vram 16775M
+step  9250 | loss 3.9885 | ppl    53.97 | aux 24.05 | lr 3.46e-05 | grad 0.37 | tok/s 62556 (avg 61750) | vram 16775M
+step  9275 | loss 3.9168 | ppl    50.24 | aux 24.11 | lr 3.43e-05 | grad 0.40 | tok/s 62638 (avg 61753) | vram 16775M
+step  9300 | loss 3.9546 | ppl    52.18 | aux 24.13 | lr 3.40e-05 | grad 0.35 | tok/s 62708 (avg 61755) | vram 16775M
+step  9325 | loss 3.8739 | ppl    48.13 | aux 24.04 | lr 3.37e-05 | grad 0.38 | tok/s 62579 (avg 61757) | vram 16775M
+step  9350 | loss 3.9019 | ppl    49.50 | aux 24.07 | lr 3.35e-05 | grad 0.37 | tok/s 62632 (avg 61744) | vram 16775M
+step  9375 | loss 3.9343 | ppl    51.13 | aux 24.04 | lr 3.32e-05 | grad 0.39 | tok/s 62644 (avg 61746) | vram 16775M
+step  9400 | loss 3.9666 | ppl    52.80 | aux 24.04 | lr 3.30e-05 | grad 0.37 | tok/s 62650 (avg 61748) | vram 16775M
+step  9425 | loss 3.8777 | ppl    48.31 | aux 24.09 | lr 3.27e-05 | grad 0.36 | tok/s 62683 (avg 61750) | vram 16775M
+step  9450 | loss 3.9391 | ppl    51.37 | aux 24.08 | lr 3.25e-05 | grad 0.38 | tok/s 62630 (avg 61752) | vram 16775M
+step  9475 | loss 4.0040 | ppl    54.82 | aux 24.14 | lr 3.23e-05 | grad 0.38 | tok/s 62648 (avg 61754) | vram 16775M
+step  9500 | loss 3.9008 | ppl    49.44 | aux 24.09 | lr 3.21e-05 | grad 0.38 | tok/s 62710 (avg 61756) | vram 16775M
+
+────────────────────────────────────────────────────────────
+Eval @ step 9500: val_loss=3.7532, ppl=42.66
+Expert util: min=0.175, max=0.376, std=0.0330
+  layer spread (max-min): L0=0.175, L1=0.126, L2=0.096, L3=0.060, L4=0.033, L5=0.058, L6=0.074, L7=0.063, L8=0.100, L9=0.094, L10=0.079, L11=0.122
+  layer top expert:       L0=0.376, L1=0.301, L2=0.305, L3=0.290, L4=0.266, L5=0.268, L6=0.281, L7=0.279, L8=0.301, L9=0.299, L10=0.289, L11=0.327
+Peak VRAM (cumulative): 16775.4 MB
+
+Generated:
+ROMEO: MARY D,
+|"B"C"||Emmu||[C. & C.R]||Seventh, rich, rich, rich, rich,
+|"C"||J"||W||P. C.A.||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||L||
+────────────────────────────────────────────────────────────
+
+>>> New best model saved (val_loss=3.7532) <<<
+
+step  9525 | loss 3.9379 | ppl    51.31 | aux 24.01 | lr 3.19e-05 | grad 0.37 | tok/s 62700 (avg 61738) | vram 16775M
+step  9550 | loss 3.8883 | ppl    48.83 | aux 24.08 | lr 3.17e-05 | grad 0.36 | tok/s 62696 (avg 61740) | vram 16775M
+step  9575 | loss 3.9016 | ppl    49.48 | aux 24.09 | lr 3.15e-05 | grad 0.37 | tok/s 62673 (avg 61742) | vram 16775M
+step  9600 | loss 3.8857 | ppl    48.70 | aux 24.03 | lr 3.13e-05 | grad 0.37 | tok/s 62746 (avg 61744) | vram 16775M
+step  9625 | loss 3.9694 | ppl    52.95 | aux 24.13 | lr 3.12e-05 | grad 0.38 | tok/s 62752 (avg 61746) | vram 16775M
+step  9650 | loss 3.9737 | ppl    53.18 | aux 24.08 | lr 3.10e-05 | grad 0.38 | tok/s 62373 (avg 61748) | vram 16775M
+step  9675 | loss 3.9283 | ppl    50.82 | aux 24.11 | lr 3.09e-05 | grad 0.36 | tok/s 62501 (avg 61750) | vram 16775M
+step  9700 | loss 3.9408 | ppl    51.46 | aux 24.06 | lr 3.07e-05 | grad 0.37 | tok/s 62480 (avg 61751) | vram 16775M
+step  9725 | loss 3.9117 | ppl    49.98 | aux 24.03 | lr 3.06e-05 | grad 0.37 | tok/s 62608 (avg 61753) | vram 16775M
+step  9750 | loss 3.8615 | ppl    47.54 | aux 24.10 | lr 3.05e-05 | grad 0.37 | tok/s 62526 (avg 61755) | vram 16775M
+step  9775 | loss 3.9277 | ppl    50.79 | aux 24.05 | lr 3.04e-05 | grad 0.36 | tok/s 62609 (avg 61757) | vram 16775M
+step  9800 | loss 3.9119 | ppl    49.99 | aux 24.13 | lr 3.03e-05 | grad 0.36 | tok/s 62551 (avg 61759) | vram 16775M
+step  9825 | loss 3.9225 | ppl    50.52 | aux 24.11 | lr 3.03e-05 | grad 0.39 | tok/s 62624 (avg 61761) | vram 16775M
+step  9850 | loss 3.9254 | ppl    50.68 | aux 24.06 | lr 3.02e-05 | grad 0.36 | tok/s 62678 (avg 61763) | vram 16775M
+step  9875 | loss 3.9245 | ppl    50.63 | aux 24.06 | lr 3.01e-05 | grad 0.37 | tok/s 62601 (avg 61765) | vram 16775M
+step  9900 | loss 3.8642 | ppl    47.67 | aux 24.01 | lr 3.01e-05 | grad 0.38 | tok/s 62635 (avg 61767) | vram 16775M
+step  9925 | loss 3.8892 | ppl    48.87 | aux 24.04 | lr 3.00e-05 | grad 0.39 | tok/s 61233 (avg 61769) | vram 16775M
+step  9950 | loss 3.8018 | ppl    44.78 | aux 24.18 | lr 3.00e-05 | grad 0.37 | tok/s 62743 (avg 61771) | vram 16775M
+step  9975 | loss 3.9329 | ppl    51.05 | aux 24.08 | lr 3.00e-05 | grad 0.37 | tok/s 62695 (avg 61774) | vram 16775M
+
+============================================================
+Training complete!
+============================================================
+Final val_loss: 3.7752, perplexity: 43.61
+Best val_loss:  3.7532
+
+Final generation:
+────────────────────────────────────────────────────────────
+ROMEO:
+O, ____, ____ = 8
+The Operations of the Soviet Union, and the Final U.S. Office, General Election Office, Office, Office, and Office, Office, Bureau of Justice, Office, and Office, Office, Office, Office, Office, and Office, Office, Office, Office, Office, Office, Office, Office, Office, Office. Office, Office, Office, Office, Office, Office, Office. General Election Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office. Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, General, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office, Office,
+────────────────────────────────────────────────────────────
+
+Peak GPU memory: 16775.4 MB

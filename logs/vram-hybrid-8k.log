@@ -1,0 +1,25 @@
+ Container srn-srn-run-da933af625b9 Creating 
+ Container srn-srn-run-da933af625b9 Created 
+Building model from configs/experiments/exp1-hybrid-8k-5090.yaml...
+  Model: SRN
+  Params: 176,155,072 total, 126,434,944 active/token
+
+  Forward pass (batch=2, seq_len=8192, precision=fp16)...
+  Backward pass...
+
+============================================================
+VRAM DRY-RUN RESULT: [PASS] ✓
+============================================================
+  Model type:     srn
+  Total params:    176,155,072
+  Active/token:    126,434,944
+  Precision:      fp16
+  Peak VRAM:         28250.7 MB
+  GPU total:         32107.9 MB
+  Headroom:               10%
+  Budget:            28897.1 MB
+  Utilization:          88.0%
+  Forward time:        314.5 ms
+  Backward time:       258.1 ms
+  Margin:              646.5 MB (2.0%)
+============================================================

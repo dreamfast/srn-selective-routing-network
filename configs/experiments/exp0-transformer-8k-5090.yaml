@@ -1,0 +1,37 @@
+# Exp0-T-8K: Transformer 8K context — 5090 VRAM test
+# Same architecture, just longer context window
+# For comparing VRAM against hybrid at 8K
+
+dataset_backend: memmap
+tokenizer_backend: bpe
+tokenizer_path: data/fineweb-edu/tokenizer.json
+tokenizer_vocab_size: 50257
+train_tokens_path: data/fineweb-edu/train_tokens.bin
+val_tokens_path: data/fineweb-edu/val_tokens.bin
+
+train:
+  seed: 42
+  model_type: dense
+  micro_batch: 1
+  accum_steps: 4
+  seq_len: 8192
+  max_steps: 500
+  warmup_steps: 50
+  max_lr: 0.0003
+  min_lr: 0.00003
+  weight_decay: 0.1
+  max_grad_norm: 1.0
+  precision: fp16
+  eval_interval: 100
+  eval_batches: 20
+  log_interval: 25
+  checkpoint_dir: checkpoints/exp0-transformer-8k-5090
+
+model:
+  max_seq_len: 32768
+  d_model: 896
+  n_layers: 16
+  n_heads: 16
+  d_ff: 3584
+  dropout: 0.1
+  bias: false

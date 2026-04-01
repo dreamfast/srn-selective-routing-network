@@ -1,0 +1,25 @@
+ Container srn-srn-run-206db905e453 Creating 
+ Container srn-srn-run-206db905e453 Created 
+Building model from configs/experiments/exp0-transformer-8k-5090.yaml...
+  Model: Dense GPT
+  Params: 228,590,208 total, 228,590,208 active/token
+
+  Forward pass (batch=1, seq_len=16384, precision=fp16)...
+  Backward pass...
+
+============================================================
+VRAM DRY-RUN RESULT: [PASS] ✓
+============================================================
+  Model type:     dense
+  Total params:    228,590,208
+  Active/token:    228,590,208
+  Precision:      fp16
+  Peak VRAM:         20428.4 MB
+  GPU total:         32107.9 MB
+  Headroom:               10%
+  Budget:            28897.1 MB
+  Utilization:          63.6%
+  Forward time:        264.0 ms
+  Backward time:       338.9 ms
+  Margin:             8468.7 MB (26.4%)
+============================================================
